@@ -78,7 +78,15 @@ fn refuses_an_escaping_path_before_writing_anything() {
 }
 
 #[test]
-fn reports_a_failed_write() {
+fn reports_a_directory_where_a_file_goes() {
+    let root = scratch("dir");
+    assert!(fs::create_dir_all(root.join(".github/workflows/ci.yml")).is_ok());
+    assert!(r#gen(&root, &two()).is_err());
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn reports_a_failed_parent_directory() {
     let root = scratch("blocked");
     assert!(fs::write(root.join(".github"), "a file, not a dir\n").is_ok());
     assert!(r#gen(&root, &two()).is_err());
