@@ -1,0 +1,13 @@
+format 1
+
+# Rows checked against kind update-pins, one shape or refusal per row.
+
+## workflows
+id|kind|systems|cache|args
+update-pins|update-pins|-|-|-
+pins-custom|update-pins|-|pr0d1r2|cron=0  5 * * 1, build=.#hk, token=PINS_TOKEN, timeout=45
+short-cron|update-pins|-|-|cron=50 6 * *
+odd-cron|update-pins|-|-|cron=50 6 * * ?
+dash-build|update-pins|-|-|build=-x
+bad-token|update-pins|-|-|token=1BAD
+two|update-pins|x86_64-linux, aarch64-linux|-|-

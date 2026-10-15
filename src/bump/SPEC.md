@@ -49,8 +49,8 @@ V26: bump kinds idempotent: branch exists → exit 0, ⊥ 2nd PR. ⊥ `cancel-in
 ## §T TASKS
 
 id|status|task|cites
-T22|.|kind `update-pins` (cron, per-job write perms, `actlith pin` + `gen` in branch, `token` arg; R5 limit in header comment)|V26,R5,`src/kind:V3`,`src/kind:V14`
-T23|.|kind `upstream` (`script` `cron` `branch-prefix` `token`)|V26,`src/kind:V3`,`src/kind:V14`
+T22|x|kind `update-pins` (cron, per-job write perms, `actlith pin` + `gen` in branch, `token` arg; R5 limit in header comment)|V26,R5,`src/kind:V3`,`src/kind:V14`
+T23|x|kind `upstream` (`script` `cron` `branch-prefix` `token`)|V26,`src/kind:V3`,`src/kind:V14`
 
 ## §B BUGS
 

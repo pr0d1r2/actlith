@@ -1,0 +1,12 @@
+format 1
+
+# Rows checked against kind upstream, one shape or refusal per row.
+
+## workflows
+id|kind|systems|cache|args
+upstream|upstream|-|-|script=scripts/bump-hk.sh
+up-custom|upstream|aarch64-linux|pr0d1r2|script=scripts/bump.sh, cron=15 */6 * * *, branch-prefix=bump/hk-, token=BUMP_TOKEN
+no-script|upstream|-|-|-
+bad-prefix|upstream|-|-|script=s.sh, branch-prefix=a b
+bad-script|upstream|-|-|script=$(x)
+bad-cron|upstream|-|-|script=s.sh, cron=daily
