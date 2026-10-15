@@ -13,6 +13,10 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/gen`: `gen` writes each rendered file under the root, only where
   its bytes differ; `gen --check` names each missing or stale file and
   writes nothing; a path leaving the root is refused (T24, V6).
+- `src/check`: totality over `.github/workflows/` and the bot config
+  files: an undeclared workflow, a hand-written path that is missing,
+  also generated or without a reason, and a bot file with no `## bots`
+  row each name the path and a fix (T25, V7, `src/bots` V38).
 - `src/render`: `.actlith` to the sorted file set `gen` writes: one
   `.github/workflows/<id>.yml` per row, each seeded script a rendered
   kind needs once, the `## bots` files; an unknown kind or system names

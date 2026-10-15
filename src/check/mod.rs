@@ -1,10 +1,40 @@
-//! `src/check`: `check`: every workflow file is generated or declared hand-written.
+//! `src/check`: `check`: every workflow file is generated or declared
+//! hand-written.
 //!
-//! Scaffold: the node's code lands here (`src/check` tasks). Each `use`
-//! line below is one build-order edge for `sherd wave` (src:C); the
-//! `expect` turns into a warning once the node uses them, and goes.
+//! Composition only (src C): the finding shape lives in `finding`, the
+//! one disk read in `listing`, the pure comparison in `totality` (V7,
+//! `src/bots:V38`).
+//!
+//! Until `src/cli` lands, the lib build sees the node as unused: dead code
+//! is `allow`ed, as in `src/registry`, and the re-exports `expect` it.
+#![cfg_attr(
+    not(test),
+    allow(dead_code, reason = "used by src/cli in a later wave")
+)]
 
-#![expect(unused_imports, reason = "scaffold: build-order edges")]
-
+// Build-order edges for `sherd wave` (src C), one per line; the
+// submodules use them.
+#[expect(unused_imports, reason = "build-order edge")]
 use crate::registry as _;
+#[expect(unused_imports, reason = "build-order edge")]
 use crate::render as _;
+
+mod finding;
+mod listing;
+mod totality;
+
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use finding::{Finding, Problem};
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use listing::listing;
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use totality::totality;
