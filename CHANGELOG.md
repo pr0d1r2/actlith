@@ -15,3 +15,5 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `.actlith` parser (`src/registry`): the `format` line and the
   `## workflows`, `## actions`, `## hand-written` and `## bots` rows,
   each error naming its line and a fix.
+- Seeded scripts `scripts/actlith/update-pins.sh`, `open-pr.sh` and
+  `verify-cache.sh`, embedded with the generated header (src/script T21).

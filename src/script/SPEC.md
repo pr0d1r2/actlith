@@ -43,7 +43,7 @@ V13: ∀ emitted `run:` = 1 line. logic > 1 cmd → seeded script `scripts/actli
 ## §T TASKS
 
 id|status|task|cites
-T21|.|`update-pins.sh` (update input, build, branch `pins/nixpkgs-<short>`, PR; idempotent) & `open-pr.sh`; bats tests FIRST (tdd-order mirror); embedded w/ header|V13,`src/yaml:V8`,`src/bump:V26`
+T21|x|`update-pins.sh` (update input, build, branch `pins/nixpkgs-<short>`, PR; idempotent) & `open-pr.sh`; bats tests FIRST (tdd-order mirror); embedded w/ header|V13,`src/yaml:V8`,`src/bump:V26`
 
 ## §B BUGS
 
