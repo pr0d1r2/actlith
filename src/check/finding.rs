@@ -28,23 +28,68 @@ pub(crate) struct Finding {
     pub(crate) problem: Problem,
 }
 
+/// `Undeclared`: what and fix.
+const UNDECLARED: (&str, &str) = (
+    "workflow file is neither generated nor listed hand-written",
+    "add a `## workflows` row that generates it, or a `## hand-written` \
+     row with a reason",
+);
+
+/// `Missing`: what and fix.
+const MISSING: (&str, &str) = (
+    "listed hand-written but the file is missing",
+    "restore the file, or drop its `## hand-written` row",
+);
+
+/// `AlsoRendered`: what and fix.
+const ALSO_RENDERED: (&str, &str) = (
+    "listed hand-written but also generated",
+    "drop its `## hand-written` row; a `## workflows` row owns it",
+);
+
+/// `NoReason`: what and fix.
+const NO_REASON: (&str, &str) = (
+    "hand-written row has an empty reason",
+    "say in the `## hand-written` reason cell why it is not generated",
+);
+
+/// `BotWithoutRow`: what and fix.
+const BOT_WITHOUT_ROW: (&str, &str) = (
+    "bot config file has no `## bots` row",
+    "add a `## bots` row for it, or delete the file",
+);
+
 impl Problem {
+    /// What is wrong and how to fix it, in words.
+    fn texts(self) -> (&'static str, &'static str) {
+        match self {
+            Self::Undeclared => UNDECLARED,
+            Self::Missing => MISSING,
+            Self::AlsoRendered => ALSO_RENDERED,
+            Self::NoReason => NO_REASON,
+            Self::BotWithoutRow => BOT_WITHOUT_ROW,
+        }
+    }
+
     /// What is wrong, in words.
     pub(crate) fn what(self) -> &'static str {
-        let _ = self;
-        ""
+        self.texts().0
     }
 
     /// How to fix it, in words.
     pub(crate) fn fix(self) -> &'static str {
-        let _ = self;
-        ""
+        self.texts().1
     }
 }
 
 impl fmt::Display for Finding {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.path)
+        write!(f, "{}", self.path)?;
+        if let Some(line) = self.line {
+            write!(f, " (.actlith line {line})")?;
+        }
+        let problem = self.problem;
+        write!(f, ": {}; fix: {}", problem.what(), problem.fix())
     }
 }
 

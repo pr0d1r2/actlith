@@ -65,9 +65,21 @@ fn an_undeclared_workflow_is_a_finding() {
 }
 
 #[test]
-fn a_non_workflow_file_in_the_directory_is_ignored() {
-    let listing = paths(&[".github/workflows/README.md"]);
+fn a_non_workflow_file_is_ignored() {
+    let listing = paths(&[
+        ".github/workflows/README.md",
+        ".github/workflows/deep/x.yml",
+        ".github/workflows/noext",
+        "README.md",
+    ]);
     assert_eq!(totality(&listing, &[], &[]), []);
+}
+
+#[test]
+fn the_extension_matches_in_any_case() {
+    let listing = paths(&[".github/workflows/CI.YML"]);
+    let want = [found(".github/workflows/CI.YML", None, Problem::Undeclared)];
+    assert_eq!(totality(&listing, &[], &[]), want);
 }
 
 #[test]
