@@ -15,8 +15,13 @@ fn scratch(name: &str) -> PathBuf {
 }
 
 fn git(repo: &Path, args: &[&str]) {
-    let _ = Command::new("git")
+    let mut command = Command::new("git");
+    for var in crate::io::GIT_REPO_VARS {
+        command.env_remove(var);
+    }
+    let _ = command
         .args(["-c", "user.name=t", "-c", "user.email=t@t"])
+        .args(["-c", "core.hooksPath=/dev/null"])
         .args(args)
         .current_dir(repo)
         .output();

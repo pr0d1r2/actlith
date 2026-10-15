@@ -13,8 +13,13 @@ fn scratch(name: &str) -> PathBuf {
 }
 
 fn git(repo: &Path, args: &[&str]) {
-    let _ = Command::new("git")
+    let mut command = Command::new("git");
+    for var in crate::io::GIT_REPO_VARS {
+        command.env_remove(var);
+    }
+    let _ = command
         .args(["-c", "user.name=t", "-c", "user.email=t@t"])
+        .args(["-c", "core.hooksPath=/dev/null"])
         .args(args)
         .current_dir(repo)
         .output();
@@ -63,4 +68,23 @@ fn message_reads_a_file_or_commit_editmsg() {
     let (code, why) = message(&repo, Some("gone")).err().unwrap_or_default();
     assert_eq!(code, 2);
     assert!(why.starts_with("no message file at"), "{why}");
+}
+
+#[test]
+fn a_scratch_repository_call_drops_the_hook_repository_variables() {
+    let cmd = super::command(Path::new("/tmp/elsewhere"), "git", &["status"]);
+    let removed: Vec<_> = cmd
+        .get_envs()
+        .filter(|(_, value)| value.is_none())
+        .map(|(key, _)| key.to_string_lossy().into_owned())
+        .collect();
+    for var in super::GIT_REPO_VARS {
+        assert!(removed.iter().any(|k| k == var), "{var} kept");
+    }
+}
+
+#[test]
+fn a_call_in_the_hooked_repository_keeps_its_variables() {
+    let cmd = super::command(Path::new("."), "git", &["status"]);
+    assert_eq!(cmd.get_envs().count(), 0);
 }

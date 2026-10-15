@@ -7,10 +7,11 @@ fn scratch(name: &str) -> PathBuf {
         .join(format!("actlith-dev-cli-{}-{name}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     let _ = std::fs::create_dir_all(&dir);
-    let _ = Command::new("git")
-        .args(["init", "-q"])
-        .current_dir(&dir)
-        .output();
+    let mut command = Command::new("git");
+    for var in crate::io::GIT_REPO_VARS {
+        command.env_remove(var);
+    }
+    let _ = command.args(["init", "-q"]).current_dir(&dir).output();
     dir
 }
 

@@ -28,10 +28,35 @@ pub(crate) fn run(
     Ok(String::from_utf8_lossy(&out.stdout).into_owned())
 }
 
+/// The variables git exports to hooks that pin a command to one
+/// repository. A hook runs this crate with them set; a call aimed at
+/// another directory (a scratch repository in tests) must drop them,
+/// or git acts on the hooked repository instead and re-enters its
+/// hooks, which forked without bound once (nix:B4).
+pub(crate) const GIT_REPO_VARS: [&str; 6] = [
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+];
+
+/// The command for `program` in `repo`, with the repository variables
+/// dropped unless `repo` is the current directory.
+pub(crate) fn command(repo: &Path, program: &str, args: &[&str]) -> Command {
+    let mut command = Command::new(program);
+    command.args(args).current_dir(repo);
+    if repo != Path::new(".") {
+        for var in GIT_REPO_VARS {
+            command.env_remove(var);
+        }
+    }
+    command
+}
+
 fn spawn(repo: &Path, program: &str, args: &[&str]) -> Result<Output, Failed> {
-    Command::new(program)
-        .args(args)
-        .current_dir(repo)
+    command(repo, program, args)
         .output()
         .map_err(|e| (2, format!("cannot run {program}: {e}")))
 }
