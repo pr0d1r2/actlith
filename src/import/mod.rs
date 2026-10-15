@@ -1,9 +1,35 @@
-//! `src/import`: `import`: an existing workflow becomes a `.actlith` row only on exact match.
+//! `src/import`: `import`: an existing workflow becomes a `.actlith` row
+//! only on exact match.
 //!
-//! Scaffold: the node's code lands here (`src/import` tasks). Each `use`
-//! line below is one build-order edge for `sherd wave` (src:C); the
-//! `expect` turns into a warning once the node uses them, and goes.
+//! Composition only (src C): the text is normalised in `normalise`, the
+//! row values it shows are read in `hints`, candidate rows built in
+//! `candidates`, each rendered and compared in `matcher`; a refusal is a
+//! `mismatch`. Dead code is `allow`ed until `src/cli` picks `import` up.
+#![cfg_attr(
+    not(test),
+    allow(dead_code, reason = "used by src/cli in a later wave")
+)]
 
-#![expect(unused_imports, reason = "scaffold: build-order edges")]
-
+// Build-order edges for `sherd wave` (src C), one per line; the
+// submodules use them.
+#[expect(unused_imports, reason = "build-order edge")]
+use crate::registry as _;
+#[expect(unused_imports, reason = "build-order edge")]
 use crate::render as _;
+
+mod candidates;
+mod hints;
+mod matcher;
+mod mismatch;
+mod normalise;
+
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use matcher::import;
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use mismatch::Mismatch;

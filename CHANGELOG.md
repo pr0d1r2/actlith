@@ -21,6 +21,10 @@ the bytes actlith emits for the same inputs is at least a minor version
   each workflow's kind, systems with runner labels, cache, pinned
   actions and secrets, the hand-written files and the GitHub Apps the
   `## bots` rows assume, all sorted (T28, V33).
+- `src/import`: a workflow file becomes a `## workflows` row only when
+  a kind's render of that row matches it after normalising comments
+  and whitespace; otherwise the first differing line and key of the
+  closest render are named (T26, V17).
 - `src/render`: `.actlith` to the sorted file set `gen` writes: one
   `.github/workflows/<id>.yml` per row, each seeded script a rendered
   kind needs once, the `## bots` files; an unknown kind or system names
