@@ -34,8 +34,15 @@ fn section(
 fn workflow(w: &Workflow) -> String {
     let cache = w.cache.as_deref().unwrap_or("-");
     let head = format!("  {}: kind {}, cache {cache}\n", w.id, w.kind);
-    let systems = w.systems.iter().map(|h| (h.system.clone(), h.runner));
-    let systems = systems.map(|(s, r)| format!("    system {s} on {r}\n"));
+    head + &details(w)
+}
+
+/// The workflow's systems, actions and secrets, a line each.
+fn details(w: &Workflow) -> String {
+    let systems = w
+        .systems
+        .iter()
+        .map(|h| format!("    system {} on {}\n", h.system, h.runner));
     let actions = w
         .actions
         .iter()
@@ -44,8 +51,7 @@ fn workflow(w: &Workflow) -> String {
         .secrets
         .iter()
         .map(|n| format!("    secret {}: {}\n", n.name, n.purpose));
-    let lines = systems.chain(actions).chain(secrets);
-    std::iter::once(head).chain(lines).collect()
+    systems.chain(actions).chain(secrets).collect()
 }
 
 fn manual(m: &Manual) -> String {

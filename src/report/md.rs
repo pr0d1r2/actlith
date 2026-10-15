@@ -1,7 +1,8 @@
 //! The report as Markdown tables, for a PR or an issue: workflows, then
 //! their actions and secrets, then hand-written files and bots.
 
-use super::model::{App, Manual, Report, Workflow};
+use super::model::{App, Manual, Need, Report, Workflow};
+use crate::pin::Uses;
 
 /// `report` as a Markdown page; `None.` for an empty table.
 pub(crate) fn md(report: &Report) -> String {
@@ -66,16 +67,14 @@ fn workflow(w: &Workflow) -> Vec<String> {
 }
 
 fn actions(w: &Workflow) -> Vec<Vec<String>> {
-    let row = |u: &crate::pin::Uses| {
+    let row = |u: &Uses| {
         vec![code(&w.id), code(&u.action), code(&u.version), code(&u.sha)]
     };
     w.actions.iter().map(row).collect()
 }
 
 fn secrets(w: &Workflow) -> Vec<Vec<String>> {
-    let row = |n: &super::model::Need| {
-        vec![code(&w.id), code(&n.name), n.purpose.to_owned()]
-    };
+    let row = |n: &Need| vec![code(&w.id), code(&n.name), n.purpose.to_owned()];
     w.secrets.iter().map(row).collect()
 }
 
