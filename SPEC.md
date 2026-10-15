@@ -107,7 +107,7 @@ id|status|task|cites
 T1|.|rename repo dir `actionlint` → `actlith` (user, outside session) before first push|V22
 T2|x|dev shell FIRST: flake on `nixpkgs-lock`, 4 systems, cachix `nixConfig`, fleet guardrail tools pinned by tag (same pins as congestimancer), Rust toolchain, `pklith` `lib.devShell` ∴ hooks install on shell entry once `hk.pkl` exists; `.envrc` `use flake`. ASK user reload|V19,V23
 T3|x|hk commit: `.pklith`, `pklith gen` → `hk.pklith.pkl`, seeded `hk.pkl`, vendored `pkl/`, tracked `.githooks/`; hooks live from this commit; REFUSE w/o hk|V19,V20
-T4|.|AFTER T8 (crate-free guardrails first): seed crate BY HAND, through live hooks: LICENSE (MIT), `.gitignore`, `Cargo.toml` (edition 2024, MSRV 1.95, lints, `unsafe_code = "forbid"`), `clippy.toml`, `rustfmt.toml`, `src/main.rs`, `src/lib.rs`, README stub, CHANGELOG + `changelog-touched` step; taplo, rustfmt, clippy steps|V19,V20,V22
+T4|x|AFTER T8 (crate-free guardrails first): seed crate BY HAND, through live hooks: LICENSE (MIT), `.gitignore`, `Cargo.toml` (edition 2024, MSRV 1.95, lints, `unsafe_code = "forbid"`), `clippy.toml`, `rustfmt.toml`, `src/main.rs`, `src/lib.rs`, README stub, CHANGELOG + `changelog-touched` step; taplo, rustfmt, clippy steps|V19,V20,V22
 T5|x|`commit-msg` step: `type(scope): claim` ≤72, body non-empty; `scripts/commit-msg.sh` until `actlith-dev` exists (T11), as pklith did|V20
 T6|x|crate-free pklith catalog checks via `pklith lay`, 1 commit each, planted violation each: hygiene set, ripsecrets, typos, editorconfig, no-local-paths, nixfmt, statix, deadnix, markdownlint, shellcheck (`.envrc`, `.githooks/*`)|V20,V23
 T7|x|spec gates: `mth fmt`/`mth check` on `SPEC.md`, `itok` + `.context-limits`, `sherd check`/`budget`|V20
