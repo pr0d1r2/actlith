@@ -159,3 +159,16 @@ actlith pin [--dry-run] # resolve action tags to commit SHAs (network, opt-in)
 12. Fleet rollout: dogfood on actlith and pklith first, then congestimancer,
     then the repositories with byte-identical copies. Never push to another
     repository without explicit approval.
+
+# Process
+
+Same as congestimancer:
+- Nix flake dev shell loaded with direnv. When the basic shell exists, ask me
+  to reload and continue the session.
+- Guardrails first, before product code, one check per commit, hooks live from
+  the commit that brings hk. When guardrails are ready, ask me to reload and
+  continue the session.
+- Work in TDD: RED, GREEN, REFACTOR cycles.
+- 1-to-1 unit coverage with floor and ceiling, aiming at 100%.
+- Specs in federated SPEC-DAG form; build in sherd waves with parallel
+  subagents once the spec has independent nodes.
