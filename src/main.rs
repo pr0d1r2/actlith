@@ -1,3 +1,6 @@
-//! The `actlith` command. A stub until the CLI lands (T13 onward).
+//! The `actlith` command. Dispatch only (src V1): every verb lives in
+//! `src/cli`.
 
-fn main() {}
+fn main() -> std::process::ExitCode {
+    actlith::actlith()
+}

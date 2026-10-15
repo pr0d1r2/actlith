@@ -10,6 +10,11 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Added
 
+- `src/cli`: the `actlith` command: `gen [--check]`, `check`, `detect`,
+  `seed --init`, `import FILE...`, `report [--format text|json|md]`,
+  `pin [--dry-run]`, `completions <shell>` and `man`, with `--root DIR`
+  and `--help` examples; exit 0 ok, 1 finding, 2 usage, unreadable input
+  or refused row, every diagnostic naming its fix (T30, V34).
 - `src/gen`: `gen` writes each rendered file under the root, only where
   its bytes differ; `gen --check` names each missing or stale file and
   writes nothing; a path leaving the root is refused (T24, V6).

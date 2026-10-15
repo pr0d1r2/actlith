@@ -22,3 +22,5 @@ mod report;
 mod script;
 mod system;
 mod yaml;
+
+pub use cli::actlith;

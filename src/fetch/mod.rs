@@ -32,18 +32,6 @@ mod section;
     expect(unused_imports, reason = "used by src/cli in a later wave")
 )]
 pub(crate) use error::FetchError;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use gh::Gh;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use pin::pin;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use resolver::Resolver;

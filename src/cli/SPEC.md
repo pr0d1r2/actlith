@@ -43,7 +43,7 @@ V34: exit 0 ok · 1 finding · 2 usage | unreadable | unknown kind/key/system | 
 ## §T TASKS
 
 id|status|task|cites
-T30|.|clap verbs `gen check detect seed import report pin completions man`; exit codes; `--help` w/ examples|V34,`.:I`
+T30|x|clap verbs `gen check detect seed import report pin completions man`; exit codes; `--help` w/ examples|V34,`.:I`
 
 ## §B BUGS
 

@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![edition 2024](https://img.shields.io/badge/edition-2024-000000?logo=rust&logoColor=white)](Cargo.toml)
 [![MSRV 1.95](https://img.shields.io/badge/MSRV-1.95-000000?logo=rust&logoColor=white)](Cargo.toml)
-[![direct dependencies 0](https://img.shields.io/badge/direct_dependencies-0-brightgreen)](docs/THIRD-PARTY-NOTICES.md)
+[![direct dependencies 3](https://img.shields.io/badge/direct_dependencies-3-brightgreen)](docs/THIRD-PARTY-NOTICES.md)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-brightgreen)](Cargo.toml)
 [![network actlith pin only](https://img.shields.io/badge/network-actlith_pin_only-brightgreen)](SPEC.md)
 
