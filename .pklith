@@ -27,6 +27,10 @@ rustdoc|lint|cargo|**/*.rs, Cargo.toml|cargo doc --workspace --no-deps --documen
 # release-time step, not a commit-time one.
 deny|supply|cargo-deny|Cargo.toml, Cargo.lock, deny.toml|cargo deny check --disable-fetch licenses bans sources|-|-|a license, ban or source rule failed
 tdd-order|coverage|-|**/*.rs, nix/guard/tdd-order.sh, nix/guard/tdd-order.exempt|bash nix/guard/tdd-order.sh|-|-|a commit adds Rust code with no test: commit before it in the push range
+# The registry judges itself, as in pklith and congestimancer: generated
+# steps match .pklith, and every tracked file type has a row.
+gen-check|gate|-|.pklith, hk.pklith.pkl, nix/pklith.nix|pklith gen --check|pklith gen|-|hk.pklith.pkl or nix/pklith.nix no longer matches .pklith; run pklith gen
+pklith-check|gate|-|-|pklith check|-|-|a tracked file type has no row in .pklith, a row matches nothing, or a claimed check never reaches its files
 # rekall: agent prose and the rules extracted from it (T8).
 rekall|lint|-|AGENTS.md, CLAUDE.md, rekall.toml|rekall check|-|-|agent prose drifted from the rules rekall extracted from it; run rekall scan and settle the drift
 # Generated docs, rendered by actlith-dev from the files that own their
@@ -45,7 +49,7 @@ gitattributes|-|-|written by pklith (seed or gen)
 md|markdownlint|-|-
 nix|nixfmt, statix, deadnix, xnl-check, xnl-lint|-|-
 path:**/SPEC.md|markdownlint, mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget, itok|-|-
-pklith|-|-|written by pklith (seed or gen)
+pklith|pklith-check, gen-check|-|-
 pkl|xnl-check, xnl-lint|-|-
 pre-commit|shellcheck, xnl-check, xnl-lint|-|-
 pre-push|shellcheck, xnl-check, xnl-lint|-|-
@@ -73,3 +77,4 @@ yml|actionlint, zizmor|-|-
 coverage|coverage|-|-
 path:tests/fixtures/**/*.actlith|-|-|src/registry test fixtures, some deliberately malformed; the registry tests read every one
 path:tests/fixtures/**/*.yml|yamllint|-|-
+path:tests/fixtures/**/*.lock|-|-|src/detect test fixtures: flake.lock samples read by its tests
