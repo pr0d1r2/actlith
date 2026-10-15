@@ -1,0 +1,9 @@
+format 1
+
+# Every v1 bot, in the order bot_files keeps.
+
+## bots
+bot|args
+coderabbit|central=pr0d1r2/coderabbit
+greptile|-
+socket|-

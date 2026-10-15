@@ -26,3 +26,6 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/detect`: proposed `## workflows` rows (`flake.nix` gives `ci|gate`,
   a `nixpkgs-lock` node in `flake.lock` gives `update-pins`) and
   `seed --init` writing the first `.actlith`, never over one (T27, V32).
+- `src/bots`: `.coderabbit.yaml` (remote config from a central repo,
+  inheritance on), `greptile.json` (skips release PRs) and `socket.yml`
+  from `## bots` rows; an unknown bot or arg names its line (T39).

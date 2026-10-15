@@ -78,3 +78,4 @@ coverage|coverage|-|-
 path:tests/fixtures/**/*.actlith|-|-|src/registry test fixtures, some deliberately malformed; the registry tests read every one
 path:tests/fixtures/**/*.yml|yamllint|-|-
 path:tests/fixtures/**/*.lock|-|-|src/detect test fixtures: flake.lock samples read by its tests
+json|-|-|greptile.json fixture, byte-checked by src/bots tests; a jq step is laid next
