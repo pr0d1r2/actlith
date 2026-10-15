@@ -141,10 +141,10 @@ fn an_unparsable_file_is_a_registry_error() {
 }
 
 #[test]
-fn a_refused_override_is_a_pin_error() {
+fn a_tag_in_place_of_a_sha_is_refused_unwritten() {
     let root = scratch("bad-sha", BAD_SHA);
     let got = pin(&root, false, &fake());
-    assert!(matches!(got, Err(FetchError::Pin(_))), "{got:?}");
+    assert!(matches!(got, Err(FetchError::Registry(_))), "{got:?}");
     assert_eq!(actlith(&root), BAD_SHA);
 }
 

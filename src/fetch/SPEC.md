@@ -48,7 +48,7 @@ V16: `pin` = sole networked path; writes only `## actions` of `.actlith`; `--dry
 ## §T TASKS
 
 id|status|task|cites
-T29|.|research client (`gh api` vs crate) → §R; `Resolver` + fake; `pin` + `--dry-run`|V16
+T29|x|research client (`gh api` vs crate) → §R; `Resolver` + fake; `pin` + `--dry-run`|V16
 
 ## §B BUGS
 

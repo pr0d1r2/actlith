@@ -30,8 +30,4 @@ pub(crate) use error::RegistryError;
 pub(crate) use model::{
     ActionPin, Arg, BotRow, HandWritten, Registry, WorkflowRow,
 };
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/render in a later wave")
-)]
 pub(crate) use parse::parse;

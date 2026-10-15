@@ -26,9 +26,5 @@ mod table;
 mod uses;
 
 pub(crate) use error::PinError;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/kind in a later wave")
-)]
 pub(crate) use table::PinTable;
 pub(crate) use uses::Uses;

@@ -28,10 +28,19 @@ pub(crate) trait Resolver {
 /// # Errors
 ///
 /// [`FetchError::Tag`] naming the action and tag.
-#[expect(clippy::unnecessary_wraps, reason = "RED stub")]
 pub(crate) fn checked_tag(action: &str, tag: &str) -> Result<(), FetchError> {
-    let _ = (action, tag);
-    Ok(())
+    let ok = |c: char| c.is_ascii_alphanumeric() || ".-_+/".contains(c);
+    let lead = tag
+        .chars()
+        .next()
+        .is_some_and(|c| c.is_ascii_alphanumeric());
+    if lead && tag.chars().all(ok) && !tag.contains("..") {
+        return Ok(());
+    }
+    Err(FetchError::Tag {
+        action: action.to_owned(),
+        tag: tag.to_owned(),
+    })
 }
 
 /// `got` when it is a full commit SHA: 40 lowercase hex digits (pin V2).
@@ -39,14 +48,21 @@ pub(crate) fn checked_tag(action: &str, tag: &str) -> Result<(), FetchError> {
 /// # Errors
 ///
 /// [`FetchError::Sha`] naming the action, tag and answer.
-#[expect(clippy::unnecessary_wraps, reason = "RED stub")]
 pub(crate) fn checked_sha(
     action: &str,
     tag: &str,
     got: &str,
 ) -> Result<String, FetchError> {
-    let _ = (action, tag);
-    Ok(got.to_owned())
+    let got = got.trim();
+    let hex = |c: char| c.is_ascii_digit() || ('a'..='f').contains(&c);
+    if got.len() == 40 && got.chars().all(hex) {
+        return Ok(got.to_owned());
+    }
+    Err(FetchError::Sha {
+        action: action.to_owned(),
+        tag: tag.to_owned(),
+        got: got.to_owned(),
+    })
 }
 
 #[cfg(test)]

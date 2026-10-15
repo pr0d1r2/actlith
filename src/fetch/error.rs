@@ -1,7 +1,7 @@
 //! Why `actlith pin` stopped (V16): the caller exits 2 with it.
 
 use std::fmt;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::pin::PinError;
 use crate::registry::RegistryError;
@@ -57,9 +57,59 @@ pub(crate) enum FetchError {
     },
 }
 
+impl FetchError {
+    /// What failed, naming the file, action, tag or answer.
+    fn what(&self) -> String {
+        match self {
+            Self::Read { path, why } => io("read", path, why),
+            Self::Write { path, why } => io("write", path, why),
+            Self::Registry(e) => e.to_string(),
+            Self::Pin(e) => e.to_string(),
+            Self::Action { action } => format!("`{action}` is not owner/repo"),
+            Self::Tag { action, tag } => {
+                format!("`{action}` tag `{tag}` unsafe")
+            }
+            Self::Sha { action, tag, got } => not_sha(action, tag, got),
+            Self::Api { action, why } => {
+                format!("`{action}` unresolved: {why}")
+            }
+        }
+    }
+
+    /// The fix line; registry and pin errors carry their own.
+    fn fix(&self) -> Option<&'static str> {
+        match self {
+            Self::Registry(_) | Self::Pin(_) => None,
+            Self::Read { .. } => {
+                Some("run in the repository root or pass --root")
+            }
+            Self::Write { .. } => Some("make `.actlith` writable"),
+            Self::Action { .. } => Some("write it as `owner/repo[/path]`"),
+            Self::Tag { .. } => {
+                Some("record a tag of letters, digits, `.-_+/`")
+            }
+            Self::Sha { .. } => Some("check that the tag exists on GitHub"),
+            Self::Api { .. } => Some("install `gh` and run `gh auth login`"),
+        }
+    }
+}
+
+/// The resolver's answer for `action@tag` is not a commit SHA.
+fn not_sha(action: &str, tag: &str, got: &str) -> String {
+    format!("`{action}@{tag}` gave `{got}`, not a commit SHA")
+}
+
+/// `cannot <verb> <path>: <why>`.
+fn io(verb: &str, path: &Path, why: &str) -> String {
+    format!("cannot {verb} {}: {why}", path.display())
+}
+
 impl fmt::Display for FetchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("")
+        match self.fix() {
+            Some(fix) => write!(f, "{}\n  fix: {fix}", self.what()),
+            None => f.write_str(&self.what()),
+        }
     }
 }
 
