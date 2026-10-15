@@ -6,13 +6,6 @@
     unused_imports,
     reason = "re-exported for src/render and the kind nodes in a later wave"
 )]
-#![cfg_attr(
-    not(test),
-    expect(
-        dead_code,
-        reason = "used by src/render and the kind nodes in a later wave"
-    )
-)]
 
 mod table;
 

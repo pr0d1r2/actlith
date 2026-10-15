@@ -7,3 +7,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 (SPEC.md V18), and its entry names the files consumers will see change.
 
 ## [Unreleased]
+
+### Added
+
+- `src/system`: nix system to GitHub-hosted runner table; `x86_64-darwin`
+  is refused, naming hand verification on an Intel Mac (T14).
