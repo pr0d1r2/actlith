@@ -23,3 +23,7 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/pin`: built-in pin table (checkout v7.0.1, install-nix-action
   v31.11.0, cachix-action v17) with `## actions` overrides; a non-SHA
   pin or an action without a pin is refused, naming it (T15).
+- `src/kind`: the `Kind` trait, arg schema check naming the row line,
+  and the hardened common parts every kind builds from (permissions,
+  concurrency, timeouts, checkout, install-nix, cachix, env-only `run:`);
+  no file is emitted yet (T17).

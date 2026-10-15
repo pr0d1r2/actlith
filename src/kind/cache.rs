@@ -18,7 +18,14 @@ pub(crate) struct Cache {
 impl Cache {
     /// The cache `name` of the row at `line`, or an error naming it.
     pub(crate) fn parse(line: usize, name: &str) -> Result<Self, KindError> {
-        Err(unknown(line, name))
+        let prefix = format!("{name}.cachix.org-1:");
+        KEYS.into_iter()
+            .find(|k| k.starts_with(&prefix))
+            .map(|key| Self {
+                name: name.to_owned(),
+                key,
+            })
+            .ok_or_else(|| unknown(line, name))
     }
 
     /// The cache name, as cachix-action's `name:` input.

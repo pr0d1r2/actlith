@@ -23,8 +23,8 @@ pub(crate) fn uses(
     action: &str,
     with: With,
 ) -> Result<Step, KindError> {
-    let _ = (pins, action, with);
-    Err(KindError::row(0, "stub", "stub"))
+    let pin = pins.uses(action)?;
+    Ok(step(Action::Uses(pin.step(with))))
 }
 
 #[cfg(test)]

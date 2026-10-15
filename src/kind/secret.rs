@@ -15,8 +15,15 @@ impl Secret {
     /// The secret `name`; `None` unless the name is letters, digits and
     /// `_`, not starting with a digit (GitHub's secret name rule).
     pub(crate) fn new(name: &str, purpose: &'static str) -> Option<Self> {
-        let _ = (name, purpose);
-        None
+        let word = |c: char| c.is_ascii_alphanumeric() || c == '_';
+        let first = name.chars().next().filter(|c| !c.is_ascii_digit());
+        let named = first.is_some() && name.chars().all(word);
+        let expr = Expr::new(&format!("secrets.{name}")).filter(|_| named)?;
+        Some(Self {
+            name: name.to_owned(),
+            purpose,
+            expr,
+        })
     }
 
     /// `CACHIX_AUTH_TOKEN`, read by a cachix step that pushes (`.:I`).
