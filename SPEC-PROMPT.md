@@ -135,3 +135,27 @@ actlith pin [--dry-run] # resolve action tags to commit SHAs (network, opt-in)
 6. Templates are Rust data (structs rendered by actlith's own YAML writer),
    not text templates with string substitution. Reason: a typed model cannot
    emit malformed YAML or an unquoted expression, and it can be tested 1-to-1.
+
+# Decisions, round 2 (2026-10-15): place next to pklith
+
+7. Division of labour: pklith owns the hk gate, actlith owns CI orchestration.
+   The `gate` kind runs the hk gate (`nix develop --command hk check --all
+   --check`) and holds no checks of its own, so CI and a laptop cannot
+   disagree. actlith never adds lint steps to workflows.
+8. pklith integration: pklith's catalog gets an `actlith-gen-check` row
+   (`actlith gen --check`) and the `.actlith` file type; actionlint and zizmor
+   rows stay where they are. pklith fragment detection activates actlith when
+   `.actlith` is tracked.
+9. Branch protection stays in `pklith protect`, which reads required
+   contexts from CI job names. actlith keeps job names stable across
+   versions (a rename is a breaking change) so protection does not break.
+10. Nix: `lib.devShell` is pklith's; actlith ships only `packages.<system>
+    .default` and is added through pklith's catalog `nix` column, not a
+    second dev shell builder.
+11. Dependencies minimal, as in pklith: each crate justified in the spec's
+    research section. YAML is written by actlith's own writer (decision 6).
+    `import` needs to read YAML: pick a maintained parser only after research,
+    or compare against rendered candidates if that is enough.
+12. Fleet rollout: dogfood on actlith and pklith first, then congestimancer,
+    then the repositories with byte-identical copies. Never push to another
+    repository without explicit approval.
