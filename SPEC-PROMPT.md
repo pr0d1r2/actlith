@@ -62,6 +62,13 @@ Local checkouts next to this repository, read-only:
 Conclusion: the variable part of a fleet workflow is a handful of values. The
 rest is shape, and shape should come from one place.
 
+# Workflow kinds
+
+Read `docs/KINDS.md` together with this file. It is the authoritative
+catalogue of workflow kinds, their triggers, permissions, jobs, steps and the
+row values each accepts. Where the config sketch below differs from it, the
+catalogue wins.
+
 # Config: `.actlith`
 
 The one file a repository writes. Same style as `.pklith`: a `format 1`
