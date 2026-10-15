@@ -1,0 +1,36 @@
+---
+# A hand-written gate: the shape of a render, with its own comments,
+# blank lines and pin comments. It imports as the row
+# lint|gate|aarch64-darwin, x86_64-linux|-|command=nix flake check
+# --all-systems, timeout=45
+name: lint
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true  # superseded runs stop
+
+permissions:
+  contents: read
+
+
+jobs:
+  gate:
+    name: gate
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # the semver step needs tags
+
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342  # pinned
+      - run: nix flake check --all-systems
