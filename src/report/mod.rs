@@ -26,6 +26,10 @@ use crate::kind as _;
 use crate::pin as _;
 #[expect(unused_imports, reason = "build-order edge")]
 use crate::registry as _;
+#[expect(unused_imports, reason = "build-order edge")]
+use crate::system as _;
+#[expect(unused_imports, reason = "build-order edge")]
+use crate::yaml as _;
 
 mod apps;
 mod collect;

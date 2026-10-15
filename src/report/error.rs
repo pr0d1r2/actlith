@@ -23,8 +23,11 @@ impl From<KindError> for ReportError {
 }
 
 impl fmt::Display for ReportError {
-    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Ok(())
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Row(error) => error.fmt(f),
+            Self::Kind(error) => error.fmt(f),
+        }
     }
 }
 

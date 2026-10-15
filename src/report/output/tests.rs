@@ -10,7 +10,53 @@ use crate::report::{Format, report};
 const ALL: &str = include_str!("../../../tests/fixtures/render/all.actlith");
 /// The golden text. Inline, not a fixture file: `.pklith` has no `txt`
 /// type, and `pklith check` refuses a tracked file type without one.
-const TEXT: &str = "workflows\n";
+const TEXT: &str = concat!(
+    "workflows\n",
+    "  build: kind build, cache pr0d1r2\n",
+    "    system x86_64-linux on ubuntu-latest\n",
+    "    system aarch64-linux on ubuntu-24.04-arm\n",
+    "    system aarch64-darwin on macos-latest\n",
+    "    action actions/checkout@\
+     3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1\n",
+    "    action cachix/cachix-action@\
+     5f2d7c5294214f71b873db4b969586b980625e71 v17\n",
+    "    action cachix/install-nix-action@\
+     630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0\n",
+    "    secret CACHIX_AUTH_TOKEN: cachix push\n",
+    "  ci: kind gate, cache pr0d1r2\n",
+    "    system x86_64-linux on ubuntu-latest\n",
+    "    system aarch64-linux on ubuntu-24.04-arm\n",
+    "    system aarch64-darwin on macos-latest\n",
+    "    action actions/checkout@\
+     3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1\n",
+    "    action cachix/cachix-action@\
+     5f2d7c5294214f71b873db4b969586b980625e71 v17\n",
+    "    action cachix/install-nix-action@\
+     630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0\n",
+    "    secret CACHIX_AUTH_TOKEN: cachix push\n",
+    "  update-pins: kind update-pins, cache -\n",
+    "    system x86_64-linux on ubuntu-latest\n",
+    "    action actions/checkout@\
+     3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1\n",
+    "    action cachix/install-nix-action@\
+     630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0\n",
+    "    secret GITHUB_TOKEN: push the bump branch and open its PR\n",
+    "  upstream: kind upstream, cache -\n",
+    "    system x86_64-linux on ubuntu-latest\n",
+    "    action actions/checkout@\
+     3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1\n",
+    "    action cachix/install-nix-action@\
+     630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0\n",
+    "    secret GITHUB_TOKEN: push the bump branch and open its PR\n",
+    "hand-written\n",
+    "  .github/workflows/release.yml: not a v1 kind yet\n",
+    "bots\n",
+    "  coderabbit: CodeRabbit; install the app; free tier per \
+     docs/SERVICES.md\n",
+    "  greptile: Greptile; install the app; free tier per \
+     docs/SERVICES.md\n",
+    "  socket: Socket; install the app; free tier per docs/SERVICES.md\n",
+);
 const JSON: &str = include_str!("../../../tests/fixtures/report/all.json");
 const MD: &str = include_str!("../../../tests/fixtures/report/all.md");
 

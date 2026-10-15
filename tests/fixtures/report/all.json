@@ -1,1 +1,170 @@
-{}
+{
+  "schema_version": 1,
+  "workflows": [
+    {
+      "id": "build",
+      "kind": "build",
+      "systems": [
+        {
+          "system": "x86_64-linux",
+          "runner": "ubuntu-latest"
+        },
+        {
+          "system": "aarch64-linux",
+          "runner": "ubuntu-24.04-arm"
+        },
+        {
+          "system": "aarch64-darwin",
+          "runner": "macos-latest"
+        }
+      ],
+      "cache": "pr0d1r2",
+      "actions": [
+        {
+          "action": "actions/checkout",
+          "version": "v7.0.1",
+          "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "action": "cachix/cachix-action",
+          "version": "v17",
+          "sha": "5f2d7c5294214f71b873db4b969586b980625e71"
+        },
+        {
+          "action": "cachix/install-nix-action",
+          "version": "v31.11.0",
+          "sha": "630ae543ea3a38a9a4166f03376c02c50f408342"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "CACHIX_AUTH_TOKEN",
+          "purpose": "cachix push"
+        }
+      ]
+    },
+    {
+      "id": "ci",
+      "kind": "gate",
+      "systems": [
+        {
+          "system": "x86_64-linux",
+          "runner": "ubuntu-latest"
+        },
+        {
+          "system": "aarch64-linux",
+          "runner": "ubuntu-24.04-arm"
+        },
+        {
+          "system": "aarch64-darwin",
+          "runner": "macos-latest"
+        }
+      ],
+      "cache": "pr0d1r2",
+      "actions": [
+        {
+          "action": "actions/checkout",
+          "version": "v7.0.1",
+          "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "action": "cachix/cachix-action",
+          "version": "v17",
+          "sha": "5f2d7c5294214f71b873db4b969586b980625e71"
+        },
+        {
+          "action": "cachix/install-nix-action",
+          "version": "v31.11.0",
+          "sha": "630ae543ea3a38a9a4166f03376c02c50f408342"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "CACHIX_AUTH_TOKEN",
+          "purpose": "cachix push"
+        }
+      ]
+    },
+    {
+      "id": "update-pins",
+      "kind": "update-pins",
+      "systems": [
+        {
+          "system": "x86_64-linux",
+          "runner": "ubuntu-latest"
+        }
+      ],
+      "cache": null,
+      "actions": [
+        {
+          "action": "actions/checkout",
+          "version": "v7.0.1",
+          "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "action": "cachix/install-nix-action",
+          "version": "v31.11.0",
+          "sha": "630ae543ea3a38a9a4166f03376c02c50f408342"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "GITHUB_TOKEN",
+          "purpose": "push the bump branch and open its PR"
+        }
+      ]
+    },
+    {
+      "id": "upstream",
+      "kind": "upstream",
+      "systems": [
+        {
+          "system": "x86_64-linux",
+          "runner": "ubuntu-latest"
+        }
+      ],
+      "cache": null,
+      "actions": [
+        {
+          "action": "actions/checkout",
+          "version": "v7.0.1",
+          "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1"
+        },
+        {
+          "action": "cachix/install-nix-action",
+          "version": "v31.11.0",
+          "sha": "630ae543ea3a38a9a4166f03376c02c50f408342"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "GITHUB_TOKEN",
+          "purpose": "push the bump branch and open its PR"
+        }
+      ]
+    }
+  ],
+  "hand_written": [
+    {
+      "path": ".github/workflows/release.yml",
+      "reason": "not a v1 kind yet"
+    }
+  ],
+  "bots": [
+    {
+      "bot": "coderabbit",
+      "app": "CodeRabbit",
+      "note": "install the app; free tier per docs/SERVICES.md"
+    },
+    {
+      "bot": "greptile",
+      "app": "Greptile",
+      "note": "install the app; free tier per docs/SERVICES.md"
+    },
+    {
+      "bot": "socket",
+      "app": "Socket",
+      "note": "install the app; free tier per docs/SERVICES.md"
+    }
+  ]
+}
