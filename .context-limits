@@ -12,7 +12,7 @@
 
 # Files
 SPEC.md                      2720
-nix/SPEC.md                  1670
+nix/SPEC.md                  2070
 src/SPEC.md                  1010
 src/bump/SPEC.md             990
 src/kind/SPEC.md             970

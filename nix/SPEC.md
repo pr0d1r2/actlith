@@ -31,6 +31,8 @@ V21: dogfood: own `ci.yml` hand-written until `gen` renders `gate`; then generat
 V23: ∀ dep justified in §R; ∀ tool in gate from nix-pinned package, ⊥ fetched at run time
 V27: §T rows stay in id order (microlith rule 14); a task that runs out of id order says `AFTER T<n>` in its text. ⊥ reorder rows to change run order
 V28: `tdd-order` exemptions ONLY for commits already made w/ ⊥ behaviour to pin (stub, scaffold, copied script predating the rule); full 40-char id + reason in `nix/guard/tdd-order.exempt` & a §B row each
+V39: ∀ child git a tool | test aims at a dir ≠ the hooked repo drops `GIT_DIR` `GIT_WORK_TREE` `GIT_INDEX_FILE` `GIT_OBJECT_DIRECTORY` `GIT_ALTERNATE_OBJECT_DIRECTORIES` `GIT_COMMON_DIR` & scratch repos run w/ `core.hooksPath=/dev/null`; ⊥ test spawns git that can reach this repo (as pklith V20)
+V40: parallel wave workers share ⊥ git state: pre-commit `stash = "none"` (refs/stash is shared by ∀ worktree); `core.worktree` ⊥ set in `.git/config` (shared) & a gate step refuses it; `test` ⊥ in pre-commit (RED must land; recursion surface)
 
 ## §T TASKS
 
@@ -47,6 +49,7 @@ T10|x|hand-written `.github/workflows/ci.yml` in pklith shape; `actionlint`, `zi
 T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
 T31|.|dogfood: generate own `ci.yml`, add `actlith gen --check` step in same commit|V21
 T32|.|nix package `packages.<system>.default` built & tested as built; `release.toml` + pre-release hook `hk check --all`|`.:V18`
+T41|.|guard step `no-core-worktree`: fail when `git config --local core.worktree` is set; lay via `pklith lay` w/ planted proof|V40
 
 ## §B BUGS
 
@@ -54,3 +57,5 @@ id|date|cause|fix
 B1|2026-10-15|§T rows reordered to run T4 after T8; microlith rule 14 rejects out-of-order ids, caught by `hk check --all` after `pklith lay` laid `mth-check`|V27
 B2|2026-10-15|crate seed `980b8db` added `src/lib.rs` & `src/main.rs` before `tdd-order` existed; both bodiless stubs ∴ ⊥ RED to write first|V28
 B3|2026-10-15|`scripts/commit-msg.sh` (`4c65434`) & `scripts/changelog-touched.sh` (`41868ca`) copied from pklith before `tdd-order` existed, ⊥ bats mirror; tested Rust port in `actlith-dev` (`dev:T11`) replaced them|V28
+B4|2026-10-15|actlith-dev tests ran git in scratch repos w/ the hook's `GIT_*` env under pre-commit `test` ∴ scratch commits re-entered this repo's hooks → 432 hk processes, fork failures|V39
+B5|2026-10-15|recursion's scratch `git init` wrote `core.worktree` into shared `.git/config` → ∀ worktree acted on 1 worker's checkout; hk `stash = "git"` popped files across worktrees; commit `ca6a49d` recorded a stale `src/bots/SPEC.md`|V40
