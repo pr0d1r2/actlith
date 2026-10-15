@@ -1,0 +1,6 @@
+# Commits exempt from tdd-order (V28): full id, then the reason. Only a
+# commit already made that cannot be rewritten belongs here, each with a
+# SPEC.md B row.
+980b8dbd8b05161c31730b15f28c46f39e5b7d97 crate seed by hand: lib.rs and main.rs are bodiless stubs, so there was no behaviour for a RED test to pin (B2)
+4c65434d9b8f3bdcf08c4a8f086b59fb17f584ba commit-msg script copied from pklith before tdd-order existed; its tested Rust port lands in actlith-dev (T11, B3)
+41868cafd71c90e79b166203707c9c930efc209e changelog-touched script copied from pklith before tdd-order existed; its tested Rust port lands in actlith-dev (T11, B3)
