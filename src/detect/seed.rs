@@ -2,9 +2,11 @@
 //! (detect V32).
 
 use std::fmt;
-use std::io;
+use std::fs::OpenOptions;
+use std::io::{self, Write as _};
 use std::path::{Path, PathBuf};
 
+use super::text::text;
 use crate::registry::WorkflowRow;
 
 /// The file `seed --init` writes under the root.
@@ -23,8 +25,10 @@ impl SeedError {
     /// The exit code `src/cli` returns: 1 finding, 2 unwritable (`.:I`).
     #[must_use]
     pub(crate) fn code(&self) -> u8 {
-        let _ = self;
-        0
+        match self {
+            Self::Exists(_) => 1,
+            Self::Write(..) => 2,
+        }
     }
 }
 
@@ -57,10 +61,18 @@ pub(crate) fn seed_init(
     rows: &[WorkflowRow],
 ) -> Result<PathBuf, SeedError> {
     let path = root.join(FILE);
-    if rows.is_empty() {
-        return Err(SeedError::Exists(path));
+    let written = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&path)
+        .and_then(|mut file| file.write_all(text(rows).as_bytes()));
+    match written {
+        Ok(()) => Ok(path),
+        Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
+            Err(SeedError::Exists(path))
+        }
+        Err(e) => Err(SeedError::Write(path, e)),
     }
-    Err(SeedError::Write(path, io::Error::other("stub")))
 }
 
 #[cfg(test)]

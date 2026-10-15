@@ -20,3 +20,6 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/yaml`: typed workflow model and own YAML writer with fixed key
   order and quoting, `|` and `>-` blocks and the generated header; no
   file is emitted yet (T16).
+- `src/detect`: proposed `## workflows` rows (`flake.nix` gives `ci|gate`,
+  a `nixpkgs-lock` node in `flake.lock` gives `update-pins`) and
+  `seed --init` writing the first `.actlith`, never over one (T27, V32).
