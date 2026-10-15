@@ -57,3 +57,4 @@ path:rekall.toml|taplo, rekall|-|-
 rs|rustfmt, clippy, rust-mirror, tdd-order, doctest, rustdoc|-|-
 LICENSE|-|-|license text, nothing to lint
 exempt|tdd-order|-|-
+yml|actionlint, zizmor|-|-
