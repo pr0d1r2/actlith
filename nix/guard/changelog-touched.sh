@@ -10,7 +10,7 @@
 # runs at commit-msg, because only the message says which kind a change
 # is: a test or refactor that edits a module's inline tests needs no entry.
 #
-#   scripts/changelog-touched.sh [MESSAGE_FILE]
+#   nix/guard/changelog-touched.sh [MESSAGE_FILE]
 #
 # The hook passes the file git gave it; by hand it defaults to git's
 # COMMIT_EDITMSG.

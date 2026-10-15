@@ -4,7 +4,7 @@
 # version; it moves into `actlith-dev` as tested Rust once that crate
 # exists (T11), as pklith's did.
 #
-#   scripts/commit-msg.sh [MESSAGE_FILE]
+#   nix/guard/commit-msg.sh [MESSAGE_FILE]
 #
 # The hook passes the file git gave it (MERGE_MSG on a merge); by hand it
 # defaults to git's COMMIT_EDITMSG.
