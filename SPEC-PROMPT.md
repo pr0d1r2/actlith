@@ -254,3 +254,8 @@ Same as congestimancer:
 18. Pin bumps: the `update-pins` kind runs `actlith pin` and `actlith gen`
     in its PR branch. One reviewed PR per morning carries the nixpkgs bump,
     action pin bumps and template changes together; no Dependabot.
+19. actlith version rollout: consumers take actlith as a flake input that
+    follows `nixpkgs-lock`. A new actlith release reaches a repository when its
+    `update-pins` run bumps the input and regenerates; no fleet-wide push
+    tool. Template changes therefore land per repository, reviewed, and a
+    repository can hold back by not merging.
