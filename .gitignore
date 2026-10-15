@@ -5,3 +5,4 @@
 .envrc.local
 .DS_Store
 *.profraw
+.claude/
