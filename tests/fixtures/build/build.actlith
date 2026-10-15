@@ -1,0 +1,7 @@
+format 1
+
+# The nix-hk shape: one package built on every default system.
+
+## workflows
+id|kind|systems|cache|args
+build|build|-|pr0d1r2|package=hk
