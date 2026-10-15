@@ -114,7 +114,7 @@ T6|x|crate-free pklith catalog checks via `pklith lay`, 1 commit each, planted v
 T7|x|spec gates: `mth fmt`/`mth check` on `SPEC.md`, `itok` + `.context-limits`, `sherd check`/`budget`|V20
 T8|x|`ctrm` (`.ctrm`), `rekall` (`AGENTS.md`), `xenolith` `xnl check`/`xnl lint` steps|V20
 T9|x|gate scripts under `nix/guard/` (as congestimancer); xenolith `rust-mirror` & `tdd-order` + `tdd-order.exempt`; doctest, rustdoc, `cargo deny` w/ fleet `deny.toml`. `test` (nextest) & coverage floor + `.coverage` ratchet ⊥ here: empty suite ∴ they land in T13 w/ first test|V20,V23,V28
-T10|.|hand-written `.github/workflows/ci.yml` in pklith shape (SHA pins); `actionlint` & `zizmor` steps|V20,V21
+T10|x|hand-written `.github/workflows/ci.yml` in pklith shape (SHA pins); `actionlint` & `zizmor` steps|V20,V21
 T11|.|`dev/` crate `actlith-dev`: README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V20
 T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
 T13|.|registry: parse `.actlith` (`format`, `## workflows`, `## actions`, `## hand-written`), fixtures 1-to-1; first `test:` commit ∴ lay `test` (nextest) & `coverage` (`sherd coverage`, `.coverage` floor)|V10,V11,V12,I.file
