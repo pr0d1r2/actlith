@@ -248,3 +248,9 @@ Same as congestimancer:
   bumped in the pin table instead (see decisions).
 - Differentiator: generated files are plain, local and readable, every value
   that may differ is named in `.actlith`, and the gate proves the files match.
+
+# Decisions, round 4 (2026-10-15)
+
+18. Pin bumps: the `update-pins` kind runs `actlith pin` and `actlith gen`
+    in its PR branch. One reviewed PR per morning carries the nixpkgs bump,
+    action pin bumps and template changes together; no Dependabot.
