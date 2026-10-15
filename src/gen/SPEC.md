@@ -43,7 +43,7 @@ V6: `gen --check` writes ⊥; ∃ stale | missing generated file → exit 1 nami
 ## §T TASKS
 
 id|status|task|cites
-T24|.|`gen` + `gen --check` over a temp root fixture|V6,`.:V1`
+T24|x|`gen` + `gen --check` over a temp root fixture|V6,`.:V1`
 
 ## §B BUGS
 

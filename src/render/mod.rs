@@ -27,10 +27,6 @@ mod error;
 mod files;
 mod kinds;
 
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/gen in a later wave")
-)]
 pub(crate) use crate::bots::File;
 #[cfg_attr(
     not(test),

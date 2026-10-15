@@ -1,9 +1,33 @@
-//! `src/gen`: `gen` writes rendered files; `gen --check` proves they are current.
+//! `src/gen`: `gen` writes rendered files; `gen --check` proves they are
+//! current.
 //!
-//! Scaffold: the node's code lands here (`src/gen` tasks). Each `use`
-//! line below is one build-order edge for `sherd wave` (src:C); the
-//! `expect` turns into a warning once the node uses them, and goes.
+//! Composition only (src C): where a rendered path lands under the root
+//! lives in `target`, the write in `write`, the compare in `stale`. The
+//! only node besides `pin` that writes files, and only rendered paths
+//! under the root (gen C).
+//!
+//! Until `src/cli` lands, the lib build sees the node as unused: dead code
+//! is `allow`ed and the re-exports `expect` it.
+#![cfg_attr(
+    not(test),
+    allow(dead_code, reason = "used by src/cli in a later wave")
+)]
 
-#![expect(unused_imports, reason = "scaffold: build-order edges")]
-
+// Build-order edge for `sherd wave` (src C); the submodules use it.
+#[expect(unused_imports, reason = "build-order edge")]
 use crate::render as _;
+
+mod stale;
+mod target;
+mod write;
+
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use stale::{Stale, check};
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use write::r#gen;
