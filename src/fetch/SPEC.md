@@ -34,7 +34,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- trait `Resolver { fn sha(&self, action, tag) -> Result<String, FetchError> }`; `pin(root, dry_run)` rewrites `## actions` only.
+- trait `Resolver { latest(action) -> Result<Option<String>>, sha(action, tag) -> Result<String> }` (latest release tag; ⊥ release → keep recorded version); `pin(root, dry_run, &dyn Resolver) -> Result<String, FetchError>` rewrites `## actions` only, returns the rows (`src/cli` prints).
 
 ## §R RESEARCH
 

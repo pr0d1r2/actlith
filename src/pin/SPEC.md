@@ -41,6 +41,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 id|topic|finding|src
 R2|pin drift|older copies pin by tag (`actions/checkout@v4`, `cachix/install-nix-action@v27`); nix-hk `update-pins`/`build`/`upstream` still `@v5`/`@v31`/`@v16`; newest pin SHA + `# vX.Y.Z`. zizmor flags tag pins|`.:R1` reading
+R15|floating tags|`cachix/cachix-action` `v17` = floating major tag: 2026-10-15 at `38b0826`, 6 commits ahead of pinned `5f2d7c5` on master (ancestor, ⊥ rewrite) ∴ SHA pins stay put until a reviewed `actlith pin` run moves them|`gh api repos/cachix/cachix-action/compare/5f2d7c5...38b0826`
 
 ## §V INVARIANTS
 
@@ -50,6 +51,7 @@ V2: ∀ emitted `uses:` = `owner/repo@<40-hex sha>  # <version>`; sha from pin t
 
 id|status|task|cites
 T15|x|built-in pins (checkout v7.0.1, install-nix-action v31.11.0, cachix-action v17), override merge, 40-hex check; missing pin → error naming action|V2
+T45|.|`PinTable::actions()` lists built-in actions ∴ `src/fetch` drops its duplicate name list|V2
 
 ## §B BUGS
 

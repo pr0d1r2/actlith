@@ -16,7 +16,7 @@ nix/SPEC.md                  2280
 src/SPEC.md                  1010
 src/bump/SPEC.md             990
 src/kind/SPEC.md             1170
-src/pin/SPEC.md              930
+src/pin/SPEC.md              1120
 src/registry/SPEC.md         930
 src/bots/SPEC.md             1690
 src/build/SPEC.md            860
@@ -26,7 +26,7 @@ src/gate/SPEC.md             780
 src/script/SPEC.md           880
 src/render/SPEC.md           730
 src/import/SPEC.md           730
-src/fetch/SPEC.md            720
+src/fetch/SPEC.md            850
 src/detect/SPEC.md           800
 src/check/SPEC.md            690
 src/gen/SPEC.md              690
