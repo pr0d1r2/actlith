@@ -15,3 +15,12 @@ indent_style = tab
 [*.sh]
 indent_size = 2
 switch_case_indent = false
+
+# The extension-less hook shims and .envrc are shell too.
+[.githooks/*]
+indent_size = 2
+switch_case_indent = false
+
+[.envrc]
+indent_size = 2
+switch_case_indent = false
