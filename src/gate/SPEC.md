@@ -43,7 +43,7 @@ V29: `gate` render of actlith's own row == this repo's hand-written `.github/wor
 ## §T TASKS
 
 id|status|task|cites
-T19|.|kind `gate` + golden vs own `ci.yml`|V29,`src/kind:V3`,`src/kind:V9`
+T19|x|kind `gate` + golden vs own `ci.yml`|V29,`src/kind:V3`,`src/kind:V9`
 
 ## §B BUGS
 

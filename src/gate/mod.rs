@@ -1,9 +1,17 @@
-//! `src/gate`: kind `gate`: the hk gate on every CI system (fleet `ci.yml`).
+//! `src/gate`: kind `gate`: the hk gate on every CI system (fleet
+//! `ci.yml`).
 //!
-//! Scaffold: the node's code lands here (`src/gate` tasks). Each `use`
-//! line below is one build-order edge for `sherd wave` (src:C); the
-//! `expect` turns into a warning once the node uses them, and goes.
+//! Composition only (src C): the kind lives in `shape`. Dead code is
+//! `allow`ed until `src/render` picks the kind up.
+#![cfg_attr(
+    not(test),
+    allow(dead_code, reason = "used by src/render in a later wave")
+)]
+#![allow(unused_imports, reason = "re-exported for src/render in a later wave")]
 
-#![expect(unused_imports, reason = "scaffold: build-order edges")]
-
+// Build-order edges for `sherd wave` (src C), one per line.
 use crate::kind as _;
+
+mod shape;
+
+pub(crate) use shape::Gate;
