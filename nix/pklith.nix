@@ -11,6 +11,7 @@ catalog: [
   catalog.editorconfig-checker
   catalog.gnugrep
   catalog.itok
+  catalog.jq
   catalog.markdownlint-cli
   catalog.microlith
   catalog.nixfmt

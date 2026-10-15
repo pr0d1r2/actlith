@@ -31,6 +31,8 @@ tdd-order|coverage|-|**/*.rs, nix/guard/tdd-order.sh, nix/guard/tdd-order.exempt
 # steps match .pklith, and every tracked file type has a row.
 gen-check|gate|-|.pklith, hk.pklith.pkl, nix/pklith.nix|pklith gen --check|pklith gen|-|hk.pklith.pkl or nix/pklith.nix no longer matches .pklith; run pklith gen
 pklith-check|gate|-|-|pklith check|-|-|a tracked file type has no row in .pklith, a row matches nothing, or a claimed check never reaches its files
+# JSON is parsed by jq; not in pklith's catalog (greptile.json from src/bots).
+json|lint|jq|**/*.json|jq -e . {{files}} >/dev/null|-|-|a JSON file does not parse
 # rekall: agent prose and the rules extracted from it (T8).
 rekall|lint|-|AGENTS.md, CLAUDE.md, rekall.toml|rekall check|-|-|agent prose drifted from the rules rekall extracted from it; run rekall scan and settle the drift
 # Generated docs, rendered by actlith-dev from the files that own their
@@ -78,4 +80,4 @@ coverage|coverage|-|-
 path:tests/fixtures/**/*.actlith|-|-|src/registry test fixtures, some deliberately malformed; the registry tests read every one
 path:tests/fixtures/**/*.yml|yamllint|-|-
 path:tests/fixtures/**/*.lock|-|-|src/detect test fixtures: flake.lock samples read by its tests
-json|-|-|greptile.json fixture, byte-checked by src/bots tests; a jq step is laid next
+json|json|-|-
