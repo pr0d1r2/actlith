@@ -14,7 +14,7 @@
 SPEC.md                      2720
 nix/SPEC.md                  2280
 src/SPEC.md                  1010
-src/bump/SPEC.md             990
+src/bump/SPEC.md             1130
 src/kind/SPEC.md             1170
 src/pin/SPEC.md              1120
 src/registry/SPEC.md         930
@@ -33,7 +33,7 @@ src/gen/SPEC.md              690
 src/cli/SPEC.md              670
 src/report/SPEC.md           640
 tests/SPEC.md                460
-dev/SPEC.md                  400
+dev/SPEC.md                  460
 
 # Chains
 dev                          2510

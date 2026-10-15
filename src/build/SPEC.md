@@ -44,6 +44,7 @@ R4|cachix silent fail|cachix push failure logs ⊥ fails job (403 → green over
 ## §V INVARIANTS
 
 V30: `verify-cache` asks the cache for ∀ built system's output path & fails on ≠ 200; its logic is a seeded script (`src/script`), ⊥ inline shell
+V46: a `build` row ! name a cache (`verify-cache` has nothing to ask w/o one) & `package` ∈ `[A-Za-z_][A-Za-z0-9_-]*` (pasted into `run:`); else exit 2 naming the row
 
 ## §T TASKS
 

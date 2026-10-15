@@ -45,6 +45,7 @@ R5|token limit|PR opened w/ `GITHUB_TOKEN` ⊥ triggers other workflows ∴ gate
 ## §V INVARIANTS
 
 V26: bump kinds idempotent: branch exists → exit 0, ⊥ 2nd PR. ⊥ `cancel-in-progress` (half-pushed branch)
+V47: `update-pins` runs `nix develop --command bash scripts/actlith/update-pins.sh` ∴ the consumer dev shell ! provide `actlith` (pklith catalog row, root T35); `upstream` runs the repo `script` as `./<script>` ∴ executable w/ shebang; `cron` ⊥ comma lists (registry splits args on `,`)
 
 ## §T TASKS
 
