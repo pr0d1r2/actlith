@@ -1,0 +1,12 @@
+format 1
+
+# Rows `build` refuses, one reason per row, and one it takes.
+
+## workflows
+id|kind|systems|cache|args
+nocache|build|-|-|package=hk
+nopackage|build|-|pr0d1r2|-
+spliced|build|-|pr0d1r2|package=hk;rm
+digit|build|-|pr0d1r2|package=1hk
+slow|build|-|pr0d1r2|package=hk, timeout=999
+fine|build|-|pr0d1r2|package=nix-hk_2

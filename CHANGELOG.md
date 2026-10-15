@@ -39,3 +39,7 @@ the bytes actlith emits for the same inputs is at least a minor version
 - Kind `gate` (`src/gate`): the hk gate per system, job `gate`, args
   `command` and `timeout`; actlith's own row renders this repository's
   `ci.yml` byte for byte; no file is emitted yet (T19, V29).
+- `src/build`: kind `build` with jobs `build` (matrix per system, push
+  only from `main`), `check` (`nix flake check --all-systems` plus
+  eval-only systems) and `verify-cache` (runs the seeded
+  `verify-cache.sh`); no file is emitted yet (T20, V30).

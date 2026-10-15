@@ -1,0 +1,7 @@
+format 1
+
+# Two systems picked by hand and a longer timeout.
+
+## workflows
+id|kind|systems|cache|args
+release-build|build|aarch64-darwin, x86_64-linux|pr0d1r2|package=actlith, timeout=60
