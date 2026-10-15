@@ -15,15 +15,9 @@ hooks {
     // (nix:B5). hk 1.58.1 keeps patch files outside the git dir too (fixed
     // upstream in jdx/hk#1705), so "patch-file" is no safer yet.
     stash = "none"
-    // `test` runs at pre-push and in `check`, not here: a RED commit must
-    // land with failing tests (TDD), as in congestimancer.
-    steps {
-      for (id, step in generated.steps) {
-        when (id != "test") {
-          [id] = step
-        }
-      }
-    }
+    // `test` is in the push set (category coverage in .pklith), not here: a
+    // RED commit must land with failing tests (TDD), as in congestimancer.
+    steps = generated.steps
   }
   // T5: subject `type(scope): claim`, at most 72 characters, a body that
   // says why. hk passes the file git gave the hook (MERGE_MSG on a merge).

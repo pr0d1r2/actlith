@@ -162,10 +162,6 @@ steps: Mapping<String, Config.Step> = new {
     glob = List("**/*", ".context-limits")
     check = "command -v itok >/dev/null 2>&1 || { echo 'itok: itok is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; itok check || { echo 'itok: a file registered in .context-limits is over its token ceiling' >&2; exit 1; }"
   }
-  ["test"] {
-    glob = List("**/*.rs", "Cargo.toml", "Cargo.lock")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'test: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v cargo-nextest >/dev/null 2>&1 || { echo 'test: cargo-nextest is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo nextest run --workspace --no-fail-fast --status-level fail --final-status-level fail || { echo 'test: a test failed, or the suite is empty' >&2; exit 1; }"
-  }
   ["doctest"] {
     glob = List("**/*.rs", "Cargo.toml")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'doctest: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo test --doc -q || { echo 'doctest: a doc example failed' >&2; exit 1; }"
@@ -177,6 +173,10 @@ steps: Mapping<String, Config.Step> = new {
 }
 
 push: Mapping<String, Config.Step> = new {
+  ["test"] {
+    glob = List("**/*.rs", "Cargo.toml", "Cargo.lock")
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'test: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v cargo-nextest >/dev/null 2>&1 || { echo 'test: cargo-nextest is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo nextest run --workspace --no-fail-fast --status-level fail --final-status-level fail || { echo 'test: a test failed, or the suite is empty' >&2; exit 1; }"
+  }
   ["coverage"] {
     glob = List("**/*.rs", "Cargo.toml", ".coverage")
     check = "command -v sherd >/dev/null 2>&1 || { echo 'coverage: sherd is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; sherd coverage --check || { echo 'coverage: line coverage fell below .coverage' >&2; exit 1; }"

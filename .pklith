@@ -19,7 +19,7 @@ xnl-check|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl check {{files}}|-|-
 xnl-lint|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl lint {{files}}|xnl lint --fix {{files}}|-|an embedded or extracted program fails its own language's linter
 # xenolith's Rust guards, copied as congestimancer does (T9).
 rust-mirror|lint|-|**/*.rs, nix/guard/rust-mirror.sh|bash nix/guard/rust-mirror.sh|-|-|a Rust file with logic has no sibling tests.rs wired by #[cfg(test)] mod tests;
-test|test|cargo-nextest|**/*.rs, Cargo.toml, Cargo.lock|cargo nextest run --workspace --no-fail-fast --status-level fail --final-status-level fail|-|-|a test failed, or the suite is empty
+test|coverage|cargo-nextest|**/*.rs, Cargo.toml, Cargo.lock|cargo nextest run --workspace --no-fail-fast --status-level fail --final-status-level fail|-|-|a test failed, or the suite is empty
 coverage|coverage|sherd|**/*.rs, Cargo.toml, .coverage|sherd coverage --check|-|-|line coverage fell below .coverage
 doctest|test|cargo|**/*.rs, Cargo.toml|cargo test --doc -q|-|-|a doc example failed
 rustdoc|lint|cargo|**/*.rs, Cargo.toml|cargo doc --workspace --no-deps --document-private-items -q|-|RUSTDOCFLAGS=-D warnings|docs do not build cleanly
