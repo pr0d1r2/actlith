@@ -47,7 +47,7 @@ V14: ∀ kind declares ∀ secret it reads; `report` lists them per workflow. fo
 ## §T TASKS
 
 id|status|task|cites
-T17|.|`Kind` trait, arg schema & parse, common parts (permissions, concurrency, timeouts, checkout, install-nix, cachix, env-only expressions); tests per part|V3,V14,`src/registry:V10`
+T17|x|`Kind` trait, arg schema & parse, common parts (permissions, concurrency, timeouts, checkout, install-nix, cachix, env-only expressions); tests per part|V3,V14,`src/registry:V10`
 
 ## §B BUGS
 

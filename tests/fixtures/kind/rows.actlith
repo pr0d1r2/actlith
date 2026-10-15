@@ -1,0 +1,13 @@
+format 1
+
+# Rows checked against a probe kind, one shape or refusal per row.
+
+## workflows
+id|kind|systems|cache|args
+plain|probe|-|-|-
+picked|probe|aarch64-darwin, x86_64-linux|pr0d1r2|timeout=45
+intel|probe|x86_64-darwin|-|-
+riscv|probe|riscv64-linux|-|-
+twice|probe|x86_64-linux, x86_64-linux|-|-
+stranger|probe|-|nix-community|-
+extra|probe|-|-|colour=blue

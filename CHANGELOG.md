@@ -29,3 +29,7 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/bots`: `.coderabbit.yaml` (remote config from a central repo,
   inheritance on), `greptile.json` (skips release PRs) and `socket.yml`
   from `## bots` rows; an unknown bot or arg names its line (T39).
+- `src/kind`: the `Kind` trait, arg schema check naming the row line,
+  and the hardened common parts every kind builds from (permissions,
+  concurrency, timeouts, checkout, install-nix, cachix, env-only `run:`);
+  no file is emitted yet (T17).

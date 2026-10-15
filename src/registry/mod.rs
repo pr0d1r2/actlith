@@ -22,10 +22,6 @@ mod parse;
 mod rows;
 mod table;
 
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/render in a later wave")
-)]
 pub(crate) use error::RegistryError;
 #[cfg_attr(
     not(test),
