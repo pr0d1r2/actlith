@@ -18,7 +18,7 @@ src/bump/SPEC.md             990
 src/kind/SPEC.md             970
 src/pin/SPEC.md              930
 src/registry/SPEC.md         930
-src/bots/SPEC.md             1430
+src/bots/SPEC.md             1690
 src/build/SPEC.md            860
 src/system/SPEC.md           830
 src/yaml/SPEC.md             820

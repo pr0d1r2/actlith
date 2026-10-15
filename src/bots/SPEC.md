@@ -31,6 +31,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §C CONSTRAINTS
 
 - writes CONFIG FILES only. installing a bot's GitHub App = account action by the user, ⊥ actlith; `report` lists which apps a repo's rows assume.
+- cost rule (user, 2026-10-15): free tier wherever one exists; paid only when ⊥ free option, & then the SMALLEST plan w/ small amounts. ∴ coderabbit, socket, greptile on free tiers (greptile Starter 1 dev, + OSS application); bugbot only via Cursor Premium $30/mo = smallest paid ∴ ⊥ v1 unless user opts in (R12).
 - v1 bots: `coderabbit` (`.coderabbit.yaml` stub w/ `remote_config` → central repo, `inheritance: true`), `greptile` (`greptile.json`: `disabledLabels`, `ignoreKeywords` skip release PRs; free Starter = 1 dev), `socket` (`socket.yml`, optional). app-only bots (Cursor Bugbot) & unpriced ones (Entire) ⊥ v1 (R12).
 - same rules as workflows: generated header (where the format has comments), drift via `gen --check`, totality via `check` (bot file present w/o row → finding).
 
@@ -56,7 +57,7 @@ V38: bot files rendered only for `## bots` rows; ∀ bot file in the repo ⊥ ba
 
 id|status|task|cites
 T39|.|`## bots` rows (`src/registry`), `coderabbit`, `greptile`, `socket` files; render adds them; golden files|V38,`.:V1`
-T40|.|central `coderabbit` config repo for the fleet + Greptile OSS application ! user action & approval; actlith only writes stubs|V38,R10,R12
+T40|.|central `coderabbit` config repo for the fleet; install CodeRabbit, Socket, Greptile apps on FREE tiers; Greptile OSS application; any paid plan = smallest one, ! user action & approval; actlith only writes stubs|V38,R10,R12
 
 ## §B BUGS
 
