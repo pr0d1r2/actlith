@@ -100,6 +100,7 @@ V24: new kind only when ≥2 fleet repos share shape; until then `## hand-writte
 V25: nothing deferred: ∀ kind ∈ `docs/KINDS.md` ! §V coverage & §T row. doc ≠ spec = bug
 V26: bump kinds (`update-pins`, `upstream`) idempotent: branch exists → exit 0, ⊥ 2nd PR. ⊥ `cancel-in-progress` (half-pushed branch)
 V27: §T rows stay in id order (mth V14); a task that runs out of id order says `AFTER T<n>` in its text. ⊥ reorder rows to change run order
+V28: `tdd-order` exemptions ONLY for commits already made w/ ⊥ behaviour to pin (stub, copied script predating the rule); full 40-char id + reason in `nix/guard/tdd-order.exempt` & a §B row each
 
 ## §T TASKS
 
@@ -112,11 +113,11 @@ T5|x|`commit-msg` step: `type(scope): claim` ≤72, body non-empty; `scripts/com
 T6|x|crate-free pklith catalog checks via `pklith lay`, 1 commit each, planted violation each: hygiene set, ripsecrets, typos, editorconfig, no-local-paths, nixfmt, statix, deadnix, markdownlint, shellcheck (`.envrc`, `.githooks/*`)|V20,V23
 T7|x|spec gates: `mth fmt`/`mth check` on `SPEC.md`, `itok` + `.context-limits`, `sherd check`/`budget`|V20
 T8|x|`ctrm` (`.ctrm`), `rekall` (`AGENTS.md`), `xenolith` `xnl check`/`xnl lint` steps|V20
-T9|.|xenolith `rust-mirror` & `tdd-order` (need Rust); test (nextest), doctest, rustdoc, coverage floor + `.coverage` ratchet, `cargo deny` w/ fleet `deny.toml`|V20,V23
+T9|.|gate scripts under `nix/guard/` (as congestimancer); xenolith `rust-mirror` & `tdd-order` + `tdd-order.exempt`; doctest, rustdoc, `cargo deny` w/ fleet `deny.toml`. `test` (nextest) & coverage floor + `.coverage` ratchet ⊥ here: empty suite ∴ they land in T13 w/ first test|V20,V23,V28
 T10|.|hand-written `.github/workflows/ci.yml` in pklith shape (SHA pins); `actionlint` & `zizmor` steps|V20,V21
 T11|.|`dev/` crate `actlith-dev`: README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V20
 T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
-T13|.|registry: parse `.actlith` (`format`, `## workflows`, `## actions`, `## hand-written`), fixtures 1-to-1|V10,V11,V12,I.file
+T13|.|registry: parse `.actlith` (`format`, `## workflows`, `## actions`, `## hand-written`), fixtures 1-to-1; first `test:` commit ∴ lay `test` (nextest) & `coverage` (`sherd coverage`, `.coverage` floor)|V10,V11,V12,I.file
 T14|.|system → runner table; refuse `x86_64-darwin`|V15,V10,I.runners
 T15|.|pin table: built-in, overridden by `## actions`; missing pin → exit 2|V2
 T16|.|workflow model + YAML writer: fixed order & quoting, header, comments; golden bytes tests|V1,V5,V8
@@ -146,3 +147,5 @@ T37|.|fleet rollout: pklith, congestimancer, then byte-identical `ci.yml` groups
 
 id|date|cause|fix
 B1|2026-10-15|§T rows reordered to run T4 after T8; mth V14 rejects out-of-order ids, caught by `hk check --all` after `pklith lay` laid `mth-check`|V27
+B2|2026-10-15|crate seed `980b8db` added `src/lib.rs` & `src/main.rs` before `tdd-order` existed; both bodiless stubs ∴ ⊥ RED to write first|V28
+B3|2026-10-15|`scripts/commit-msg.sh` (`4c65434`) & `scripts/changelog-touched.sh` (`41868ca`) copied from pklith before `tdd-order` existed, ⊥ bats mirror; tested Rust port in `actlith-dev` (T11) replaces them|V28,T11
