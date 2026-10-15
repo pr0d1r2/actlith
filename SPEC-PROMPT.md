@@ -38,3 +38,26 @@ decided something, reuse the decision unless this file says otherwise.
   - `runlith`: taken on npm; GitHub user `runlith` exists.
 - Repository directory is still `actionlint`; rename it to `actlith` before the
   first push.
+
+# Fleet survey (2026-10-15)
+
+Local checkouts next to this repository, read-only:
+- 170 repositories have `.github/workflows/`; 163 of them have a `ci.yml`.
+- Other workflow kinds: `update-pins.yml` (11), `release.yml` (3),
+  `build.yml` (3), `upstream.yml` (2), then one-offs.
+- Many `ci.yml` files are byte-identical copies (groups of 28, 22, 19, 12 and
+  12), yet copies of the "same" workflow drift: pklith's and congestimancer's
+  `ci.yml` differ in comment, job name, `permissions` place, `timeout-minutes`
+  and comment spacing after SHA pins.
+- Older copies pin actions by tag (`actions/checkout@v4`,
+  `cachix/install-nix-action@v27`), which zizmor flags; current ones pin by
+  SHA with a version comment. Upgrading means editing every copy.
+- Current reference shape (pklith `ci.yml`): push to `main`, `pull_request`,
+  `workflow_dispatch`; `concurrency` per ref with cancel; `permissions:
+  contents: read`; matrix `ubuntu-latest`, `ubuntu-24.04-arm`, `macos-latest`;
+  checkout with `persist-credentials: false`; install-nix with the
+  `pr0d1r2.cachix.org` substituter; cachix push except for fork PRs; one step
+  `nix develop --command hk check --all --check`.
+
+Conclusion: the variable part of a fleet workflow is a handful of values. The
+rest is shape, and shape should come from one place.
