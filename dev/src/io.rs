@@ -100,5 +100,57 @@ pub(crate) fn message(
     })
 }
 
+/// A generated file and the verb that writes it.
+pub(crate) struct Doc {
+    /// The path, relative to the repository.
+    pub(crate) path: &'static str,
+    /// The `actlith-dev` verb that renders it.
+    pub(crate) verb: &'static str,
+}
+
+/// A file's text, `path` relative to `repo`. RED: a stub.
+///
+/// # Errors
+///
+/// (2, why) naming the path when it cannot be read.
+pub(crate) fn read(_repo: &Path, _path: &str) -> Result<String, Failed> {
+    Ok(String::new())
+}
+
+/// Make `doc` hold `wanted`: written, or with `check` compared. RED: a
+/// stub.
+///
+/// # Errors
+///
+/// (1, why) on drift under `check`; (2, why) when it cannot be read or
+/// written.
+pub(crate) fn update(
+    _repo: &Path,
+    doc: &Doc,
+    _wanted: &str,
+    _check: bool,
+) -> Result<(), Failed> {
+    let _ = (doc.path, doc.verb);
+    Ok(())
+}
+
+/// Steps in one hook, as `pkl` evaluates `hk.pkl` in `repo`. RED: a stub.
+///
+/// # Errors
+///
+/// (2, why) when `pkl` fails or prints something other than a number.
+pub(crate) fn steps(_repo: &Path, _hook: &str) -> Result<usize, Failed> {
+    Ok(0)
+}
+
+/// Steps on commit and on push.
+///
+/// # Errors
+///
+/// As [`steps`].
+pub(crate) fn hooks(repo: &Path) -> Result<(usize, usize), Failed> {
+    Ok((steps(repo, "pre-commit")?, steps(repo, "pre-push")?))
+}
+
 #[cfg(test)]
 mod tests;
