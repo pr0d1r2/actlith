@@ -61,3 +61,33 @@ Local checkouts next to this repository, read-only:
 
 Conclusion: the variable part of a fleet workflow is a handful of values. The
 rest is shape, and shape should come from one place.
+
+# Config: `.actlith`
+
+The one file a repository writes. Same style as `.pklith`: a `format 1`
+header, `## <section>` headings, pipe tables, `#` comments, `-` for an empty
+cell, `\|` for a literal pipe. Sketch, not final:
+
+```
+format 1
+
+## workflows
+id|kind|systems|gate|cache
+ci|gate|x86_64-linux, aarch64-linux, aarch64-darwin|hk check --all --check|pr0d1r2
+update-pins|update-pins|x86_64-linux|-|pr0d1r2
+```
+
+- One row = one `.github/workflows/<id>.yml`.
+- `kind` names a workflow template from actlith's built-in catalog
+  (`gate`, `update-pins`, `release`, ...). As in pklith, a `.actlith` row with
+  the same id as a built-in one replaces it; a new id adds one.
+- `systems` are nix system names, not runner labels. actlith maps them to
+  runners in one table: `x86_64-linux` = `ubuntu-latest`, `aarch64-linux` =
+  `ubuntu-24.04-arm`, `aarch64-darwin` = `macos-latest`. `x86_64-darwin` has no
+  runner and is refused with a clear message (verified by hand on the Intel
+  Mac, as in the other repos).
+- Triggers, permissions, concurrency, timeouts and step lists belong to the
+  kind, not to the row. A repository that needs something else adds a kind,
+  it does not grow per-row knobs.
+- Missing `.actlith`: `actlith detect` proposes rows from tracked files
+  (`flake.nix` gives `gate`, a `nixpkgs-lock` input gives `update-pins`).
