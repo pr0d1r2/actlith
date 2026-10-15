@@ -12,7 +12,7 @@ NAME: act(ions) + lith — fleet family `pklith`, `microlith`, `xenolith` (V22).
 
 FIRST BUILT: this repo's own guardrails (`nix` T2–T12), 1 check per commit, hooks live from hk commit — before any product code.
 
-SOURCES: `SPEC-PROMPT.md` (decisions D1–D23) & `docs/KINDS.md` (kind catalogue). this spec wins where they differ.
+SOURCES: `SPEC-PROMPT.md` (decisions D1–D23), `docs/KINDS.md` (kind catalogue) & `docs/SERVICES.md` (third-party services: adopt free, paid = potential). this spec wins where they differ.
 
 FEDERATED (T34): rules & tasks moved to a node keep their numbers ∴ freed numbers ⊥ reused here.
 
@@ -77,6 +77,7 @@ V18: emitted bytes change for same inputs → ≥ minor version + CHANGELOG nami
 V22: crate & bin `actlith`. REJECTED names → R7
 V24: new kind only when ≥2 fleet repos share shape; until then `## hand-written`
 V25: nothing deferred: ∀ kind ∈ `docs/KINDS.md` ! §V coverage & §T row in its node. doc ≠ spec = bug
+V41: services: free tier ∀ adopted service (`docs/SERVICES.md` Adopt); paid ⊥ w/o user opt-in, then smallest plan; ∀ adopted service ! a node §T row before code; app install | OSS application | payment = user action
 
 ## §T TASKS
 
@@ -87,6 +88,7 @@ T34|x|federate `SPEC.md` w/ sherd: nodes `src/*`, `tests`, `dev`, `nix`; scaffol
 T35|.|pklith: `actlith-gen-check` catalog row & `.actlith` type — PR to pklith ! user approval|I.nix
 T36|.|publish `0.1.0-rc.1` to crates.io ! user approval|V22
 T37|.|fleet rollout: pklith, congestimancer, then byte-identical `ci.yml` groups; each repo ! user approval|R1
+T42|.|spec each Adopt row of `docs/SERVICES.md` into its node (bot file → `src/bots`, workflow → new kind, step → `src/kind`, trigger → `src/kind`) w/ R row + V + T, then build in waves|V41,`src/bots:V38`
 
 ## §B BUGS
 
