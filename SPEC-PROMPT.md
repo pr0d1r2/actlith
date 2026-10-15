@@ -267,3 +267,9 @@ Same as congestimancer:
     `path|reason`, like pklith's `exempt`. `actlith check` fails on a workflow
     file that is neither generated nor listed, and on a listed path that does
     not exist.
+22. Seeded scripts: logic that needs more than one command (`update-pins.sh`,
+    `open-pr.sh`) ships with actlith and is written into
+    `scripts/actlith/` by `actlith seed`, the way `pklith seed` writes its
+    seed files; generated `run:` lines call them. Seeded scripts are
+    generated too (header, `gen --check` covers them), so a local edit is
+    drift.
