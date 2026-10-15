@@ -77,34 +77,135 @@ pub(crate) enum Level {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct Permissions(pub(crate) BTreeMap<Scope, Level>);
 
-impl Workflow {
-    /// The top-level entries. RED: signature only.
-    pub(crate) fn entries(&self) -> Vec<Entry> {
-        Vec::new()
+impl Scope {
+    fn key(self) -> &'static str {
+        match self {
+            Self::Actions => "actions",
+            Self::Attestations => "attestations",
+            Self::Checks => "checks",
+            Self::Contents => "contents",
+            Self::Deployments => "deployments",
+            Self::IdToken => "id-token",
+            Self::Issues => "issues",
+            Self::Packages => "packages",
+            Self::Pages => "pages",
+            Self::PullRequests => "pull-requests",
+            Self::SecurityEvents => "security-events",
+            Self::Statuses => "statuses",
+        }
     }
 }
 
-/// Appends `key: node` when there is a node. RED: signature only.
-pub(crate) fn put(
-    _e: &mut Vec<Entry>,
-    _key: &'static str,
-    _node: Option<Node>,
-) {
+impl Level {
+    fn word(self) -> &'static str {
+        match self {
+            Self::Read => "read",
+            Self::Write => "write",
+            Self::None => "none",
+        }
+    }
 }
 
-/// A literal string node. RED: signature only.
-pub(crate) fn string(_s: &str) -> Node {
-    Node::Null
+impl Permissions {
+    /// The `permissions:` value.
+    pub(crate) fn node(&self) -> Node {
+        let entries = self.0.iter().map(|(scope, level)| {
+            Entry::fixed(scope.key(), Node::Value(word(level.word())))
+        });
+        Node::Map(entries.collect())
+    }
 }
 
-/// A `[a, b]` list of literal strings. RED: signature only.
-pub(crate) fn list(_items: &[String]) -> Node {
-    Node::Null
+impl Workflow {
+    /// The top-level entries.
+    pub(crate) fn entries(&self) -> Vec<Entry> {
+        let mut e = vec![
+            Entry::fixed("name", string(&self.name)),
+            Entry::fixed("on", self.on.node()),
+        ];
+        let concurrency = self.concurrency.as_ref().map(Concurrency::node);
+        put(&mut e, "concurrency", concurrency);
+        put(&mut e, "permissions", Some(self.permissions.node()));
+        put(&mut e, "env", env(&self.env));
+        let jobs = self.jobs.iter().map(|(id, job)| job.entry(id));
+        put(&mut e, "jobs", Some(Node::Map(jobs.collect())));
+        e
+    }
 }
 
-/// The `env:` value. RED: signature only.
-pub(crate) fn env(_env: &Env) -> Option<Node> {
-    None
+impl Trigger {
+    fn node(&self) -> Node {
+        let mut e = Vec::new();
+        put(&mut e, "push", self.push.as_ref().map(Push::node));
+        put(
+            &mut e,
+            "pull_request",
+            self.pull_request.then_some(Node::Null),
+        );
+        put(&mut e, "schedule", crons(&self.schedule));
+        let dispatch = self.workflow_dispatch.then_some(Node::Null);
+        put(&mut e, "workflow_dispatch", dispatch);
+        Node::Map(e)
+    }
+}
+
+impl Push {
+    fn node(&self) -> Node {
+        if self.branches.is_empty() {
+            return Node::Null;
+        }
+        Node::Map(vec![Entry::fixed("branches", list(&self.branches))])
+    }
+}
+
+impl Concurrency {
+    fn node(&self) -> Node {
+        Node::Map(vec![
+            Entry::fixed("group", Node::Value(Value::Text(self.group.clone()))),
+            Entry::fixed(
+                "cancel-in-progress",
+                Node::Value(Value::Bool(self.cancel_in_progress)),
+            ),
+        ])
+    }
+}
+
+fn crons(crons: &[String]) -> Option<Node> {
+    let items = crons
+        .iter()
+        .map(|c| vec![Entry::fixed("cron", string(c))])
+        .collect::<Vec<_>>();
+    (!items.is_empty()).then_some(Node::Seq(items))
+}
+
+fn word(w: &'static str) -> Value {
+    Value::Text(Text::lit(w))
+}
+
+/// Appends `key: node` when there is a node.
+pub(crate) fn put(e: &mut Vec<Entry>, key: &'static str, node: Option<Node>) {
+    if let Some(node) = node {
+        e.push(Entry::fixed(key, node));
+    }
+}
+
+/// A literal string node.
+pub(crate) fn string(s: &str) -> Node {
+    Node::Value(Value::Text(Text::lit(s)))
+}
+
+/// A `[a, b]` list of literal strings.
+pub(crate) fn list(items: &[String]) -> Node {
+    Node::List(items.iter().map(|s| Text::lit(s)).collect())
+}
+
+/// The `env:` value, or none for no variables.
+pub(crate) fn env(env: &Env) -> Option<Node> {
+    let entries = env
+        .iter()
+        .map(|(k, v)| Entry::user(k, Node::Value(Value::Text(v.clone()))));
+    let entries: Vec<Entry> = entries.collect();
+    (!entries.is_empty()).then_some(Node::Map(entries))
 }
 
 #[cfg(test)]

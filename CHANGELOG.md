@@ -7,3 +7,9 @@ the bytes actlith emits for the same inputs is at least a minor version
 (SPEC.md V18), and its entry names the files consumers will see change.
 
 ## [Unreleased]
+
+### Added
+
+- `src/yaml`: typed workflow model and own YAML writer with fixed key
+  order and quoting, `|` and `>-` blocks and the generated header; no
+  file is emitted yet (T16).

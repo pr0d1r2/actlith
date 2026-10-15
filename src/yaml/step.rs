@@ -50,10 +50,20 @@ pub(crate) struct Input {
 pub(crate) struct With(Vec<(String, Input)>);
 
 impl With {
-    /// These inputs with `key` set to `input`. RED: signature only.
+    /// These inputs with `key` set to `input`: replaced in place when the
+    /// key is already set, else appended.
     #[must_use]
-    pub(crate) fn set(self, _key: &str, _input: Input) -> Self {
+    pub(crate) fn set(mut self, key: &str, input: Input) -> Self {
+        match self.0.iter_mut().find(|(k, _)| k == key) {
+            Some(slot) => slot.1 = input,
+            None => self.0.push((key.to_owned(), input)),
+        }
         self
+    }
+
+    fn node(&self) -> Option<Node> {
+        let entries: Vec<Entry> = self.0.iter().map(input).collect();
+        (!entries.is_empty()).then_some(Node::Map(entries))
     }
 }
 
@@ -67,10 +77,39 @@ impl Input {
     }
 }
 
+fn input((key, input): &(String, Input)) -> Entry {
+    let mut entry = Entry::user(key, Node::Value(input.value.clone()));
+    entry.comments.clone_from(&input.comments);
+    entry
+}
+
 impl Step {
-    /// The step as the entries of its sequence item. RED: signature only.
+    /// The step as the entries of its sequence item.
     pub(crate) fn entries(&self) -> Vec<Entry> {
-        Vec::new()
+        let mut e = Vec::new();
+        put(&mut e, "name", self.name.as_deref().map(string));
+        put(&mut e, "id", self.id.as_deref().map(string));
+        put(&mut e, "if", self.condition.clone().map(condition));
+        self.action.lower(&mut e);
+        put(&mut e, "env", env(&self.env));
+        if let Some(first) = e.first_mut() {
+            first.comments.clone_from(&self.comments);
+        }
+        e
+    }
+}
+
+impl Action {
+    fn lower(&self, e: &mut Vec<Entry>) {
+        match self {
+            Self::Run(command) => put(e, "run", Some(string(command))),
+            Self::Uses(uses) => {
+                let mut entry = Entry::fixed("uses", string(&uses.reference));
+                entry.trailing.clone_from(&uses.version);
+                e.push(entry);
+                put(e, "with", uses.with.node());
+            }
+        }
     }
 }
 
