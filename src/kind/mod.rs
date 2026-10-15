@@ -1,11 +1,61 @@
-//! `src/kind`: what every kind shares: arg schema, hardening, common steps, secrets.
+//! `src/kind`: what every kind shares: the `Kind` trait, arg schema,
+//! hardening (V3), common steps and declared secrets (V14).
 //!
-//! Scaffold: the node's code lands here (`src/kind` tasks). Each `use`
-//! line below is one build-order edge for `sherd wave` (src:C); the
-//! `expect` turns into a warning once the node uses them, and goes.
+//! Composition only (src C): the trait lives in `contract`, the checked
+//! row in `row` (with `args`, `cache`), the common builders in
+//! `workflow`, `job`, `step`, `checkout`, `nix`, `cachix` and `run`.
+//! Dead code is `allow`ed, not `expect`ed, until a consumer lands (see
+//! `src/registry`).
+#![cfg_attr(
+    not(test),
+    allow(
+        dead_code,
+        reason = "used by src/gate, src/build and src/bump in a later wave"
+    )
+)]
+#![allow(
+    unused_imports,
+    reason = "re-exported for src/gate, src/build and src/bump in a later \
+              wave"
+)]
 
-#![expect(unused_imports, reason = "scaffold: build-order edges")]
-
+// Build-order edges for `sherd wave` (src C), one per line.
 use crate::pin as _;
+use crate::registry as _;
 use crate::system as _;
 use crate::yaml as _;
+
+mod args;
+mod cache;
+mod cachix;
+mod checkout;
+mod contract;
+mod error;
+mod job;
+mod nix;
+mod row;
+mod run;
+mod secret;
+mod step;
+mod workflow;
+
+pub(crate) use args::{ArgSchema, ArgSpec, Args, TIMEOUT, parse_args};
+pub(crate) use cache::Cache;
+pub(crate) use cachix::{
+    CachixPush, PUSH_FILTER, SKIP_FORK_PR, SKIP_UNLESS_MAIN, cachix,
+};
+pub(crate) use checkout::{Checkout, checkout};
+pub(crate) use contract::Kind;
+pub(crate) use error::KindError;
+pub(crate) use job::{
+    DEFAULT_TIMEOUT, MAX_TIMEOUT, job, matrix_runner, runner_matrix, timeout,
+    widen,
+};
+pub(crate) use nix::install_nix;
+pub(crate) use row::Row;
+pub(crate) use run::run;
+pub(crate) use secret::Secret;
+pub(crate) use step::{step, uses};
+pub(crate) use workflow::{
+    concurrency, on_push_and_pr, on_schedule, read_only, workflow,
+};
