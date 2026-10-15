@@ -17,6 +17,8 @@ ctrm|lint|-|**/*|ctrm check {{files}}|ctrm fix {{files}}|-|a file holds a charac
 # xenolith: one language per file (T8), as in congestimancer.
 xnl-check|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl check {{files}}|-|-|a host file embeds a non-trivial program in another language; extract it with xnl extract
 xnl-lint|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl lint {{files}}|xnl lint --fix {{files}}|-|an embedded or extracted program fails its own language's linter
+# xenolith's Rust guards, copied as congestimancer does (T9).
+rust-mirror|lint|-|**/*.rs, nix/guard/rust-mirror.sh|bash nix/guard/rust-mirror.sh|-|-|a Rust file with logic has no sibling tests.rs wired by #[cfg(test)] mod tests;
 # rekall: agent prose and the rules extracted from it (T8).
 rekall|lint|-|AGENTS.md, CLAUDE.md, rekall.toml|rekall check|-|-|agent prose drifted from the rules rekall extracted from it; run rekall scan and settle the drift
 
@@ -45,5 +47,5 @@ ctrm|-|-|ctrm configuration; hygiene steps only
 ctrm-sets|-|-|ctrm configuration; hygiene steps only
 path:AGENTS.md|markdownlint, rekall|-|-
 path:rekall.toml|taplo, rekall|-|-
-rs|rustfmt, clippy|-|-
+rs|rustfmt, clippy, rust-mirror|-|-
 LICENSE|-|-|license text, nothing to lint
