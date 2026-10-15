@@ -1,0 +1,8 @@
+format 1
+
+# An older checkout pin replaces the built-in one; a new (made-up) action joins.
+
+## actions
+action|version|sha
+actions/checkout|v4.2.2|11bd71901bbe5b1630ceea73d27597364c9af683
+example/action|v1.0.0|0123456789abcdef0123456789abcdef01234567
