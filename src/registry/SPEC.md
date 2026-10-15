@@ -47,7 +47,7 @@ V12: missing `.actlith` → `gen`|`check` exit 2, ⊥ pass, ⊥ empty render. mi
 ## §T TASKS
 
 id|status|task|cites
-T13|.|parse `format`, `## workflows`, `## actions`, `## hand-written`; duplicate id, empty reason, bad cell count → error w/ line; fixtures 1-to-1|V10,V11,V12
+T13|x|parse `format`, `## workflows`, `## actions`, `## hand-written`; duplicate id, empty reason, bad cell count → error w/ line; fixtures 1-to-1|V10,V11,V12
 
 ## §B BUGS
 

@@ -12,3 +12,6 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 - `src/system`: nix system to GitHub-hosted runner table; `x86_64-darwin`
   is refused, naming hand verification on an Intel Mac (T14).
+- `.actlith` parser (`src/registry`): the `format` line and the
+  `## workflows`, `## actions`, `## hand-written` and `## bots` rows,
+  each error naming its line and a fix.
