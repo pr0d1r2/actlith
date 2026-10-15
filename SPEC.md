@@ -113,11 +113,11 @@ T5|x|`commit-msg` step: `type(scope): claim` ≤72, body non-empty; `scripts/com
 T6|x|crate-free pklith catalog checks via `pklith lay`, 1 commit each, planted violation each: hygiene set, ripsecrets, typos, editorconfig, no-local-paths, nixfmt, statix, deadnix, markdownlint, shellcheck (`.envrc`, `.githooks/*`)|V20,V23
 T7|x|spec gates: `mth fmt`/`mth check` on `SPEC.md`, `itok` + `.context-limits`, `sherd check`/`budget`|V20
 T8|x|`ctrm` (`.ctrm`), `rekall` (`AGENTS.md`), `xenolith` `xnl check`/`xnl lint` steps|V20
-T9|x|gate scripts under `nix/guard/` (as congestimancer); xenolith `rust-mirror` & `tdd-order` + `tdd-order.exempt`; doctest, rustdoc, `cargo deny` w/ fleet `deny.toml`. `test` (nextest) & coverage floor + `.coverage` ratchet ⊥ here: empty suite ∴ they land in T13 w/ first test|V20,V23,V28
+T9|x|gate scripts under `nix/guard/` (as congestimancer); xenolith `rust-mirror` & `tdd-order` + `tdd-order.exempt`; doctest, rustdoc, `cargo deny` w/ fleet `deny.toml`. `test` (nextest) & coverage floor + `.coverage` ratchet ⊥ here: empty suite ∴ they land w/ first tests (T11)|V20,V23,V28
 T10|x|hand-written `.github/workflows/ci.yml` in pklith shape (SHA pins); `actionlint` & `zizmor` steps|V20,V21
-T11|.|`dev/` crate `actlith-dev`: README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V20
+T11|.|`dev/` crate `actlith-dev`: port commit-msg & changelog rules (RED, GREEN) & lay `test` (nextest) + `coverage` (`sherd coverage`, `.coverage` floor) over its tests; README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V20
 T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
-T13|.|registry: parse `.actlith` (`format`, `## workflows`, `## actions`, `## hand-written`), fixtures 1-to-1; first `test:` commit ∴ lay `test` (nextest) & `coverage` (`sherd coverage`, `.coverage` floor)|V10,V11,V12,I.file
+T13|.|registry: parse `.actlith` (`format`, `## workflows`, `## actions`, `## hand-written`), fixtures 1-to-1|V10,V11,V12,I.file
 T14|.|system → runner table; refuse `x86_64-darwin`|V15,V10,I.runners
 T15|.|pin table: built-in, overridden by `## actions`; missing pin → exit 2|V2
 T16|.|workflow model + YAML writer: fixed order & quoting, header, comments; golden bytes tests|V1,V5,V8
