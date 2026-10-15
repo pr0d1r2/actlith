@@ -14,6 +14,9 @@ shellcheck|lint|shellcheck|.githooks/*, .envrc, **/*.sh|shellcheck --shell=bash 
 # Not in pklith's catalog; ctrm comes from this flake (T8), as in
 # congestimancer.
 ctrm|lint|-|**/*|ctrm check {{files}}|ctrm fix {{files}}|-|a file holds a character its set does not grant; fix it, or grant it in .ctrm and say why in the commit
+# xenolith: one language per file (T8), as in congestimancer.
+xnl-check|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl check {{files}}|-|-|a host file embeds a non-trivial program in another language; extract it with xnl extract
+xnl-lint|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl lint {{files}}|xnl lint --fix {{files}}|-|an embedded or extracted program fails its own language's linter
 
 ## types
 type|checks|min|exempt
@@ -21,14 +24,14 @@ type|checks|min|exempt
 editorconfig|-|-|written by pklith (seed or gen)
 gitattributes|-|-|written by pklith (seed or gen)
 md|markdownlint|-|-
-nix|nixfmt, statix, deadnix|-|-
+nix|nixfmt, statix, deadnix, xnl-check, xnl-lint|-|-
 path:**/SPEC.md|markdownlint, mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget, itok|-|-
 pklith|-|-|written by pklith (seed or gen)
-pkl|-|-|written by pklith (seed or gen)
-pre-commit|shellcheck|-|-
-pre-push|shellcheck|-|-
-commit-msg|shellcheck|-|-
-envrc|shellcheck|-|-
+pkl|xnl-check, xnl-lint|-|-
+pre-commit|shellcheck, xnl-check, xnl-lint|-|-
+pre-push|shellcheck, xnl-check, xnl-lint|-|-
+commit-msg|shellcheck, xnl-check, xnl-lint|-|-
+envrc|shellcheck, xnl-check, xnl-lint|-|-
 sh|shellcheck, shfmt|-|-
 yaml|yamllint|-|-
 gitignore|-|-|git configuration; hygiene steps only
