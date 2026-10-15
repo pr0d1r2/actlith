@@ -259,3 +259,7 @@ Same as congestimancer:
     `update-pins` run bumps the input and regenerates; no fleet-wide push
     tool. Template changes therefore land per repository, reviewed, and a
     repository can hold back by not merging.
+20. Secrets are part of the template contract: `CACHIX_AUTH_TOKEN` for cache
+    pushes; push skipped for fork PRs (no secret there, read-only cache still
+    works). A kind names every secret it reads; `actlith report` lists them so
+    a repository owner knows what to configure.
