@@ -263,3 +263,7 @@ Same as congestimancer:
     pushes; push skipped for fork PRs (no secret there, read-only cache still
     works). A kind names every secret it reads; `actlith report` lists them so
     a repository owner knows what to configure.
+21. Hand-written workflows: `.actlith` `## hand-written` table with columns
+    `path|reason`, like pklith's `exempt`. `actlith check` fails on a workflow
+    file that is neither generated nor listed, and on a listed path that does
+    not exist.
