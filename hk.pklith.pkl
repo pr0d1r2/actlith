@@ -117,6 +117,13 @@ steps: Mapping<String, Config.Step> = new {
     glob = List("**/*.rs", "nix/guard/rust-mirror.sh")
     check = "command -v bash >/dev/null 2>&1 || { echo 'rust-mirror: bash is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; bash nix/guard/rust-mirror.sh || { echo 'rust-mirror: a Rust file with logic has no sibling tests.rs wired by #[cfg(test)] mod tests;' >&2; exit 1; }"
   }
+  ["rustdoc"] {
+    glob = List("**/*.rs", "Cargo.toml")
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'rustdoc: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo doc --workspace --no-deps --document-private-items -q || { echo 'rustdoc: docs do not build cleanly' >&2; exit 1; }"
+    env {
+      ["RUSTDOCFLAGS"] = "-D warnings"
+    }
+  }
   ["rekall"] {
     glob = List("AGENTS.md", "CLAUDE.md", "rekall.toml")
     check = "command -v rekall >/dev/null 2>&1 || { echo 'rekall: rekall is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; rekall check || { echo 'rekall: agent prose drifted from the rules rekall extracted from it; run rekall scan and settle the drift' >&2; exit 1; }"
