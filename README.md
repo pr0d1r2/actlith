@@ -11,7 +11,7 @@
 
 [![gate hk](https://img.shields.io/badge/gate-hk-6E4AFF)](hk.pkl)
 [![gate steps 44 commit / 47 push](https://img.shields.io/badge/gate_steps-44_commit_%2F_47_push-6E4AFF)](hk.pkl)
-[![coverage floor 99.56%](https://img.shields.io/badge/coverage_floor-%E2%89%A599.56%25-brightgreen)](.coverage)
+[![coverage floor 99.67%](https://img.shields.io/badge/coverage_floor-%E2%89%A599.67%25-brightgreen)](.coverage)
 [![invariants 46](https://img.shields.io/badge/invariants-46-6E4AFF)](SPEC.md)
 [![bugs logged 6](https://img.shields.io/badge/bugs_logged-6-6E4AFF)](SPEC.md)
 [![federated nodes 23](https://img.shields.io/badge/federated_nodes-23-6E4AFF)](SPEC.md)

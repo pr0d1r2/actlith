@@ -46,7 +46,7 @@ its steps. Each check was laid in its own commit, and the commit that
 brings a rule records the planted violation it refused.
 [`ci.yml`](../.github/workflows/ci.yml) runs that same
 definition on three platforms, so a laptop and a runner cannot disagree.
-Line coverage has a floor of 99.56% that may only rise, `unsafe` is
+Line coverage has a floor of 99.67% that may only rise, `unsafe` is
 forbidden, and the only command meant to touch the network is
 `actlith pin`.
 
