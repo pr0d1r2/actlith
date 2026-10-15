@@ -273,3 +273,7 @@ Same as congestimancer:
     seed files; generated `run:` lines call them. Seeded scripts are
     generated too (header, `gen --check` covers them), so a local edit is
     drift.
+23. YAML reading: decide during the spec run's research. Prefer
+    render-and-compare for `import` (try kinds and args, accept only a
+    match after normalising comments and whitespace) if it covers the fleet
+    copies; add a parser crate only if it does not, justified in research.
