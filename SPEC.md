@@ -33,7 +33,7 @@ self|.|-
 - runtime deps: `git`. `actionlint`, `zizmor` = test & gate deps, ⊥ runtime.
 - nix flake: inputs `nixpkgs-lock` (nixpkgs follows), `nix-hk`, `pklith`, `itok`, `microlith`, `sherd`, `characterminator`, `rekall`, `xenolith`; ∀ follow `nixpkgs-lock`. `pr0d1r2.cachix.org` substituter. 4 systems `aarch64-darwin` `x86_64-darwin` `x86_64-linux` `aarch64-linux`. dev shell = pklith `lib.devShell`; `.envrc` `use flake`.
 - gate = hk via pklith-materialized `hk.pklith.pkl`; `fast` pre-commit, `all` pre-push. guardrails: pklith, nix-hk, sherd, microlith, itok, characterminator (`.ctrm`), rekall, xenolith (`rust-mirror`, `tdd-order`), actionlint & zizmor on own workflows AND rendered fixtures.
-- TDD RED → GREEN → REFACTOR. 1-to-1 unit coverage, hard floor + `.coverage` ratchet (±0.5), aim 100%.
+- TDD RED → GREEN → REFACTOR. 1-to-1 unit coverage, hard floor + `.coverage` ratchet (+/-0.5), aim 100%.
 - commit subject `type(scope): claim` ≤72 chars, body = WHY; changelog-touched. after `no-commit-to-branch`: branch + PR, merge ⊥ squash.
 - CI 3 runners (`x86_64-linux` `aarch64-linux` `aarch64-darwin`); `x86_64-darwin` hand-verified on Intel Mac.
 - release: `cargo-release`, Keep a Changelog, even minor = stable. publish (incl. `0.1.0-rc.1` name claim) ! explicit approval.
@@ -74,7 +74,7 @@ R8|runners|`ubuntu-latest` x86_64, `ubuntu-24.04-arm` aarch64 linux, `macos-late
 ## §V INVARIANTS
 
 V1: deterministic: same `.actlith` + same version → byte-identical files. ⊥ clock, ⊥ host, ⊥ env, ⊥ network in `gen`|`check`|`detect`|`import`|`report`
-V2: ∀ emitted `uses:` = `owner/repo@<40-hex sha> # <version>`; sha from pin table (built-in ⊕ `## actions`) ONLY. tag | branch ref in output ⊥. action w/o pin → exit 2
+V2: ∀ emitted `uses:` = `owner/repo@<40-hex sha> # <version>`; sha from pin table (built-in, overridden by `## actions`) ONLY. tag | branch ref in output ⊥. action w/o pin → exit 2
 V3: hardening ⊥ optional, ∀ kind: top `permissions: contents: read` (job widens only declared need) · checkout `persist-credentials: false` unless job pushes · `concurrency` group `<id>-${{ github.ref }}` (cancel for push/PR kinds, ⊥ for scheduled) · `timeout-minutes` ∀ job · ⊥ `pull_request_target` · ⊥ `${{ }}` inside `run:` (values pass via `env:`)
 V4: ∀ kind × fixture args → rendered workflow passes `actionlint` & `zizmor` w/ 0 findings, in actlith's OWN test suite. template change failing either = red build, ⊥ consumer surprise
 V5: workflows built as typed model → own YAML writer: fixed key order, fixed quoting, comments from kind. ⊥ string substitution into YAML text ∴ malformed YAML | injected expression ⊥ representable
@@ -118,7 +118,7 @@ T11|.|`dev/` crate `actlith-dev`: README badges, THIRD-PARTY-NOTICES, AGENTS ste
 T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
 T13|.|registry: parse `.actlith` (`format`, `## workflows`, `## actions`, `## hand-written`), fixtures 1-to-1|V10,V11,V12,I.file
 T14|.|system → runner table; refuse `x86_64-darwin`|V15,V10,I.runners
-T15|.|pin table: built-in ⊕ `## actions` override; missing pin → exit 2|V2
+T15|.|pin table: built-in, overridden by `## actions`; missing pin → exit 2|V2
 T16|.|workflow model + YAML writer: fixed order & quoting, header, comments; golden bytes tests|V1,V5,V8
 T17|.|common kind parts: permissions, concurrency, timeouts, checkout, install-nix, cachix (fork-PR skip, pushFilter), env-only expressions|V3,V14
 T18|.|test harness: render ∀ kind × fixture args → `actionlint` + `zizmor` 0 findings|V4

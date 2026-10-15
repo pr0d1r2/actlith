@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The commit message rule (actlith §C, T5): subject `type(scope): claim`, at
+# The commit message rule (actlith SPEC.md C, T5): subject `type(scope): claim`, at
 # most 72 characters, and a body that says why. Taken from pklith's shell
 # version; it moves into `actlith-dev` as tested Rust once that crate
 # exists (T11), as pklith's did.
