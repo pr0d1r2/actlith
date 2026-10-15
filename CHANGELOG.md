@@ -10,6 +10,9 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Added
 
+- `src/fetch`: `pin` resolves each pinned action to its latest release
+  tag and commit SHA through `gh api` and rewrites only `## actions` of
+  `.actlith`; a dry run writes nothing (T29).
 - `src/system`: nix system to GitHub-hosted runner table; `x86_64-darwin`
   is refused, naming hand verification on an Intel Mac (T14).
 - `.actlith` parser (`src/registry`): the `format` line and the

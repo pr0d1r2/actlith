@@ -1,0 +1,19 @@
+format 1
+
+# Every section; `## actions` sits between two others.
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|x86_64-linux|-|-
+
+## actions
+# pins resolved by `actlith pin`
+action|version|sha
+actions/checkout|v4.2.2|11bd71901bbe5b1630ceea73d27597364c9af683
+example/action|v1.0.0|0123456789abcdef0123456789abcdef01234567
+# kept: a note under the rows
+
+# about hand-written files
+## hand-written
+path|reason
+.github/workflows/release.yml|release flow not a kind yet (V24)
