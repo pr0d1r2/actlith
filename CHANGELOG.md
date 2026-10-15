@@ -17,3 +17,6 @@ the bytes actlith emits for the same inputs is at least a minor version
   each error naming its line and a fix.
 - Seeded scripts `scripts/actlith/update-pins.sh`, `open-pr.sh` and
   `verify-cache.sh`, embedded with the generated header (src/script T21).
+- `src/yaml`: typed workflow model and own YAML writer with fixed key
+  order and quoting, `|` and `>-` blocks and the generated header; no
+  file is emitted yet (T16).

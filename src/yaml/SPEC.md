@@ -45,7 +45,7 @@ V8: ∀ generated file (workflow, seeded script) starts w/ generated header; han
 ## §T TASKS
 
 id|status|task|cites
-T16|.|model types + writer: fixed order & quoting, header, comments, folded scalars; golden bytes tests incl. pklith `ci.yml` shape|V5,V8,`.:V1`
+T16|x|model types + writer: fixed order & quoting, header, comments, folded scalars; golden bytes tests incl. pklith `ci.yml` shape|V5,V8,`.:V1`
 
 ## §B BUGS
 
