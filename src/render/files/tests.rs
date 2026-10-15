@@ -7,7 +7,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use crate::registry::{Registry, parse};
+use crate::registry::{ActionPin, Registry, parse};
 use crate::render::{File, RenderError, render};
 
 const ALL: &str = include_str!("../../../tests/fixtures/render/all.actlith");
@@ -202,11 +202,14 @@ fn a_row_its_kind_refuses_is_a_kind_error() -> Result<(), String> {
 
 #[test]
 fn a_bad_pin_override_is_refused() -> Result<(), String> {
-    let text = format!(
-        "{}\n## actions\naction|version|sha\nactions/checkout|v1|main\n",
-        rows("ci|gate|-|-|-")
-    );
-    let error = refused(&text)?;
+    let mut pinned = registry(&rows("ci|gate|-|-|-"))?;
+    pinned.actions.push(ActionPin {
+        line: 9,
+        action: "actions/checkout".to_owned(),
+        version: "v1".to_owned(),
+        sha: "main".to_owned(),
+    });
+    let error = render(&pinned).err().ok_or("rendered")?;
     assert!(matches!(error, RenderError::Pin(_)), "{error}");
     Ok(())
 }

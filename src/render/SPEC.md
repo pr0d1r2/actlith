@@ -44,7 +44,7 @@ V31: render output = workflows of ∀ row + ∀ seeded script ≥1 rendered kind
 ## §T TASKS
 
 id|status|task|cites
-T38|.|`render`: validate rows vs kinds & systems, build workflows, add needed scripts, sort|V31,`.:V1`,`src/registry:V10`
+T38|x|`render`: validate rows vs kinds & systems, build workflows, add needed scripts, sort|V31,`.:V1`,`src/registry:V10`
 
 ## §B BUGS
 

@@ -3,13 +3,6 @@
 
 /// Every seeded script: published path `scripts/actlith/<name>.sh` and
 /// its bytes, header first, sorted by path.
-#[cfg_attr(
-    not(test),
-    expect(
-        dead_code,
-        reason = "used by src/render and the kind nodes in a later wave"
-    )
-)]
 pub(crate) fn scripts() -> &'static [(&'static str, &'static str)] {
     SCRIPTS
 }

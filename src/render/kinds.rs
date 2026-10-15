@@ -37,13 +37,17 @@ const fn entry(
 }
 
 /// The kind a row's `kind` cell names, if it is a v1 kind.
-pub(crate) fn lookup(_name: &str) -> Option<Entry> {
-    None
+pub(crate) fn lookup(name: &str) -> Option<Entry> {
+    entries().into_iter().find(|e| e.kind.name() == name)
 }
 
 /// The v1 kind names, as a fix hint lists them.
 pub(crate) fn names() -> String {
-    String::new()
+    let quoted: Vec<String> = entries()
+        .iter()
+        .map(|e| format!("`{}`", e.kind.name()))
+        .collect();
+    quoted.join(", ")
 }
 
 #[cfg(test)]

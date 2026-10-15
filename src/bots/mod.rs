@@ -29,9 +29,5 @@ use crate::registry as _;
 use crate::yaml as _;
 
 pub(crate) use error::BotError;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/render in a later wave")
-)]
 pub(crate) use files::bot_files;
 pub(crate) use model::File;

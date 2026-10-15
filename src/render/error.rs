@@ -43,8 +43,18 @@ impl From<BotError> for RenderError {
 }
 
 impl fmt::Display for RenderError {
-    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Ok(())
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Row(error) => error.fmt(f),
+            Self::Kind(error) => error.fmt(f),
+            Self::Pin(error) => error.fmt(f),
+            Self::Bot(error) => error.fmt(f),
+            Self::Duplicate(path) => write!(
+                f,
+                "two files would be written at `{path}`\n  fix: give each \
+                 `## workflows` row its own id"
+            ),
+        }
     }
 }
 
