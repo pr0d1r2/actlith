@@ -34,7 +34,9 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- types: `Workflow`, `Trigger`, `Job`, `Step`, `Matrix`, `Permissions`, `Expr` (a `${{ }}` value, only in `with:`/`env:`/`if:`/`runs-on`), `Comment`.
+- types: `Workflow`, `Trigger`, `Job`, `Step`, `Matrix`, `Permissions`, `Concurrency`, `Text` (literal + `Expr` parts), `Expr` (a `${{ }}` value, in `with:`/`env:`/`if:`/`runs-on`/`concurrency.group`; ⊥ in `run:`), `Comment`. literal `${{` escaped as `${{ '${{' }}`.
+- owns the generated header constant; `src/script` reuses it (now a duplicate literal there).
+- fixed order: header before `---`; job keys name, needs, if, runs-on, permissions, strategy, timeout-minutes, env, steps; step keys name, id, if, uses|run, with, env; jobs sorted by id, maps by key.
 - fns: `render(&Workflow) -> String` incl. generated header.
 
 ## §V INVARIANTS

@@ -21,9 +21,9 @@ src/registry/SPEC.md         930
 src/bots/SPEC.md             1690
 src/build/SPEC.md            860
 src/system/SPEC.md           830
-src/yaml/SPEC.md             820
+src/yaml/SPEC.md             990
 src/gate/SPEC.md             780
-src/script/SPEC.md           770
+src/script/SPEC.md           880
 src/render/SPEC.md           730
 src/import/SPEC.md           730
 src/fetch/SPEC.md            720

@@ -35,7 +35,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- types: `Registry { workflows, actions, hand_written }`, `WorkflowRow { id, kind, systems, cache, args }`, `ActionPin { action, version, sha }`, `HandWritten { path, reason }`, `RegistryError` (line, what, fix).
+- types: `Registry { workflows, actions, hand_written, bots }`, `WorkflowRow { line, id, kind, systems, cache, args }`, `ActionPin { line, action, version, sha }`, `HandWritten { line, path, reason }`, `BotRow { line, bot, args }`, `Arg { key, value }`, `RegistryError` (line, what, fix). ∀ row carries its line ∴ later nodes name it. args & systems split on `,` ∴ ⊥ comma inside an arg value.
 - fns: `parse(&str) -> Result<Registry, RegistryError>`.
 
 ## §V INVARIANTS

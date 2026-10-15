@@ -35,6 +35,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §I INTERFACES
 
 - fns: `scripts() -> &[(&'static str, &'static str)]` (published path `scripts/actlith/<name>.sh`, bytes w/ header).
+- scripts start w/ the generated header, ⊥ shebang ∴ kinds call them as `bash scripts/actlith/<name>.sh`; `update-pins.sh` calls `open-pr.sh` ∴ render emits both together.
 
 ## §V INVARIANTS
 
@@ -43,7 +44,7 @@ V13: ∀ emitted `run:` = 1 line. logic > 1 cmd → seeded script `scripts/actli
 ## §T TASKS
 
 id|status|task|cites
-T21|x|`update-pins.sh` (update input, build, branch `pins/nixpkgs-<short>`, PR; idempotent) & `open-pr.sh`; bats tests FIRST (tdd-order mirror); embedded w/ header|V13,`src/yaml:V8`,`src/bump:V26`
+T21|x|`update-pins.sh` (update input, build, branch `pins/nixpkgs-<short>`, PR; idempotent), `open-pr.sh`, `verify-cache.sh`; tested from Rust under bash w/ stub tools (⊥ bats in dev shell); embedded w/ header|V13,`src/yaml:V8`,`src/bump:V26`
 
 ## §B BUGS
 
