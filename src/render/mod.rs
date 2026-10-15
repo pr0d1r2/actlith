@@ -37,8 +37,4 @@ pub(crate) use crate::bots::File;
     expect(unused_imports, reason = "used by src/gen in a later wave")
 )]
 pub(crate) use error::RenderError;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/gen in a later wave")
-)]
 pub(crate) use files::render;

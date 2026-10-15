@@ -36,6 +36,11 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 - fns: `import(text) -> Result<WorkflowRow, Mismatch>`; `Mismatch` names first differing key.
 
+## §R RESEARCH
+
+id|topic|finding|src
+R16|sweep|214 fleet wf: 3 match; ⊥ order, quotes: 3 ∴ ⊥ YAML crate|local
+
 ## §V INVARIANTS
 
 V17: `import` accepts only match of a kind+args render after normalising comments & whitespace; ⊥ match → refuse naming first differing key. ⊥ guess, ⊥ partial row
@@ -43,7 +48,7 @@ V17: `import` accepts only match of a kind+args render after normalising comment
 ## §T TASKS
 
 id|status|task|cites
-T26|.|research sweep over fleet copies (`.:R1`): does render-and-compare match after normalising? record §R here; then `import`|V17
+T26|x|research sweep over fleet copies (`.:R1`): does render-and-compare match after normalising? record §R here; then `import`|V17
 
 ## §B BUGS
 
