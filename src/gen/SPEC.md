@@ -34,7 +34,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- fns: `gen(root, &[File]) -> io::Result<Vec<path>>`, `check(root, &[File]) -> Vec<Stale>` (stale | missing).
+- fns: `r#gen(root, &[File]) -> io::Result<Vec<path>>`, `check(root, &[File]) -> io::Result<Vec<Stale>>` (`Stale::{Missing, Changed}`; `Err` = path escapes root | unreadable → exit 2). path check textual ∴ a symlinked dir inside root may still point outside.
 
 ## §V INVARIANTS
 

@@ -28,7 +28,7 @@ src/render/SPEC.md           730
 src/import/SPEC.md           730
 src/fetch/SPEC.md            850
 src/detect/SPEC.md           800
-src/check/SPEC.md            690
+src/check/SPEC.md            820
 src/gen/SPEC.md              690
 src/cli/SPEC.md              670
 src/report/SPEC.md           640
