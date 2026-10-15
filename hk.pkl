@@ -13,6 +13,15 @@ hooks {
     stash = "git"
     steps = generated.steps
   }
+  // T5: subject `type(scope): claim`, at most 72 characters, a body that
+  // says why. hk passes the file git gave the hook (MERGE_MSG on a merge).
+  ["commit-msg"] {
+    steps {
+      ["commit-msg"] {
+        check = "scripts/commit-msg.sh {{commit_msg_file}}"
+      }
+    }
+  }
   ["pre-push"] {
     steps = all
   }
