@@ -221,3 +221,23 @@ Same as congestimancer:
       `tests/cli.rs`, golden workflow files compared byte for byte.
     - After `no-commit-to-branch` lands, work goes through branch + PR; merge
       by rebase or merge commit, never squash.
+
+# Prior art and rejected designs
+
+- Reusable workflows (`workflow_call`) in one central repository: rejected.
+  The caller depends on a workflow in another repository, so trust and pinning
+  span two repos; zizmor and actionlint only see the one-line caller; job names
+  become nested (`gate / gate`), which breaks the required contexts that
+  `pklith protect` derives; and a fix in the central repo reaches every
+  consumer without review in that consumer.
+- Composite actions in a central repository: rejected for the same trust and
+  visibility reasons, and they cannot carry triggers, permissions or matrices,
+  which is most of what drifts.
+- Copy and sync bots (a template repo plus a PR bot that copies files):
+  rejected. They copy text, so local edits and the template fight; nothing
+  says which values were meant to differ.
+- Dependabot / Renovate for action pins: rejected as the pin source, because
+  they would edit generated files and fail `actlith gen --check`. Pins are
+  bumped in the pin table instead (see decisions).
+- Differentiator: generated files are plain, local and readable, every value
+  that may differ is named in `.actlith`, and the gate proves the files match.
