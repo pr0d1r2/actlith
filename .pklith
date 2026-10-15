@@ -29,6 +29,13 @@ deny|supply|cargo-deny|Cargo.toml, Cargo.lock, deny.toml|cargo deny check --disa
 tdd-order|coverage|-|**/*.rs, nix/guard/tdd-order.sh, nix/guard/tdd-order.exempt|bash nix/guard/tdd-order.sh|-|-|a commit adds Rust code with no test: commit before it in the push range
 # rekall: agent prose and the rules extracted from it (T8).
 rekall|lint|-|AGENTS.md, CLAUDE.md, rekall.toml|rekall check|-|-|agent prose drifted from the rules rekall extracted from it; run rekall scan and settle the drift
+# Generated docs, rendered by actlith-dev from the files that own their
+# facts (T11, dev:V36), as pklith-dev does. Each fix is the generator, so
+# a commit that changes a source (pklith lay changing hk.pklith.pkl) gets
+# the doc rewritten rather than refused.
+agents-table|spec|-|hk.pkl, hk.pklith.pkl, AGENTS.md, dev/**|cargo run -q -p actlith-dev -- agents --check|cargo run -q -p actlith-dev -- agents|-|AGENTS.md step table is stale
+readme-badges|spec|-|README.md, Cargo.toml, .coverage, hk.pkl, hk.pklith.pkl, flake.lock, **/SPEC.md, docs/LLM-DISCLAIMER.md, .github/workflows/ci.yml, dev/**|cargo run -q -p actlith-dev -- readme --check|cargo run -q -p actlith-dev -- readme|-|README badges or the numbers docs/LLM-DISCLAIMER.md quotes are stale
+notices|spec|-|Cargo.toml, Cargo.lock, docs/THIRD-PARTY-NOTICES.md, dev/**|cargo run -q -p actlith-dev -- notices --check|cargo run -q -p actlith-dev -- notices|-|docs/THIRD-PARTY-NOTICES.md crate table is stale
 
 ## types
 type|checks|min|exempt
@@ -54,10 +61,15 @@ toml|taplo|-|-
 context-limits|itok, sherd-budget|-|-
 ctrm|-|-|ctrm configuration; hygiene steps only
 ctrm-sets|-|-|ctrm configuration; hygiene steps only
-path:AGENTS.md|markdownlint, rekall|-|-
+path:AGENTS.md|markdownlint, rekall, agents-table|-|-
+path:README.md|markdownlint, readme-badges|-|-
+path:docs/LLM-DISCLAIMER.md|markdownlint, readme-badges|-|-
+path:docs/THIRD-PARTY-NOTICES.md|markdownlint, notices|-|-
 path:rekall.toml|taplo, rekall|-|-
 rs|rustfmt, clippy, rust-mirror, tdd-order, doctest, rustdoc, test, coverage|-|-
 LICENSE|-|-|license text, nothing to lint
 exempt|tdd-order|-|-
 yml|actionlint, zizmor|-|-
 coverage|coverage|-|-
+path:tests/fixtures/**/*.actlith|-|-|src/registry test fixtures, some deliberately malformed; the registry tests read every one
+path:tests/fixtures/**/*.yml|yamllint|-|-

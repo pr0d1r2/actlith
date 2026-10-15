@@ -1,17 +1,20 @@
 //! Argument dispatch for `actlith-dev`.
 //!
 //! ```text
+//! actlith-dev readme [--check]    README badges and the disclaimer's numbers
+//! actlith-dev notices [--check]   the third-party notices' crate table
+//! actlith-dev agents [--check]    the step table in AGENTS.md
 //! actlith-dev commit-msg [FILE]   the commit message style rule
 //! actlith-dev changelog [FILE]    a behaviour change adds an entry
 //! ```
 //!
-//! Exit 0 clean, 1 a broken rule, 2 usage or I/O.
+//! Exit 0 clean, 1 drift or a broken rule, 2 usage or I/O.
 
 use crate::hooks;
 use crate::io::Failed;
 use std::path::Path;
 
-const USAGE: &str = "usage: actlith-dev <commit-msg|changelog> [FILE]";
+const USAGE: &str = "usage: actlith-dev <readme|notices|agents> [--check] | <commit-msg|changelog> [FILE]";
 
 /// Run one verb against the repository at `repo`; the exit code.
 #[must_use]
@@ -34,6 +37,18 @@ fn dispatch(args: &[String], repo: &Path) -> Result<(), Failed> {
         ["changelog", rest @ ..] if rest.len() < 2 => {
             hooks::changelog(repo, rest.first().copied())
         }
+        [verb] => generated(repo, verb, false),
+        [verb, "--check"] => generated(repo, verb, true),
+        _ => Err((2, USAGE.to_owned())),
+    }
+}
+
+/// A generated file, written or checked.
+fn generated(repo: &Path, verb: &str, check: bool) -> Result<(), Failed> {
+    match verb {
+        "readme" => crate::readme::run_verb(repo, check),
+        "notices" => crate::notices::run_verb(repo, check),
+        "agents" => crate::agents::run_verb(repo, check),
         _ => Err((2, USAGE.to_owned())),
     }
 }

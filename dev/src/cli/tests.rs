@@ -40,3 +40,16 @@ fn verbs_route_to_their_rules() {
     assert_eq!(run(&args(&["commit-msg", "bad"]), &repo), 1);
     assert_eq!(run(&args(&["changelog", "good"]), &repo), 0);
 }
+
+/// Each generator is reached, with or without `--check`; in an empty
+/// repository each finds no source, which is exit 2.
+#[test]
+fn generators_route_with_or_without_check() {
+    let repo = scratch("generators");
+    for verb in ["readme", "notices", "agents"] {
+        assert_eq!(run(&args(&[verb]), &repo), 2, "{verb}");
+        assert_eq!(run(&args(&[verb, "--check"]), &repo), 2, "{verb}");
+    }
+    assert_eq!(run(&args(&["nope", "--check"]), &repo), 2);
+    assert_eq!(run(&args(&["readme", "--force"]), &repo), 2);
+}

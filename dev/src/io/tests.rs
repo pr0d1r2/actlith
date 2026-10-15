@@ -1,4 +1,4 @@
-use super::{message, run, show};
+use super::{hooks, message, read, run, show, steps, update};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -87,4 +87,47 @@ fn a_scratch_repository_call_drops_the_hook_repository_variables() {
 fn a_call_in_the_hooked_repository_keeps_its_variables() {
     let cmd = super::command(Path::new("."), "git", &["status"]);
     assert_eq!(cmd.get_envs().count(), 0);
+}
+
+const DOC: super::Doc = super::Doc {
+    path: "f.md",
+    verb: "v",
+};
+
+#[test]
+fn read_names_an_unreadable_path() {
+    let repo = scratch("read");
+    let _ = std::fs::write(repo.join("f.md"), "a\n");
+    assert_eq!(read(&repo, "f.md"), Ok("a\n".to_owned()));
+    let (code, why) = read(&repo, "gone").err().unwrap_or_default();
+    assert!(code == 2 && why.starts_with("cannot read gone"), "{why}");
+}
+
+/// Equal is clean, `check` names the fix, otherwise the file is written.
+#[test]
+fn update_writes_or_reports_drift() {
+    let repo = scratch("update");
+    let _ = std::fs::write(repo.join("f.md"), "old\n");
+    assert_eq!(update(&repo, &DOC, "old\n", true), Ok(()));
+    let (code, why) =
+        update(&repo, &DOC, "new\n", true).err().unwrap_or_default();
+    assert_eq!(code, 1);
+    assert_eq!(
+        why,
+        "f.md drifted from its sources; run `cargo run -p actlith-dev -- v`"
+    );
+    assert_eq!(update(&repo, &DOC, "new\n", false), Ok(()));
+    assert_eq!(read(&repo, "f.md"), Ok("new\n".to_owned()));
+}
+
+/// hk.pkl's hooks counted by `pkl`; text that is not a number is exit 2.
+#[test]
+fn steps_are_counted_by_pkl() {
+    let repo = scratch("steps");
+    let hk = "hooks {\n  [\"pre-commit\"] { steps { length = 3 } }\n  [\"pre-push\"] { steps { length = \"x\" } }\n}\n";
+    let _ = std::fs::write(repo.join("hk.pkl"), hk);
+    assert_eq!(steps(&repo, "pre-commit"), Ok(3));
+    let (code, why) = hooks(&repo).err().unwrap_or_default();
+    assert_eq!(code, 2);
+    assert!(why.starts_with("pkl printed `x`"), "{why}");
 }
