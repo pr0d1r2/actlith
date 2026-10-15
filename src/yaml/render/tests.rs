@@ -9,7 +9,9 @@ use crate::yaml::{
 type Built<T> = Result<T, &'static str>;
 
 /// The golden target: this repository's own hand-written CI workflow.
-const CI: &str = include_str!("../../../.github/workflows/ci.yml");
+/// The hand-written ci.yml this repository had before actlith generated
+/// it (nix T10): the golden shape the model and builders must reproduce.
+const CI: &str = include_str!("../../../tests/fixtures/yaml/ci-hand.yml");
 const BUILD: &str = include_str!("../../../tests/fixtures/yaml/build.yml");
 const BUMP: &str = include_str!("../../../tests/fixtures/yaml/update-pins.yml");
 

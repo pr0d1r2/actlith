@@ -7,7 +7,9 @@ use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::yaml::{Comment, Workflow, write};
 
-const CI: &str = include_str!("../../../.github/workflows/ci.yml");
+/// The hand-written ci.yml this repository had before actlith generated
+/// it (nix T10): the golden shape the model and builders must reproduce.
+const CI: &str = include_str!("../../../tests/fixtures/yaml/ci-hand.yml");
 const ROW: &str = include_str!("../../../tests/fixtures/gate/ci.actlith");
 
 const HEAD: &str = "format 1\n\n## workflows\nid|kind|systems|cache|args\n";

@@ -34,6 +34,7 @@ V28: `tdd-order` exemptions ONLY for commits already made w/ ⊥ behaviour to pi
 V39: ∀ child git a tool | test aims at a dir ≠ the hooked repo drops `GIT_DIR` `GIT_WORK_TREE` `GIT_INDEX_FILE` `GIT_OBJECT_DIRECTORY` `GIT_ALTERNATE_OBJECT_DIRECTORIES` `GIT_COMMON_DIR` & scratch repos run w/ `core.hooksPath=/dev/null`; ⊥ test spawns git that can reach this repo (as pklith V20)
 V40: parallel wave workers share ⊥ git state: pre-commit `stash = "none"` (refs/stash is shared by ∀ worktree); `core.worktree` ⊥ set in `.git/config` (shared) & a gate step refuses it; `test` ⊥ in pre-commit (RED must land; recursion surface)
 V42: a change to `hk.pkl` | `hk.pklith.pkl` ! show hk ITSELF (pklr) runs the expected step set; `pkl eval` | `hk validate` passing ⊥ proof (as pklith's hk-parity step)
+V43: tests run at pre-push only (V40) ∴ ∀ merge, dogfood | generated-file commit ! pass `hk check --all` BEFORE committing; ⊥ rely on pre-commit for golden | test breakage
 
 ## §T TASKS
 
@@ -62,3 +63,4 @@ B3|2026-10-15|`scripts/commit-msg.sh` (`4c65434`) & `scripts/changelog-touched.s
 B4|2026-10-15|actlith-dev tests ran git in scratch repos w/ the hook's `GIT_*` env under pre-commit `test` ∴ scratch commits re-entered this repo's hooks → 432 hk processes, fork failures|V39
 B5|2026-10-15|recursion's scratch `git init` wrote `core.worktree` into shared `.git/config` → ∀ worktree acted on 1 worker's checkout; hk `stash = "git"` popped files across worktrees; commit `ca6a49d` recorded a stale `src/bots/SPEC.md`|V40
 B6|2026-10-15|`49bf5c9` dropped `test` from pre-commit w/ a Pkl `for`/`when` generator; `pkl eval` & `hk validate` passed, hk's own pklr evaluated it EMPTY ∴ pre-commit ran 0 steps until fixed; caught by wave workers seeing "hk no steps to run"|V42
+B7|2026-10-16|`b147180` made `ci.yml` generated; 5 goldens read it as the old hand-written shape ∴ 5 tests red, committed anyway: `test` runs at pre-push only \& `hk check --all` ran after the commit|V43

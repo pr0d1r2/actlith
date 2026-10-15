@@ -15,7 +15,9 @@ use crate::registry::parse;
 use crate::system::{DEFAULT_SYSTEMS, System};
 use crate::yaml::{Comment, Level, Scope, Step, Workflow, write};
 
-const CI: &str = include_str!("../../../.github/workflows/ci.yml");
+/// The hand-written ci.yml this repository had before actlith generated
+/// it (nix T10): the golden shape the model and builders must reproduce.
+const CI: &str = include_str!("../../../tests/fixtures/yaml/ci-hand.yml");
 const ROW: &str = include_str!("../../../tests/fixtures/kind/ci.actlith");
 
 const CI_WHY: &str = "Hand-written until `actlith gen` can render the gate \

@@ -128,26 +128,15 @@ fn every_rendered_workflow_passes_zizmor_offline() -> Result<(), String> {
     Ok(())
 }
 
-/// `ci.yml` without its hand-written comment block: every `# ` line
-/// between `---` and the first blank line, and that blank line.
-fn ci_without_comments() -> String {
-    let mut lines = CI.lines();
-    let head = lines.next().unwrap_or_default();
-    let rest: Vec<&str> = lines.skip_while(|l| l.starts_with("# ")).collect();
-    let body = rest.strip_prefix(&[""][..]).unwrap_or(&rest);
-    format!("{head}\n{}\n", body.join("\n"))
-}
-
 #[test]
-fn the_own_row_renders_ci_yml_but_its_header() -> Result<(), String> {
+fn the_own_row_renders_the_committed_ci_yml_exactly() -> Result<(), String> {
     let files = rendered(OWN)?;
     let [file] = files.as_slice() else {
         return Err(format!("{} files", files.len()));
     };
     assert_eq!(file.path, ".github/workflows/ci.yml");
-    let body = file.bytes.strip_prefix(crate::yaml::HEADER);
-    let body = body.and_then(|b| b.strip_prefix('\n')).unwrap_or_default();
-    assert_eq!(body, ci_without_comments());
+    // Dogfood (nix T31): ci.yml is generated, header included.
+    assert_eq!(file.bytes, CI);
     Ok(())
 }
 
