@@ -98,9 +98,9 @@ V26: bump kinds (`update-pins`, `upstream`) idempotent: branch exists → exit 0
 
 id|status|task|cites
 T1|.|rename repo dir `actionlint` → `actlith` (user, outside session) before first push|V22
-T2|.|seed BY HAND: LICENSE (MIT), `.gitignore`, `Cargo.toml` (edition 2024, MSRV 1.95, lints, `unsafe_code = "forbid"`), `src/main.rs`, `src/lib.rs`, README stub, CHANGELOG|V22
-T3|.|flake on `nixpkgs-lock`, 4 systems, cachix `nixConfig`, Rust devShell; `.envrc` `use flake`. ASK user reload|-
-T4|.|hk commit: `nix-hk` + `pklith` inputs, `lib.devShell`, `.pklith`, `hk.pkl` importing `hk.pklith.pkl`, `.githooks/` installed in same commit; REFUSE w/o hk|V19
+T2|.|dev shell FIRST: flake on `nixpkgs-lock`, 4 systems, cachix `nixConfig`, fleet guardrail tools pinned by tag (same pins as congestimancer), Rust toolchain, `pklith` `lib.devShell` ∴ hooks install on shell entry once `hk.pkl` exists; `.envrc` `use flake`. ASK user reload|V19,V23
+T3|.|hk commit: `.pklith`, `pklith gen` → `hk.pklith.pkl`, seeded `hk.pkl`, vendored `pkl/`, tracked `.githooks/`; hooks live from this commit; REFUSE w/o hk|V19,V20
+T4|.|seed crate BY HAND, through live hooks: LICENSE (MIT), `.gitignore`, `Cargo.toml` (edition 2024, MSRV 1.95, lints, `unsafe_code = "forbid"`), `clippy.toml`, `rustfmt.toml`, `src/main.rs`, `src/lib.rs`, README stub, CHANGELOG|V19,V22
 T5|.|`commit-msg` (`type(scope): claim` ≤72, body) & `changelog-touched` steps|V20
 T6|.|pklith catalog checks, 1 commit each, planted violation each: hygiene set, ripsecrets, typos, nixfmt, taplo, rustfmt, clippy, shellcheck|V20,V23
 T7|.|spec gates: `mth fmt`/`mth check` on `SPEC.md`, `itok` + `.context-limits`, `sherd check`/`budget`|V20
