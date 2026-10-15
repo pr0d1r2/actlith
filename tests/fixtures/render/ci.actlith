@@ -1,0 +1,7 @@
+format 1
+
+# This repository's own row: renders .github/workflows/ci.yml.
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|-|pr0d1r2|-
