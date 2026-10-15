@@ -10,6 +10,10 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Added
 
+- `src/render`: `.actlith` to the sorted file set `gen` writes: one
+  `.github/workflows/<id>.yml` per row, each seeded script a rendered
+  kind needs once, the `## bots` files; an unknown kind or system names
+  its row (T38, V31).
 - `src/fetch`: `pin` resolves each pinned action to its latest release
   tag and commit SHA through `gh api` and rewrites only `## actions` of
   `.actlith`; a dry run writes nothing (T29).

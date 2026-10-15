@@ -3,21 +3,13 @@
 //!
 //! Composition only (src C): the cron check lives in `cron`, what both
 //! kinds share (token, runner, pushing checkout, job permissions) in
-//! `shared`, the kinds in `update_pins` and `upstream`. Dead code is
-//! `allow`ed, not `expect`ed, until `src/render` lands (see
-//! `src/registry`).
-#![cfg_attr(
-    not(test),
-    allow(dead_code, reason = "used by src/render in a later wave")
-)]
-#![allow(
-    unused_imports,
-    reason = "build-order edges, and re-exported for src/render in a later \
-              wave"
-)]
+//! `shared`, the kinds in `update_pins` and `upstream`; `src/render`
+//! picks them up.
 
 // Build-order edges for `sherd wave` (src C), one per line.
+#[expect(unused_imports, reason = "build-order edge")]
 use crate::kind as _;
+#[expect(unused_imports, reason = "build-order edge")]
 use crate::script as _;
 
 mod cron;

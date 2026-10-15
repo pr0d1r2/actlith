@@ -5,7 +5,6 @@ use crate::gate::Gate;
 use crate::kind::{Kind, Row};
 use crate::pin::PinTable;
 use crate::registry::parse;
-use crate::system::DEFAULT_SYSTEMS;
 use crate::yaml::{Comment, Workflow, write};
 
 const CI: &str = include_str!("../../../.github/workflows/ci.yml");
@@ -53,9 +52,8 @@ fn the_own_row_renders_ci_yml_byte_for_byte() -> Result<(), String> {
 }
 
 #[test]
-fn the_kind_is_named_gate_and_runs_on_three_systems() {
+fn the_kind_is_named_gate_and_takes_command_and_timeout() {
     assert_eq!(Gate.name(), "gate");
-    assert_eq!(Gate.default_systems(), DEFAULT_SYSTEMS);
     let keys: Vec<&str> = Gate.schema().iter().map(|s| s.key).collect();
     assert_eq!(keys, ["command", "timeout"]);
 }

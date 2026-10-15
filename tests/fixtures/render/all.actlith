@@ -1,0 +1,21 @@
+format 1
+
+# One row of every v1 kind and every v1 bot: renders the file set beside
+# this file (paths with a leading `.` stored as `dot-`).
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|-|pr0d1r2|-
+build|build|-|pr0d1r2|package=hk
+update-pins|update-pins|-|-|-
+upstream|upstream|-|-|script=scripts/bump-hk.sh
+
+## hand-written
+path|reason
+.github/workflows/release.yml|not a v1 kind yet
+
+## bots
+bot|args
+coderabbit|central=pr0d1r2/coderabbit
+greptile|-
+socket|-

@@ -3,12 +3,7 @@
 //!
 //! Composition only (src C): the built-in table and the `## actions`
 //! override merge live in `table`, the rendered reference in `uses`, the
-//! refusal in `error`. Dead code is `allow`ed, not `expect`ed, until a
-//! consumer lands (see `src/registry`).
-#![cfg_attr(
-    not(test),
-    allow(dead_code, reason = "used by src/kind in a later wave")
-)]
+//! refusal in `error`.
 
 #[allow(
     unused_imports,
