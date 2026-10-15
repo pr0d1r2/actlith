@@ -1,9 +1,32 @@
 //! `src/detect`: `detect` & `seed --init`: proposed rows from tracked files.
 //!
-//! Scaffold: the node's code lands here (`src/detect` tasks). Each `use`
-//! line below is one build-order edge for `sherd wave` (src:C); the
-//! `expect` turns into a warning once the node uses them, and goes.
+//! Composition only (src C): the logic lives in the submodules. Pure
+//! except `seed`, which writes the one `.actlith` (detect C, V32).
+//!
+//! Until `src/cli` lands, the lib build sees the node as unused: dead code
+//! is `allow`ed, as in `src/registry`, and the re-exports `expect` it.
+#![cfg_attr(
+    not(test),
+    allow(dead_code, reason = "used by src/cli in a later wave")
+)]
 
-#![expect(unused_imports, reason = "scaffold: build-order edges")]
+mod lock;
+mod rows;
+mod seed;
+mod text;
 
-use crate::registry as _;
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use rows::detect;
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use seed::{SeedError, seed_init};
+#[cfg_attr(
+    not(test),
+    expect(unused_imports, reason = "used by src/cli in a later wave")
+)]
+pub(crate) use text::row_line;

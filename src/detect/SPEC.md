@@ -43,7 +43,7 @@ V32: `seed --init` ⊥ overwrites an existing `.actlith`; exit 1 naming it
 ## §T TASKS
 
 id|status|task|cites
-T27|.|`detect` (`flake.nix` → `gate`, `nixpkgs-lock` input → `update-pins`) + `seed --init`|V32,`.:V1`
+T27|x|`detect` (`flake.nix` → `gate`, `nixpkgs-lock` input → `update-pins`) + `seed --init`|V32,`.:V1`
 
 ## §B BUGS
 

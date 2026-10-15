@@ -23,3 +23,6 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/pin`: built-in pin table (checkout v7.0.1, install-nix-action
   v31.11.0, cachix-action v17) with `## actions` overrides; a non-SHA
   pin or an action without a pin is refused, naming it (T15).
+- `src/detect`: proposed `## workflows` rows (`flake.nix` gives `ci|gate`,
+  a `nixpkgs-lock` node in `flake.lock` gives `update-pins`) and
+  `seed --init` writing the first `.actlith`, never over one (T27, V32).
