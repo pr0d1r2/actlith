@@ -104,6 +104,10 @@ steps: Mapping<String, Config.Step> = new {
     check = #"command -v xnl >/dev/null 2>&1 || { echo 'xnl-lint: xnl is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; xnl lint {{files}} || { echo 'xnl-lint: an embedded or extracted program fails its own language'\''s linter' >&2; exit 1; }"#
     fix = "xnl lint --fix {{files}}"
   }
+  ["rekall"] {
+    glob = List("AGENTS.md", "CLAUDE.md", "rekall.toml")
+    check = "command -v rekall >/dev/null 2>&1 || { echo 'rekall: rekall is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; rekall check || { echo 'rekall: agent prose drifted from the rules rekall extracted from it; run rekall scan and settle the drift' >&2; exit 1; }"
+  }
   ["mth-fmt"] {
     glob = List("**/SPEC.md")
     check = #"command -v mth >/dev/null 2>&1 || { echo 'mth-fmt: mth is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; (for f in {{files}}; do mth fmt --check "$f" || exit 1; done) || { echo 'mth-fmt: SPEC.md is hard-wrapped or over the line cap' >&2; exit 1; }"#
