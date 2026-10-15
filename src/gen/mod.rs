@@ -21,13 +21,5 @@ mod stale;
 mod target;
 mod write;
 
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use stale::{Stale, check};
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use write::r#gen;

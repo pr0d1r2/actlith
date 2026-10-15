@@ -23,10 +23,6 @@ mod matcher;
 mod mismatch;
 mod normalise;
 
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use matcher::import;
 #[cfg_attr(
     not(test),

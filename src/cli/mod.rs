@@ -6,11 +6,6 @@
 //! `check`), `rows` (`detect`, `seed`, `import`), `report`, `pin`,
 //! `meta` (`completions`, `man`). `load` reads `.actlith`, `ls_files`
 //! the tracked files. `clap` lives here only (`.:C`).
-#![allow(
-    dead_code,
-    clippy::unnecessary_wraps,
-    reason = "RED: the stubs dispatch nothing yet"
-)]
 
 // Build-order edges for `sherd wave` (src C), one per line; the
 // submodules use them.

@@ -15,18 +15,6 @@ mod rows;
 mod seed;
 mod text;
 
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use rows::detect;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use seed::{SeedError, seed_init};
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use text::row_line;

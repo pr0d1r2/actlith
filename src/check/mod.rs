@@ -28,13 +28,5 @@ mod totality;
     expect(unused_imports, reason = "used by src/cli in a later wave")
 )]
 pub(crate) use finding::{Finding, Problem};
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use listing::listing;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use totality::totality;

@@ -49,8 +49,4 @@ mod text;
 )]
 pub(crate) use error::ReportError;
 pub(crate) use format::Format;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use output::report;

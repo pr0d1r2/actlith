@@ -33,9 +33,5 @@ mod section;
 )]
 pub(crate) use error::FetchError;
 pub(crate) use gh::Gh;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use pin::pin;
 pub(crate) use resolver::Resolver;
