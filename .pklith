@@ -38,10 +38,12 @@ sh|shellcheck, shfmt|-|-
 yaml|yamllint|-|-
 gitignore|-|-|git configuration; hygiene steps only
 markdownlintignore|-|-|markdownlint configuration; hygiene steps only
-lock|-|-|written by `nix flake lock`; hygiene steps only
+lock|-|-|written by `nix flake lock` or cargo; cargo deny reads Cargo.lock from T9
 toml|taplo|-|-
 context-limits|itok, sherd-budget|-|-
 ctrm|-|-|ctrm configuration; hygiene steps only
 ctrm-sets|-|-|ctrm configuration; hygiene steps only
 path:AGENTS.md|markdownlint, rekall|-|-
 path:rekall.toml|taplo, rekall|-|-
+rs|rustfmt, clippy|-|-
+LICENSE|-|-|license text, nothing to lint

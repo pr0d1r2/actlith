@@ -1,0 +1,42 @@
+[package]
+name = "actlith"
+# Unpublished until the first release candidate (T36).
+version = "0.0.0"
+edition = "2024"
+# The fleet pin: nixpkgs-lock (nixos-26.05) carries rustc 1.95.
+rust-version = "1.95"
+license = "MIT"
+description = "Materialize GitHub Actions workflows from a small config"
+repository = "https://github.com/pr0d1r2/actlith"
+readme = "README.md"
+keywords = ["github-actions", "ci", "workflow", "generator", "nix"]
+categories = ["development-tools", "command-line-utilities"]
+
+[[bin]]
+name = "actlith"
+path = "src/main.rs"
+
+[dependencies]
+
+[lints.rust]
+# No FFI anywhere, so no module needs to lift it (SPEC.md C).
+unsafe_code = "forbid"
+unreachable_pub = "deny"
+
+# Code limits (SPEC.md C), thresholds in clippy.toml; the fleet deny list.
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+indexing_slicing = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+arithmetic_side_effects = "deny"
+too_many_lines = "deny"
+cognitive_complexity = "deny"
+excessive_nesting = "deny"
+fn_params_excessive_bools = "deny"
+struct_excessive_bools = "deny"
