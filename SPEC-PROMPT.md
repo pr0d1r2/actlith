@@ -172,3 +172,52 @@ Same as congestimancer:
 - 1-to-1 unit coverage with floor and ceiling, aiming at 100%.
 - Specs in federated SPEC-DAG form; build in sherd waves with parallel
   subagents once the spec has independent nodes.
+
+# Decisions, round 3 (2026-10-15): guardrails and conventions
+
+13. Guardrails: the same Rust guardrail tools as the other repos, each in its
+    role:
+    - pklith: materialise hk git hooks; installed when entering the dev shell
+      (`lib.devShell`, tracked `.githooks/`).
+    - nix-hk: hk in the flake.
+    - sherd: SPEC.md federation over a directory DAG, budgets, navigation and
+      wave builds.
+    - microlith: spec operations (`mth fmt`, `mth check`, `mth archive`).
+    - itok: context limits (`.context-limits`).
+    - characterminator: allowed characters per file type (`.ctrm`).
+    - rekall: rules and skills from agent memory, with its honesty gate.
+    - xenolith: one language per file, `rust-mirror` test layout, `tdd-order`.
+    - actionlint and zizmor: on this repository's workflows and on every
+      fixture workflow actlith renders in tests.
+14. Dogfood from day one: this repository's own `.github/workflows/ci.yml` is
+    hand-written until `actlith gen` can render it, then generated, and
+    `actlith gen --check` joins the gate in the same commit.
+15. Argument parsing: `clap` (derive), as congestimancer decided; pklith#36
+    tracks the move for pklith.
+16. `unsafe_code = "forbid"`: actlith needs no FFI.
+17. Conventions copied from pklith and congestimancer:
+    - Cargo: edition 2024, `rust-version = "1.95"`, MIT, shared clippy deny
+      list and `clippy.toml` thresholds, `rustfmt.toml` (`max_width = 80`).
+    - Workspace: one published crate `actlith` (library + binary) plus `dev/`
+      (`actlith-dev`, `publish = false`) for README badges, third-party
+      notices and the AGENTS step table.
+    - Flake: Rust from `nixpkgs-lock`, fleet tools pinned by tag, every input
+      follows `nixpkgs-lock`, `pr0d1r2.cachix.org` substituter, 4 systems
+      (`aarch64-darwin`, `x86_64-darwin`, `x86_64-linux`, `aarch64-linux`),
+      `.envrc` with `use flake`.
+    - hk.pkl: `fast` steps pre-commit, `all` steps pre-push; commit-msg lint
+      (`type(scope): claim`, at most 72 characters); changelog-touched check.
+    - Coverage: hard floor plus `.coverage` ratchet ceiling.
+    - Size limits per module, ASCII-only via `.ctrm`.
+    - Spec: sections G/F/N/C/I/R/V/T/B, caveman encoding, start with one
+      SPEC.md and sherdify when it exceeds its budget.
+    - cargo-deny with the shared `deny.toml`.
+    - CI on 3 runners (`x86_64-linux`, `aarch64-linux`, `aarch64-darwin`);
+      `x86_64-darwin` verified by hand on the Intel Mac.
+    - Release: `cargo-release`, Keep a Changelog, version ladder (even minor =
+      stable). Claim the crate with the first real pre-release `0.1.0-rc.1`;
+      publishing needs explicit approval.
+    - Tests: fixtures in `tests/fixtures/<topic>/`, CLI tests in
+      `tests/cli.rs`, golden workflow files compared byte for byte.
+    - After `no-commit-to-branch` lands, work goes through branch + PR; merge
+      by rebase or merge commit, never squash.
