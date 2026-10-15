@@ -25,18 +25,10 @@ mod error;
 mod table;
 mod uses;
 
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/kind in a later wave")
-)]
 pub(crate) use error::PinError;
 #[cfg_attr(
     not(test),
     expect(unused_imports, reason = "used by src/kind in a later wave")
 )]
 pub(crate) use table::PinTable;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/kind in a later wave")
-)]
 pub(crate) use uses::Uses;
