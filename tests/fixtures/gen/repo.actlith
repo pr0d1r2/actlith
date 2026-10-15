@@ -1,0 +1,13 @@
+format 1
+
+# A repository with a gate, a pin bump and one bot: `gen` over a temp
+# root writes every rendered file, then `gen --check` finds none stale.
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|-|pr0d1r2|-
+update-pins|update-pins|-|-|-
+
+## bots
+bot|args
+greptile|-
