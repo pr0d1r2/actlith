@@ -1,0 +1,13 @@
+# Per-path token ceilings, gated by `itok check` (file rows) and
+# `sherd budget` (directory rows = chain). The format is itok's and
+# sherd's, as in congestimancer and pklith.
+#
+# A ceiling caps ENTRY COST: what a session loads before any work begins.
+# Set ~12% over measured so ordinary edits fit; raising one is a reviewed
+# commit with its reason.
+#
+# MEASURED 2026-10-15 with `itok estimate --bpe`: SPEC.md 5211. That is over
+# the fleet cap for one spec file (3500, congestimancer root V3), so SPEC.md
+# is due to be federated with sherd (T34); this row is the interim ceiling,
+# not a target.
+SPEC.md        5900
