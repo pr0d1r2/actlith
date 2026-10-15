@@ -24,6 +24,7 @@ sib|src/gen|`gen` & `gen --check`: write or compare rendered files
 sib|src/check|`check`: totality over `.github/workflows/`
 sib|src/import|`import`: workflow file → row by render-and-compare
 sib|src/report|`report` text, json, md: workflows × systems × pins, secrets
+sib|src/bots|reviewer-bot config files (`.coderabbit.yaml`, `greptile.json`, `socket.yml`) from `## bots`
 sib|src/fetch|GitHub API tag → SHA for `pin`; ONLY network code
 sib|src/cli|clap verbs, flags, exit codes, completions, man page
 

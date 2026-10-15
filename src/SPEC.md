@@ -22,6 +22,7 @@ check|`check`: totality over `.github/workflows/`|rendering|-
 import|`import`: workflow file → row by render-and-compare|writing files|-
 detect|`detect` & `seed --init`: rows from tracked files|rendering|-
 report|`report` text, json, md: workflows × systems × pins, secrets|rendering|-
+bots|reviewer-bot config files (`.coderabbit.yaml`, `greptile.json`, `socket.yml`) from `## bots`|installing bot apps|-
 fetch|GitHub API tag → SHA for `pin`; ONLY network code|pin table merge|-
 cli|clap verbs, flags, exit codes, completions, man page|every verb's logic|-
 
@@ -38,7 +39,7 @@ sib|nix|repo gate: dev shell, guardrails, hk steps, CI, release, dogfood
 
 - module = dir + `mod.rs`. `mod.rs` composes, ⊥ implements.
 - ∀ external dep ! ONE facade node: `clap` → `src/cli` · HTTP client (if any) → `src/fetch`.
-- dep order (waves): `registry`, `system`, `yaml`, `script` → `pin`, `detect` → `kind`, `fetch` → `gate`, `build`, `bump` → `render` → `gen`, `check`, `import`, `report` → `cli`. edges = `use crate::<node> as _;` lines in each `mod.rs`, 1 per line (sherd reads 1st line only).
+- dep order (waves): `registry`, `system`, `yaml`, `script` → `pin`, `detect`, `bots` → `kind`, `fetch` → `gate`, `build`, `bump` → `render` → `gen`, `check`, `import`, `report` → `cli`. edges = `use crate::<node> as _;` lines in each `mod.rs`, 1 per line (sherd reads 1st line only).
 
 ## §V INVARIANTS
 

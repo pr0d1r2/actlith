@@ -18,6 +18,7 @@ src/bump/SPEC.md             990
 src/kind/SPEC.md             970
 src/pin/SPEC.md              930
 src/registry/SPEC.md         930
+src/bots/SPEC.md             1430
 src/build/SPEC.md            860
 src/system/SPEC.md           830
 src/yaml/SPEC.md             820
@@ -38,6 +39,7 @@ dev/SPEC.md                  400
 dev                          2390
 nix                          3000
 src                          2530
+src/bots                    2980
 src/build                    2830
 src/bump                     2960
 src/check                    2750

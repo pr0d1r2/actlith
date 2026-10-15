@@ -4,6 +4,7 @@
 //! a private module whose public surface is re-exported here as it is
 //! built. The design lives in `SPEC.md` and the `SPEC.md` of each node.
 
+mod bots;
 mod build;
 mod bump;
 mod check;

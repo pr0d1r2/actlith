@@ -6,6 +6,7 @@
 
 #![expect(unused_imports, reason = "scaffold: build-order edges")]
 
+use crate::bots as _;
 use crate::build as _;
 use crate::bump as _;
 use crate::gate as _;

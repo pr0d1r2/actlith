@@ -25,6 +25,7 @@ sib|src/check|`check`: totality over `.github/workflows/`
 sib|src/import|`import`: workflow file → row by render-and-compare
 sib|src/detect|`detect` & `seed --init`: rows from tracked files
 sib|src/report|`report` text, json, md: workflows × systems × pins, secrets
+sib|src/bots|reviewer-bot config files (`.coderabbit.yaml`, `greptile.json`, `socket.yml`) from `## bots`
 sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §C CONSTRAINTS
