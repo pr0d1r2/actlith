@@ -48,10 +48,6 @@ mod text;
     expect(unused_imports, reason = "used by src/cli in a later wave")
 )]
 pub(crate) use error::ReportError;
-#[cfg_attr(
-    not(test),
-    expect(unused_imports, reason = "used by src/cli in a later wave")
-)]
 pub(crate) use format::Format;
 #[cfg_attr(
     not(test),
