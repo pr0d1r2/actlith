@@ -20,7 +20,7 @@ fn crates_come_from_cargo_tree_once_each() {
 fn no_crates_is_an_empty_table() {
     let got = table(&crates("actlith v0.0.0 (/x)|MIT\n", "actlith"));
     assert!(
-        got.ends_with("|---|---|---|\n<!-- END crates -->\n"),
+        got.ends_with("| --- | --- | --- |\n<!-- END crates -->\n"),
         "{got}"
     );
     assert!(

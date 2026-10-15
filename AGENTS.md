@@ -22,3 +22,55 @@ Instructions for coding agents working in this repository.
   per check, after proving it rejects a planted violation.
 - When seeding from pklith shows a gap, file an issue on pklith, without
   naming this repository, after checking that none exists.
+
+## The gate
+
+Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
+
+<!-- BEGIN steps: generated from hk.pkl by `cargo run -p actlith-dev -- agents`; do not edit -->
+38 steps run on every commit and 41 on push and `hk check`; the commit-msg hook checks the message.
+
+| step | runs on | files | fixes |
+| --- | --- | --- | --- |
+| `trailing-whitespace` | commit | `**/*` | yes |
+| `final-newline` | commit | `**/*` | yes |
+| `line-endings` | commit | `**/*` | yes |
+| `no-bom` | commit | `**/*` | - |
+| `no-merge-conflict` | commit | `**/*` | - |
+| `no-case-conflict` | commit | `**/*` | - |
+| `no-broken-symlinks` | commit | whole tree | - |
+| `no-private-key` | commit | `**/*` | - |
+| `ripsecrets` | commit | `**/*` | - |
+| `no-local-paths` | commit | `**/*` | - |
+| `nixfmt` | commit | `**/*.nix` | yes |
+| `shfmt` | commit | `**/*.sh` `**/*.bash` | yes |
+| `taplo` | commit | `**/*.toml` | yes |
+| `rustfmt` | commit | `**/*.rs` | yes |
+| `typos` | commit | `**/*` | - |
+| `shellcheck` | commit | `.githooks/*` `.envrc` `**/*.sh` | - |
+| `clippy` | commit | `**/*.rs` `Cargo.toml` `clippy.toml` | - |
+| `actionlint` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
+| `zizmor` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
+| `statix` | commit | `**/*.nix` | yes |
+| `deadnix` | commit | `**/*.nix` | yes |
+| `markdownlint` | commit | `**/*.md` | yes |
+| `yamllint` | commit | `**/*.yml` `**/*.yaml` | - |
+| `editorconfig-checker` | commit | `**/*` | - |
+| `ctrm` | commit | `**/*` | yes |
+| `xnl-check` | commit | `**/*.nix` `**/*.pkl` `.envrc` `.githooks/*` | - |
+| `xnl-lint` | commit | `**/*.nix` `**/*.pkl` `.envrc` `.githooks/*` | yes |
+| `rust-mirror` | commit | `**/*.rs` `nix/guard/rust-mirror.sh` | - |
+| `rustdoc` | commit | `**/*.rs` `Cargo.toml` | - |
+| `rekall` | commit | `AGENTS.md` `CLAUDE.md` `rekall.toml` | - |
+| `mth-fmt` | commit | `**/SPEC.md` | yes |
+| `mth-check` | commit | `**/SPEC.md` | - |
+| `sherd-check` | commit | `**/SPEC.md` `**/*.rs` | - |
+| `sherd-nav` | commit | `**/SPEC.md` | yes |
+| `sherd-budget` | commit | `**/SPEC.md` `.context-limits` | - |
+| `itok` | commit | `**/*` `.context-limits` | - |
+| `test` | push | `**/*.rs` `Cargo.toml` `Cargo.lock` | - |
+| `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
+| `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
+| `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
+| `tdd-order` | push | `**/*.rs` `nix/guard/tdd-order.sh` `nix/guard/tdd-order.exempt` | - |
+<!-- END steps -->

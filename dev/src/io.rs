@@ -1,4 +1,5 @@
-//! The only module that touches the repository: git and files, always
+//! The only module that touches the repository: git, `pkl`, `cargo` and
+//! files, always
 //! relative to an explicit repository directory so tests can use scratch
 //! repositories.
 
@@ -108,39 +109,55 @@ pub(crate) struct Doc {
     pub(crate) verb: &'static str,
 }
 
-/// A file's text, `path` relative to `repo`. RED: a stub.
+/// A file's text, `path` relative to `repo`.
 ///
 /// # Errors
 ///
 /// (2, why) naming the path when it cannot be read.
-pub(crate) fn read(_repo: &Path, _path: &str) -> Result<String, Failed> {
-    Ok(String::new())
+pub(crate) fn read(repo: &Path, path: &str) -> Result<String, Failed> {
+    std::fs::read_to_string(repo.join(path))
+        .map_err(|e| (2, format!("cannot read {path}: {e}")))
 }
 
-/// Make `doc` hold `wanted`: written, or with `check` compared. RED: a
-/// stub.
+/// Make `doc` hold `wanted`: written, or with `check` compared, drift
+/// being exit 1 naming the verb that fixes it (equality, never a
+/// heuristic).
 ///
 /// # Errors
 ///
 /// (1, why) on drift under `check`; (2, why) when it cannot be read or
 /// written.
 pub(crate) fn update(
-    _repo: &Path,
+    repo: &Path,
     doc: &Doc,
-    _wanted: &str,
-    _check: bool,
+    wanted: &str,
+    check: bool,
 ) -> Result<(), Failed> {
-    let _ = (doc.path, doc.verb);
-    Ok(())
+    let (path, verb) = (doc.path, doc.verb);
+    if read(repo, path)? == wanted {
+        return Ok(());
+    }
+    if check {
+        let fix = format!(
+            "{path} drifted from its sources; run `cargo run -p actlith-dev -- {verb}`"
+        );
+        return Err((1, fix));
+    }
+    std::fs::write(repo.join(path), wanted)
+        .map_err(|e| (2, format!("cannot write {path}: {e}")))
 }
 
-/// Steps in one hook, as `pkl` evaluates `hk.pkl` in `repo`. RED: a stub.
+/// Steps in one hook, as `pkl` evaluates `hk.pkl` in `repo`.
 ///
 /// # Errors
 ///
 /// (2, why) when `pkl` fails or prints something other than a number.
-pub(crate) fn steps(_repo: &Path, _hook: &str) -> Result<usize, Failed> {
-    Ok(0)
+pub(crate) fn steps(repo: &Path, hook: &str) -> Result<usize, Failed> {
+    let expr = format!("hooks[\"{hook}\"].steps.length");
+    let text = run(repo, "pkl", &["eval", "-x", &expr, "hk.pkl"])?;
+    text.trim()
+        .parse()
+        .map_err(|_| (2, format!("pkl printed `{}` for {expr}", text.trim())))
 }
 
 /// Steps on commit and on push.
