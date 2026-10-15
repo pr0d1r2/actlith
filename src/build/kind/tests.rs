@@ -10,7 +10,6 @@ use super::Build;
 use crate::kind::{Kind, Row};
 use crate::pin::PinTable;
 use crate::registry::parse;
-use crate::system::DEFAULT_SYSTEMS;
 use crate::yaml::render;
 
 /// `(row file, golden file)` under `tests/fixtures/build/`.
@@ -98,11 +97,10 @@ fn every_golden_file_passes_zizmor_offline() -> Result<(), String> {
 }
 
 #[test]
-fn the_kind_says_its_name_schema_and_systems() {
+fn the_kind_says_its_name_and_schema() {
     assert_eq!(Build.name(), "build");
     let keys: Vec<_> = Build.schema().iter().map(|s| s.key).collect();
     assert_eq!(keys, ["package", "timeout"]);
-    assert_eq!(Build.default_systems(), DEFAULT_SYSTEMS);
 }
 
 #[test]

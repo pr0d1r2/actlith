@@ -1,12 +1,5 @@
 //! The one system table (V15): nix system name and GitHub-hosted runner
 //! label, side by side. No runner label is spelled anywhere else.
-#![cfg_attr(
-    not(test),
-    expect(
-        dead_code,
-        reason = "used by src/render and the kind nodes in a later wave"
-    )
-)]
 
 use std::fmt;
 

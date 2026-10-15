@@ -8,7 +8,7 @@ use crate::kind::{
     on_push_and_pr, workflow,
 };
 use crate::pin::PinTable;
-use crate::system::System;
+use crate::system::{DEFAULT_SYSTEMS, System};
 use crate::yaml::Workflow;
 
 /// `package` (required) and `timeout`.
@@ -19,16 +19,6 @@ const SCHEMA: [ArgSpec; 2] = [
         default: None,
     },
     TIMEOUT,
-];
-
-/// The systems `-` means: those of `gate` (`docs/KINDS.md`), equal to
-/// `crate::system::DEFAULT_SYSTEMS` (a test holds them so). Spelled here
-/// because naming that constant outside a test leaves `src/system`'s
-/// `expect(dead_code)` unfulfilled, which clippy denies.
-const SYSTEMS: [System; 3] = [
-    System::X86_64Linux,
-    System::Aarch64Linux,
-    System::Aarch64Darwin,
 ];
 
 /// The seeded scripts a `build` workflow runs: `gen` writes them too.
@@ -55,7 +45,7 @@ impl Kind for Build {
     }
 
     fn default_systems(&self) -> &'static [System] {
-        &SYSTEMS
+        &DEFAULT_SYSTEMS
     }
 
     /// `CACHIX_AUTH_TOKEN` for the push from `main` (`src/kind:V14`); a

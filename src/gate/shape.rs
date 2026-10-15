@@ -11,7 +11,7 @@ use crate::kind::{
     run, runner_matrix, timeout, workflow,
 };
 use crate::pin::PinTable;
-use crate::system::System;
+use crate::system::{DEFAULT_SYSTEMS, System};
 use crate::yaml::{Comment, Step, Workflow};
 
 /// The job id and name; `pklith protect` reads it (`src/kind` V9).
@@ -19,13 +19,6 @@ const JOB: &str = "gate";
 
 /// The gate run when the row gives no `command`.
 const COMMAND: &str = "nix develop --command hk check --all --check";
-
-/// `x86_64-linux`, `aarch64-linux`, `aarch64-darwin` (`docs/KINDS.md`).
-const SYSTEMS: [System; 3] = [
-    System::X86_64Linux,
-    System::Aarch64Linux,
-    System::Aarch64Darwin,
-];
 
 const SCHEMA: [ArgSpec; 2] = [
     ArgSpec {
@@ -53,7 +46,7 @@ impl Kind for Gate {
     }
 
     fn default_systems(&self) -> &'static [System] {
-        &SYSTEMS
+        &DEFAULT_SYSTEMS
     }
 
     fn secrets(&self, row: &Row) -> Vec<Secret> {
