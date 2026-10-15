@@ -52,3 +52,15 @@ SOURCES: `SPEC-PROMPT.md` (decisions D1–D23) & `docs/KINDS.md` (kind catalogue
 - secrets: `CACHIX_AUTH_TOKEN` (cache push); `args token=<SECRET>` optional for PR-opening kinds
 - lib: `actlith` exposes registry parse, kind model & render for reuse (pklith)
 - nix: `packages.<system>.default` = `actlith`. ⊥ own devShell builder (pklith `lib.devShell` owns it)
+
+## §R RESEARCH
+
+id|topic|finding|src
+R1|fleet survey|170 local repos w/ `.github/workflows/`, 163 w/ `ci.yml`. other kinds: `update-pins` 11, `release` 3, `build` 3, `upstream` 2, rest one-offs. byte-identical `ci.yml` groups 28/22/19/12/12. "same" copies drift: pklith vs congestimancer `ci.yml` differ in comment, job name, `permissions` place, `timeout-minutes`, pin comment spacing|local checkouts 2026-10-15
+R2|pin drift|older copies pin by tag (`actions/checkout@v4`, `cachix/install-nix-action@v27`); nix-hk `update-pins`/`build`/`upstream` still `@v5`/`@v31`/`@v16`; newest pin SHA + `# vX.Y.Z`. zizmor flags tag pins|R1 reading
+R3|reference shapes|`gate` = pklith `ci.yml`. `build`, `update-pins`, `upstream` = nix-hk files of same names|../pklith, ../nix-hk
+R4|cachix silent fail|cachix push failure logs ⊥ fails job (403 → green over empty cache) ∴ nix-hk `verify-cache` job asks cache per system after build|nix-hk `build.yml` V35 comment
+R5|token limit|PR opened w/ `GITHUB_TOKEN` ⊥ triggers other workflows ∴ gate ⊥ runs on bump PR until a push | rerun. lift = App | fine-grained token secret|GitHub docs "Triggering a workflow from a workflow"
+R6|reusable wf|`workflow_call` callee in other repo: caller pins callee, linters see 1-line caller, check name nests `caller / callee` ∴ required contexts from `pklith protect` change|GitHub docs reusable workflows
+R7|name|`actlith` free 2026-10-15: crates.io npm PyPI RubyGems brew; ⊥ GitHub user/org/repo. rejected `actionlint` (rhysd linter we run), `actionlith` (1 letter off), `workflith` (long), `ghalith` (GH user), `runlith` (npm, GH user)|registry APIs, `gh api`
+R8|runners|`ubuntu-latest` x86_64, `ubuntu-24.04-arm` aarch64 linux, `macos-latest` aarch64 darwin; ⊥ hosted x86_64-darwin going forward (macos-13 retiring)|pklith `ci.yml`, nix-hk `build.yml` comment
