@@ -20,3 +20,6 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/yaml`: typed workflow model and own YAML writer with fixed key
   order and quoting, `|` and `>-` blocks and the generated header; no
   file is emitted yet (T16).
+- `src/pin`: built-in pin table (checkout v7.0.1, install-nix-action
+  v31.11.0, cachix-action v17) with `## actions` overrides; a non-SHA
+  pin or an action without a pin is refused, naming it (T15).
