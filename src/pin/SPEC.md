@@ -49,7 +49,7 @@ V2: ∀ emitted `uses:` = `owner/repo@<40-hex sha>  # <version>`; sha from pin t
 ## §T TASKS
 
 id|status|task|cites
-T15|.|built-in pins (checkout v7.0.1, install-nix-action v31.11.0, cachix-action v17), override merge, 40-hex check; missing pin → error naming action|V2
+T15|x|built-in pins (checkout v7.0.1, install-nix-action v31.11.0, cachix-action v17), override merge, 40-hex check; missing pin → error naming action|V2
 
 ## §B BUGS
 

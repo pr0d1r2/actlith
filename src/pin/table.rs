@@ -34,29 +34,64 @@ pub(crate) struct PinTable(BTreeMap<String, Uses>);
 impl PinTable {
     /// The built-in table.
     pub(crate) fn builtin() -> Self {
-        let _ = BUILTIN;
-        Self::default()
+        let pin = |&(action, version, sha): &(&str, &str, &str)| Uses {
+            action: action.to_owned(),
+            sha: sha.to_owned(),
+            version: version.to_owned(),
+        };
+        Self(
+            BUILTIN
+                .iter()
+                .map(pin)
+                .map(|u| (u.action.clone(), u))
+                .collect(),
+        )
     }
 
     /// This table with each `## actions` row replacing or adding its
     /// action's pin; a row whose SHA is not 40-hex is refused.
     pub(crate) fn with_overrides(
-        self,
+        mut self,
         rows: &[ActionPin],
     ) -> Result<Self, PinError> {
-        rows.first().map_or(Ok(self), |r| {
-            Err(PinError::Missing {
-                action: r.action.clone(),
-            })
-        })
+        for row in rows {
+            let uses = checked(row)?;
+            self.0.insert(uses.action.clone(), uses);
+        }
+        Ok(self)
     }
 
     /// The pin of `action`, or an error naming it.
     pub(crate) fn uses(&self, action: &str) -> Result<Uses, PinError> {
-        self.0.get("").cloned().ok_or_else(|| PinError::Missing {
-            action: action.to_owned(),
-        })
+        self.0
+            .get(action)
+            .cloned()
+            .ok_or_else(|| PinError::Missing {
+                action: action.to_owned(),
+            })
     }
+}
+
+/// The row as a pin, when its SHA is a full commit SHA.
+fn checked(row: &ActionPin) -> Result<Uses, PinError> {
+    if !full_sha(&row.sha) {
+        return Err(PinError::NotSha {
+            line: row.line,
+            action: row.action.clone(),
+            sha: row.sha.clone(),
+        });
+    }
+    Ok(Uses {
+        action: row.action.clone(),
+        sha: row.sha.clone(),
+        version: row.version.clone(),
+    })
+}
+
+/// 40 lowercase hex digits: a tag or branch never passes (V2).
+fn full_sha(sha: &str) -> bool {
+    let hex = |c: char| c.is_ascii_digit() || ('a'..='f').contains(&c);
+    sha.len() == 40 && sha.chars().all(hex)
 }
 
 #[cfg(test)]

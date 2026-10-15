@@ -20,8 +20,20 @@ pub(crate) enum PinError {
 }
 
 impl fmt::Display for PinError {
-    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Ok(())
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Missing { action } => write!(
+                f,
+                "action `{action}` has no pin\n  fix: add a `## actions` \
+                 row `{action}|<version>|<sha>` (`actlith pin` resolves it)"
+            ),
+            Self::NotSha { line, action, sha } => write!(
+                f,
+                ".actlith:{line}: pin `{sha}` of `{action}` is not a full \
+                 commit SHA\n  fix: write the 40-hex commit SHA \
+                 (`actlith pin` resolves it)"
+            ),
+        }
     }
 }
 

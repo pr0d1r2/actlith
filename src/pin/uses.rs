@@ -16,19 +16,20 @@ pub(crate) struct Uses {
 impl Uses {
     /// The `uses:` value: `owner/repo@<sha>`.
     pub(crate) fn reference(&self) -> String {
-        self.action.clone()
+        format!("{}@{}", self.action, self.sha)
     }
 
     /// The trailing comment the YAML writer puts after the reference.
     pub(crate) fn comment(&self) -> Comment {
-        Comment::new(&self.sha)
+        Comment::new(&self.version)
     }
 
-    /// The step action for the YAML model, with `with` inputs.
+    /// The step action for the YAML model, with `with` inputs: the writer
+    /// prints `uses: owner/repo@<sha>  # <version>`.
     pub(crate) fn step(&self, with: With) -> yaml::Uses {
         yaml::Uses {
-            reference: self.version.clone(),
-            version: None,
+            reference: self.reference(),
+            version: Some(self.comment()),
             with,
         }
     }
