@@ -36,7 +36,8 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §I INTERFACES
 
 - types: `Kind` trait, `ArgSchema` (key, required, default), `Args`, `Secret`, `KindError`.
-- fns: `parse_args(&ArgSchema, &str) -> Result<Args, KindError>` (unknown key → error), `common::*` builders.
+- fns: `parse_args(&ArgSchema, &WorkflowRow) -> Result<Args, KindError>` (unknown | repeated | missing required key → error naming line); `Row::parse(&dyn Kind, &WorkflowRow)`; builders re-exported flat (⊥ `common` module); timeout 1..=360 (hosted max).
+- cache: public keys from a built-in table (v1: `pr0d1r2` only); other cache names refused w/ fix hint, ⊥ guessed key. `## caches` (`name|public-key`) = T44.
 
 ## §V INVARIANTS
 
@@ -48,6 +49,7 @@ V14: ∀ kind declares ∀ secret it reads; `report` lists them per workflow. fo
 
 id|status|task|cites
 T17|x|`Kind` trait, arg schema & parse, common parts (permissions, concurrency, timeouts, checkout, install-nix, cachix, env-only expressions); tests per part|V3,V14,`src/registry:V10`
+T44|.|`.actlith` `## caches` section (columns name, public-key; `src/registry`) so a repo names its own cachix cache; built-in table stays the default|`src/registry:V10`
 
 ## §B BUGS
 

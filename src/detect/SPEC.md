@@ -34,7 +34,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- fns: `detect(&[path], flake_lock: Option<&str>) -> Vec<WorkflowRow>`; `seed_init(root)` writes `.actlith` ⊥ over existing.
+- fns: `detect(&[path], flake_lock: Option<&str>) -> Vec<WorkflowRow>` (ids `ci` for gate, `update-pins`); `seed_init(root, rows)` writes `.actlith` ⊥ over existing (`src/cli` lists files & reads `flake.lock` ∴ node stays pure); `SeedError::code()` 1 exists | 2 I/O.
 
 ## §V INVARIANTS
 
