@@ -43,7 +43,7 @@ V33: json carries `schema_version`; field rename | removal bumps it
 ## §T TASKS
 
 id|status|task|cites
-T28|.|`report` text/json/md incl. secrets per workflow|V33,`src/kind:V14`
+T28|x|`report` text/json/md incl. secrets per workflow|V33,`src/kind:V14`
 
 ## §B BUGS
 

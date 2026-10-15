@@ -17,6 +17,10 @@ the bytes actlith emits for the same inputs is at least a minor version
   files: an undeclared workflow, a hand-written path that is missing,
   also generated or without a reason, and a bot file with no `## bots`
   row each name the path and a fix (T25, V7, `src/bots` V38).
+- `src/report`: `report` as text, JSON (`schema_version` 1) or Markdown:
+  each workflow's kind, systems with runner labels, cache, pinned
+  actions and secrets, the hand-written files and the GitHub Apps the
+  `## bots` rows assume, all sorted (T28, V33).
 - `src/render`: `.actlith` to the sorted file set `gen` writes: one
   `.github/workflows/<id>.yml` per row, each seeded script a rendered
   kind needs once, the `## bots` files; an unknown kind or system names
