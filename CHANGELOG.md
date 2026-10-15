@@ -33,3 +33,6 @@ the bytes actlith emits for the same inputs is at least a minor version
   and the hardened common parts every kind builds from (permissions,
   concurrency, timeouts, checkout, install-nix, cachix, env-only `run:`);
   no file is emitted yet (T17).
+- Kind `gate` (`src/gate`): the hk gate per system, job `gate`, args
+  `command` and `timeout`; actlith's own row renders this repository's
+  `ci.yml` byte for byte; no file is emitted yet (T19, V29).

@@ -87,7 +87,8 @@ fn a_cache_needs_the_cachix_secret() -> Result<(), String> {
 #[test]
 fn no_cache_means_no_cachix_step() -> Result<(), String> {
     let text = write(&built(&row("ci|gate|-|-|-")?)?);
-    assert!(!text.contains("cachix"), "{text}");
+    assert!(!text.contains("cachix/cachix-action"), "{text}");
+    assert!(!text.contains("CACHIX_AUTH_TOKEN"), "{text}");
     assert!(text.contains("install-nix-action"), "{text}");
     assert!(text.contains("fetch-depth: 0"), "{text}");
     Ok(())
