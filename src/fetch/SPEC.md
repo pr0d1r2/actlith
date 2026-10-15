@@ -36,6 +36,11 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 - trait `Resolver { fn sha(&self, action, tag) -> Result<String, FetchError> }`; `pin(root, dry_run)` rewrites `## actions` only.
 
+## §R RESEARCH
+
+id|topic|finding|src
+R14|client|`gh api`: 0 deps, own auth; `commits/<tag>` derefs tag|`gh api`
+
 ## §V INVARIANTS
 
 V16: `pin` = sole networked path; writes only `## actions` of `.actlith`; `--dry-run` writes ⊥. ⊥ other verb links network code
