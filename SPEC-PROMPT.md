@@ -109,3 +109,29 @@ actlith pin [--dry-run] # resolve action tags to commit SHAs (network, opt-in)
   not edit` header, as `hk.pklith.pkl` does. Hand-written workflows stay
   allowed but must be listed, so `check` sees every file under
   `.github/workflows/`.
+
+# Decisions (2026-10-15)
+
+1. Deterministic core, as in pklith: same `.actlith` and same actlith version
+   give byte-identical workflows. No LLM, no heuristic guess, no clock, no
+   hostname in output. No network, except `actlith pin`, which is opt-in.
+2. Action pins: every `uses:` is pinned to a full commit SHA with the version
+   as a trailing comment (`@<sha> # v7.0.1`), the zizmor-clean form the newest
+   fleet workflows use. Pins live in a pin table (built-in, overridable in
+   `.actlith` `## actions`), never in templates, so one bump of the table
+   updates every kind. `gen` never resolves tags; `pin` does, and writes the
+   table.
+3. Hardening defaults in every kind, not optional: top-level `permissions:
+   contents: read` (jobs widen only what they need); checkout with
+   `persist-credentials: false`; `concurrency` group per workflow and ref;
+   `timeout-minutes` on every job; no `pull_request_target`; no untrusted
+   expression interpolated into `run:`. Kinds that need write access (for
+   example `update-pins`) declare it per job.
+4. Output gate: generated workflows must pass `actionlint` and `zizmor` with
+   no finding. A template change that fails either is a test failure in
+   actlith, not something consumers discover.
+5. Output layout: one fixed key order and quoting style, comments taken from
+   the kind, so diffs between two generations show only real changes.
+6. Templates are Rust data (structs rendered by actlith's own YAML writer),
+   not text templates with string substitution. Reason: a typed model cannot
+   emit malformed YAML or an unquoted expression, and it can be tested 1-to-1.
