@@ -113,7 +113,7 @@ T5|x|`commit-msg` step: `type(scope): claim` ≤72, body non-empty; `scripts/com
 T6|x|crate-free pklith catalog checks via `pklith lay`, 1 commit each, planted violation each: hygiene set, ripsecrets, typos, editorconfig, no-local-paths, nixfmt, statix, deadnix, markdownlint, shellcheck (`.envrc`, `.githooks/*`)|V20,V23
 T7|x|spec gates: `mth fmt`/`mth check` on `SPEC.md`, `itok` + `.context-limits`, `sherd check`/`budget`|V20
 T8|x|`ctrm` (`.ctrm`), `rekall` (`AGENTS.md`), `xenolith` `xnl check`/`xnl lint` steps|V20
-T9|.|gate scripts under `nix/guard/` (as congestimancer); xenolith `rust-mirror` & `tdd-order` + `tdd-order.exempt`; doctest, rustdoc, `cargo deny` w/ fleet `deny.toml`. `test` (nextest) & coverage floor + `.coverage` ratchet ⊥ here: empty suite ∴ they land in T13 w/ first test|V20,V23,V28
+T9|x|gate scripts under `nix/guard/` (as congestimancer); xenolith `rust-mirror` & `tdd-order` + `tdd-order.exempt`; doctest, rustdoc, `cargo deny` w/ fleet `deny.toml`. `test` (nextest) & coverage floor + `.coverage` ratchet ⊥ here: empty suite ∴ they land in T13 w/ first test|V20,V23,V28
 T10|.|hand-written `.github/workflows/ci.yml` in pklith shape (SHA pins); `actionlint` & `zizmor` steps|V20,V21
 T11|.|`dev/` crate `actlith-dev`: README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V20
 T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
