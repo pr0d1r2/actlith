@@ -1,0 +1,56 @@
+# SPEC
+
+## §G GOAL
+
+`nix/` — repo gate: dev shell, guardrails, hk steps, CI, release, dogfood. rules & tasks moved here from root keep their numbers.
+
+## §N NAV
+
+rel|path|lens
+up|.|-
+self|nix|repo gate: dev shell, guardrails, hk steps, CI, release, dogfood
+sib|src|the tool: registry, runners, pins, YAML writer, kinds, render, verbs, CLI
+sib|tests|integration tests driving `actlith` binary, actionlint & zizmor harness, golden workflows, fixtures
+sib|dev|`actlith-dev`, `publish = false`: commit rules, README badges, notices, AGENTS step table & their drift checks
+
+## §C CONSTRAINTS
+
+- flake inputs `nixpkgs-lock` (nixpkgs follows), `nix-hk`, `pklith`, `itok`, `microlith`, `sherd`, `characterminator`, `rekall`, `xenolith`; ∀ follow `nixpkgs-lock`, fleet tools pinned by tag. `pr0d1r2.cachix.org` substituter. 4 systems `aarch64-darwin` `x86_64-darwin` `x86_64-linux` `aarch64-linux`. dev shell = pklith `lib.devShell`; `.envrc` `use flake`.
+- gate = hk via pklith-materialized `hk.pklith.pkl` from `.pklith`; `fast` pre-commit, `all` pre-push. guard scripts in `nix/guard/`.
+- clippy: fleet deny list + all + pedantic, rustc `unreachable_pub`, fleet `clippy.toml`; `rustfmt.toml` `max_width = 80`.
+- commit subject `type(scope): claim` ≤72 chars, lower-case scope, body = WHY; changelog-touched. after `no-commit-to-branch`: branch + PR, merge ⊥ squash.
+- CI 3 runners (`x86_64-linux` `aarch64-linux` `aarch64-darwin`); `x86_64-darwin` hand-verified on Intel Mac.
+- release: `cargo-release`, Keep a Changelog, even minor = stable. publish ! explicit approval.
+- seeding gaps in pklith → anonymous upstream issue after duplicate search.
+
+## §V INVARIANTS
+
+V19: hk hooks installed IN commit that brings hk; ∀ later commit via real hooks; ⊥ `--no-verify`
+V20: 1 check = 1 commit = config + hk step + doc row; step adopted only after rejecting a PLANTED violation, recorded in commit body
+V21: dogfood: own `ci.yml` hand-written until `gen` renders `gate`; then generated & `actlith gen --check` joins gate in SAME commit
+V23: ∀ dep justified in §R; ∀ tool in gate from nix-pinned package, ⊥ fetched at run time
+V27: §T rows stay in id order (microlith rule 14); a task that runs out of id order says `AFTER T<n>` in its text. ⊥ reorder rows to change run order
+V28: `tdd-order` exemptions ONLY for commits already made w/ ⊥ behaviour to pin (stub, scaffold, copied script predating the rule); full 40-char id + reason in `nix/guard/tdd-order.exempt` & a §B row each
+
+## §T TASKS
+
+id|status|task|cites
+T2|x|dev shell FIRST: flake on `nixpkgs-lock`, 4 systems, cachix `nixConfig`, fleet guardrail tools pinned by tag, Rust toolchain, `pklith` `lib.devShell` ∴ hooks install on shell entry once `hk.pkl` exists; `.envrc`. ASK user reload|V19,V23
+T3|x|hk commit: `.pklith`, `hk.pklith.pkl`, seeded `hk.pkl`, vendored `pkl/`, tracked `.githooks/`; hooks live from this commit|V19,V20
+T4|x|AFTER T8: seed crate BY HAND through live hooks: LICENSE, `Cargo.toml`, `clippy.toml`, `rustfmt.toml`, stub `src/`, CHANGELOG + `changelog-touched`; taplo, rustfmt, clippy|V19,V20
+T5|x|`commit-msg` step; shell script until `actlith-dev` (`dev:T11`)|V20
+T6|x|crate-free pklith catalog checks via `pklith lay`, 1 commit each|V20,V23
+T7|x|spec gates: `mth`, `itok` + `.context-limits`, `sherd`|V20
+T8|x|`ctrm`, `rekall` (`AGENTS.md`), `xnl check`/`xnl lint`|V20
+T9|x|`nix/guard/` scripts; `rust-mirror`, `tdd-order` + exemptions; doctest, rustdoc, `cargo deny`|V20,V23,V28
+T10|x|hand-written `.github/workflows/ci.yml` in pklith shape; `actionlint`, `zizmor`, yamllint config|V20,V21
+T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
+T31|.|dogfood: generate own `ci.yml`, add `actlith gen --check` step in same commit|V21
+T32|.|nix package `packages.<system>.default` built & tested as built; `release.toml` + pre-release hook `hk check --all`|`.:V18`
+
+## §B BUGS
+
+id|date|cause|fix
+B1|2026-10-15|§T rows reordered to run T4 after T8; microlith rule 14 rejects out-of-order ids, caught by `hk check --all` after `pklith lay` laid `mth-check`|V27
+B2|2026-10-15|crate seed `980b8db` added `src/lib.rs` & `src/main.rs` before `tdd-order` existed; both bodiless stubs ∴ ⊥ RED to write first|V28
+B3|2026-10-15|`scripts/commit-msg.sh` (`4c65434`) & `scripts/changelog-touched.sh` (`41868ca`) copied from pklith before `tdd-order` existed, ⊥ bats mirror; tested Rust port in `actlith-dev` (`dev:T11`) replaced them|V28

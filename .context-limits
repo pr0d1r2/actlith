@@ -1,13 +1,58 @@
 # Per-path token ceilings, gated by `itok check` (file rows) and
-# `sherd budget` (directory rows = chain). The format is itok's and
-# sherd's, as in congestimancer and pklith.
+# `sherd budget` (directory rows = chain: root + hub + node). The format
+# is itok's and sherd's, as in congestimancer and pklith.
 #
 # A ceiling caps ENTRY COST: what a session loads before any work begins.
 # Set ~12% over measured so ordinary edits fit; raising one is a reviewed
-# commit with its reason.
+# commit with its reason. Caps (as congestimancer): a SPEC.md file <= 3500,
+# a chain <= 5500. A node that would pass its cap splits, it does not raise.
 #
-# MEASURED 2026-10-15 with `itok estimate --bpe`: SPEC.md 5211. That is over
-# the fleet cap for one spec file (3500, congestimancer root V3), so SPEC.md
-# is due to be federated with sherd (T34); this row is the interim ceiling,
-# not a target.
-SPEC.md        5900
+# MEASURED 2026-10-15 after federating (T34): file rows with
+# `itok estimate --bpe`, chain rows with `sherd budget --format json`.
+
+# Files
+SPEC.md                      2720
+nix/SPEC.md                  1670
+src/SPEC.md                  1010
+src/bump/SPEC.md             990
+src/kind/SPEC.md             970
+src/pin/SPEC.md              930
+src/registry/SPEC.md         930
+src/build/SPEC.md            860
+src/system/SPEC.md           830
+src/yaml/SPEC.md             820
+src/gate/SPEC.md             780
+src/script/SPEC.md           770
+src/render/SPEC.md           730
+src/import/SPEC.md           730
+src/fetch/SPEC.md            720
+src/detect/SPEC.md           710
+src/check/SPEC.md            690
+src/gen/SPEC.md              690
+src/cli/SPEC.md              670
+src/report/SPEC.md           640
+tests/SPEC.md                460
+dev/SPEC.md                  400
+
+# Chains
+dev                          2390
+nix                          3000
+src                          2530
+src/build                    2830
+src/bump                     2960
+src/check                    2750
+src/cli                      2730
+src/detect                   2770
+src/fetch                    2780
+src/gate                     2840
+src/gen                      2750
+src/import                   2790
+src/kind                     3030
+src/pin                      2870
+src/registry                 2990
+src/render                   2790
+src/report                   2700
+src/script                   2830
+src/system                   2790
+src/yaml                     2880
+tests                        2440
