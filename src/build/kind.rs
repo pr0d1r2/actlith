@@ -1,8 +1,12 @@
 //! Kind `build` (`docs/KINDS.md`): build and cache a flake package on
 //! every system, then prove the cache has it (T20, V30).
 
-use super::jobs::VERIFY_SCRIPT;
-use crate::kind::{ArgSchema, ArgSpec, Kind, KindError, Row, Secret, TIMEOUT};
+use super::jobs::{VERIFY_SCRIPT, jobs};
+use super::plan::Plan;
+use crate::kind::{
+    ArgSchema, ArgSpec, CachixPush, Kind, KindError, Row, Secret, TIMEOUT,
+    on_push_and_pr, workflow,
+};
 use crate::pin::PinTable;
 use crate::system::System;
 use crate::yaml::Workflow;
@@ -54,16 +58,16 @@ impl Kind for Build {
         &SYSTEMS
     }
 
-    fn secrets(&self, _row: &Row) -> Vec<Secret> {
-        Vec::new()
+    /// `CACHIX_AUTH_TOKEN` for the push from `main` (`src/kind:V14`); a
+    /// row without a cache is refused, so it reads none.
+    fn secrets(&self, row: &Row) -> Vec<Secret> {
+        let push = row.cache.as_ref().and(CachixPush::MainOnly.secret());
+        push.into_iter().collect()
     }
 
-    fn build(
-        &self,
-        row: &Row,
-        _pins: &PinTable,
-    ) -> Result<Workflow, KindError> {
-        Err(KindError::row(row.line, "stub", "stub"))
+    fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
+        let plan = Plan::new(row, pins)?;
+        Ok(workflow(&row.id, on_push_and_pr(), jobs(&plan)?))
     }
 }
 

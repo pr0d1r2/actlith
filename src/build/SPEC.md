@@ -48,7 +48,7 @@ V30: `verify-cache` asks the cache for ∀ built system's output path & fails on
 ## §T TASKS
 
 id|status|task|cites
-T20|.|kind `build` (jobs `build` `check` `verify-cache`) + `verify-cache.sh` in `src/script`|V30,R4,`src/kind:V3`,`src/kind:V9`
+T20|x|kind `build` (jobs `build` `check` `verify-cache`) + `verify-cache.sh` in `src/script`|V30,R4,`src/kind:V3`,`src/kind:V9`
 
 ## §B BUGS
 

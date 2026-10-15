@@ -25,31 +25,51 @@ impl<'a> Plan<'a> {
         row: &'a Row,
         pins: &'a PinTable,
     ) -> Result<Self, KindError> {
-        let stub = Self {
+        Ok(Self {
             row,
             pins,
             cache: cache(row)?,
             package: package(&row.args)?,
             minutes: timeout(&row.args)?,
-        };
-        Err(KindError::row(stub.row.line, "stub", "stub"))
+        })
     }
 }
 
 /// The row's `package` arg, refused unless it is an attribute name.
 pub(crate) fn package(args: &Args) -> Result<&str, KindError> {
-    Err(KindError::row(args.line(), "stub", "stub"))
+    let name = args.get("package").unwrap_or_default();
+    if attribute(name) {
+        return Ok(name);
+    }
+    Err(KindError::row(
+        args.line(),
+        format!(
+            "package `{}` is not a flake attribute name",
+            name.escape_debug()
+        ),
+        "use letters, digits, `_` and `-`, starting with a letter or `_`",
+    ))
 }
 
 /// The row's cache, which `build` cannot do without.
 pub(crate) fn cache(row: &Row) -> Result<&Cache, KindError> {
-    Err(KindError::row(row.line, "stub", "stub"))
+    row.cache.as_ref().ok_or_else(|| {
+        KindError::row(
+            row.line,
+            "kind `build` needs a cache: it pushes there and verify-cache \
+             asks it for every built path",
+            "name a cachix cache in the cache column",
+        )
+    })
 }
 
 /// `name` is a letter or `_`, then letters, digits, `_` and `-`: a flake
 /// attribute name that is also one shell word.
 pub(crate) fn attribute(name: &str) -> bool {
-    name.is_empty()
+    let word = |c: char| c.is_ascii_alphanumeric() || matches!(c, '_' | '-');
+    let first = name.chars().next();
+    first.is_some_and(|c| c.is_ascii_alphabetic() || c == '_')
+        && name.chars().all(word)
 }
 
 #[cfg(test)]

@@ -33,3 +33,7 @@ the bytes actlith emits for the same inputs is at least a minor version
   and the hardened common parts every kind builds from (permissions,
   concurrency, timeouts, checkout, install-nix, cachix, env-only `run:`);
   no file is emitted yet (T17).
+- `src/build`: kind `build` with jobs `build` (matrix per system, push
+  only from `main`), `check` (`nix flake check --all-systems` plus
+  eval-only systems) and `verify-cache` (runs the seeded
+  `verify-cache.sh`); no file is emitted yet (T20, V30).
