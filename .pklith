@@ -19,6 +19,11 @@ xnl-check|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl check {{files}}|-|-
 xnl-lint|lint|-|**/*.nix, **/*.pkl, .envrc, .githooks/*|xnl lint {{files}}|xnl lint --fix {{files}}|-|an embedded or extracted program fails its own language's linter
 # xenolith's Rust guards, copied as congestimancer does (T9).
 rust-mirror|lint|-|**/*.rs, nix/guard/rust-mirror.sh|bash nix/guard/rust-mirror.sh|-|-|a Rust file with logic has no sibling tests.rs wired by #[cfg(test)] mod tests;
+doctest|test|cargo|**/*.rs, Cargo.toml|cargo test --doc -q|-|-|a doc example failed
+rustdoc|lint|cargo|**/*.rs, Cargo.toml|cargo doc --workspace --no-deps --document-private-items -q|-|RUSTDOCFLAGS=-D warnings|docs do not build cleanly
+# Offline, as pklith: advisories need a fetched database, so they are a
+# release-time step, not a commit-time one.
+deny|supply|cargo-deny|Cargo.toml, Cargo.lock, deny.toml|cargo deny check --disable-fetch licenses bans sources|-|-|a license, ban or source rule failed
 tdd-order|coverage|-|**/*.rs, nix/guard/tdd-order.sh, nix/guard/tdd-order.exempt|bash nix/guard/tdd-order.sh|-|-|a commit adds Rust code with no test: commit before it in the push range
 # rekall: agent prose and the rules extracted from it (T8).
 rekall|lint|-|AGENTS.md, CLAUDE.md, rekall.toml|rekall check|-|-|agent prose drifted from the rules rekall extracted from it; run rekall scan and settle the drift
@@ -41,13 +46,14 @@ sh|shellcheck, shfmt|-|-
 yaml|yamllint|-|-
 gitignore|-|-|git configuration; hygiene steps only
 markdownlintignore|-|-|markdownlint configuration; hygiene steps only
-lock|-|-|written by `nix flake lock` or cargo; cargo deny reads Cargo.lock from T9
+path:flake.lock|-|-|written by `nix flake lock`; hygiene steps only
+path:Cargo.lock|deny|-|-
 toml|taplo|-|-
 context-limits|itok, sherd-budget|-|-
 ctrm|-|-|ctrm configuration; hygiene steps only
 ctrm-sets|-|-|ctrm configuration; hygiene steps only
 path:AGENTS.md|markdownlint, rekall|-|-
 path:rekall.toml|taplo, rekall|-|-
-rs|rustfmt, clippy, rust-mirror, tdd-order|-|-
+rs|rustfmt, clippy, rust-mirror, tdd-order, doctest, rustdoc|-|-
 LICENSE|-|-|license text, nothing to lint
 exempt|tdd-order|-|-
