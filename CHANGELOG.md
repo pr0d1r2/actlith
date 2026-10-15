@@ -7,3 +7,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 (SPEC.md V18), and its entry names the files consumers will see change.
 
 ## [Unreleased]
+
+### Added
+
+- Seeded scripts `scripts/actlith/update-pins.sh`, `open-pr.sh` and
+  `verify-cache.sh`, embedded with the generated header (src/script T21).

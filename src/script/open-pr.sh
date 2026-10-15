@@ -1,0 +1,42 @@
+# shellcheck shell=bash
+#
+# open-pr.sh BRANCH TITLE BODY [PATH...]
+#
+# Commit PATH (default: every change) on a new BRANCH, push it and open a
+# pull request titled TITLE (kinds `update-pins` and `upstream`). GH_TOKEN
+# is the workflow's; the checkout must keep its credentials to push.
+#
+# Idempotent (src/bump:V26): a branch already on origin means an earlier
+# run opened its PR and nobody merged it yet, so this exits 0 and opens no
+# second one. Nothing staged also exits 0.
+set -euo pipefail
+
+if [ "$#" -lt 3 ]; then
+  echo "usage: open-pr.sh BRANCH TITLE BODY [PATH...]" >&2
+  exit 2
+fi
+branch="$1"
+title="$2"
+body="$3"
+shift 3
+
+if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+  echo "open-pr: branch $branch already exists, nothing to do"
+  exit 0
+fi
+
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+git switch -c "$branch"
+if [ "$#" -eq 0 ]; then
+  git add -A
+else
+  git add -- "$@"
+fi
+if git diff --cached --quiet; then
+  echo "open-pr: nothing changed, no pull request"
+  exit 0
+fi
+git commit -m "$title" -m "$body"
+git push -u origin "$branch"
+gh pr create --head "$branch" --title "$title" --body "$body"
