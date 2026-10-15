@@ -25,7 +25,7 @@ V37: commit-msg & changelog rules = tested Rust here; hk `commit-msg` hook runs 
 ## §T TASKS
 
 id|status|task|cites
-T11|~|port commit-msg & changelog rules (RED, GREEN) & lay `test` (nextest) + `coverage` over its tests; README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V36,V37,`nix:V20`
+T11|x|port commit-msg & changelog rules (RED, GREEN) & lay `test` (nextest) + `coverage` over its tests; README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V36,V37,`nix:V20`
 
 ## §B BUGS
 
