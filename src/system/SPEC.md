@@ -49,7 +49,7 @@ V15: system → runner mapping in ONE table; ⊥ runner label literal elsewhere 
 ## §T TASKS
 
 id|status|task|cites
-T14|.|`System` enum, parse, runner table; refuse `x86_64-darwin` naming hand verification on Intel Mac|V15,`src/registry:V10`
+T14|x|`System` enum, parse, runner table; refuse `x86_64-darwin` naming hand verification on Intel Mac|V15,`src/registry:V10`
 
 ## §B BUGS
 
