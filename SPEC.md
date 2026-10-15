@@ -93,3 +93,48 @@ V23: ∀ dep justified in §R; ∀ tool in gate from nix-pinned package, ⊥ fet
 V24: new kind only when ≥2 fleet repos share shape; until then `## hand-written`
 V25: nothing deferred: ∀ kind ∈ `docs/KINDS.md` ! §V coverage & §T row. doc ≠ spec = bug
 V26: bump kinds (`update-pins`, `upstream`) idempotent: branch exists → exit 0, ⊥ 2nd PR. ⊥ `cancel-in-progress` (half-pushed branch)
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|rename repo dir `actionlint` → `actlith` (user, outside session) before first push|V22
+T2|.|seed BY HAND: LICENSE (MIT), `.gitignore`, `Cargo.toml` (edition 2024, MSRV 1.95, lints, `unsafe_code = "forbid"`), `src/main.rs`, `src/lib.rs`, README stub, CHANGELOG|V22
+T3|.|flake on `nixpkgs-lock`, 4 systems, cachix `nixConfig`, Rust devShell; `.envrc` `use flake`. ASK user reload|-
+T4|.|hk commit: `nix-hk` + `pklith` inputs, `lib.devShell`, `.pklith`, `hk.pkl` importing `hk.pklith.pkl`, `.githooks/` installed in same commit; REFUSE w/o hk|V19
+T5|.|`commit-msg` (`type(scope): claim` ≤72, body) & `changelog-touched` steps|V20
+T6|.|pklith catalog checks, 1 commit each, planted violation each: hygiene set, ripsecrets, typos, nixfmt, taplo, rustfmt, clippy, shellcheck|V20,V23
+T7|.|spec gates: `mth fmt`/`mth check` on `SPEC.md`, `itok` + `.context-limits`, `sherd check`/`budget`|V20
+T8|.|`ctrm` (`.ctrm`), `rekall`, `xenolith` (`rust-mirror`, `tdd-order`) steps|V20
+T9|.|test (nextest), doctest, rustdoc, coverage floor + `.coverage` ratchet, `cargo deny` w/ fleet `deny.toml`|V20,V23
+T10|.|hand-written `.github/workflows/ci.yml` in pklith shape (SHA pins); `actionlint` & `zizmor` steps|V20,V21
+T11|.|`dev/` crate `actlith-dev`: README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V20
+T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
+T13|.|registry: parse `.actlith` (`format`, `## workflows`, `## actions`, `## hand-written`), fixtures 1-to-1|V10,V11,V12,I.file
+T14|.|system → runner table; refuse `x86_64-darwin`|V15,V10,I.runners
+T15|.|pin table: built-in ⊕ `## actions` override; missing pin → exit 2|V2
+T16|.|workflow model + YAML writer: fixed order & quoting, header, comments; golden bytes tests|V1,V5,V8
+T17|.|common kind parts: permissions, concurrency, timeouts, checkout, install-nix, cachix (fork-PR skip, pushFilter), env-only expressions|V3,V14
+T18|.|test harness: render ∀ kind × fixture args → `actionlint` + `zizmor` 0 findings|V4
+T19|.|kind `gate` (job `gate`, matrix, fetch-depth 0, args `command` `timeout`)|V3,V9,I.kinds
+T20|.|kind `build` (jobs `build` `check` `verify-cache`, args `package` `timeout`)|V3,V9,I.kinds
+T21|.|seeded scripts `update-pins.sh` & `open-pr.sh` + bats; written by `gen` w/ header|V8,V13,V26
+T22|.|kind `update-pins` (cron arg, write perms per job, runs `actlith pin` + `gen` in branch, `token` arg; R5 limit documented)|V3,V14,V26,R5
+T23|.|kind `upstream` (args `script` `cron` `branch-prefix` `token`)|V3,V14,V26
+T24|.|`gen` + `gen --check`|V1,V6,I.cmd
+T25|.|`check` totality|V7,I.cmd
+T26|.|research sweep: does render-and-compare match fleet copies after normalising? record in §R; then `import`|V17,V23
+T27|.|`detect` + `seed --init`|I.cmd
+T28|.|`report` text/json/md incl. secrets|V14,I.cmd
+T29|.|`pin` via GitHub API, `--dry-run`; network isolated in 1 module|V16
+T30|.|`completions`, `man`|I.cmd
+T31|.|dogfood: generate own `ci.yml`, add `actlith gen --check` step in same commit|V21
+T32|.|nix package `packages.<system>.default` built & tested as built; `release.toml` + pre-release hook `hk check --all`|V18
+T33|.|parity check `docs/KINDS.md` ↔ §V/§T|V25
+T34|.|sherdify `SPEC.md` when over `.context-limits` budget|-
+T35|.|pklith: `actlith-gen-check` catalog row & `.actlith` type — PR to pklith ! user approval|D8
+T36|.|publish `0.1.0-rc.1` to crates.io ! user approval|V22
+T37|.|fleet rollout: pklith, congestimancer, then byte-identical `ci.yml` groups; each repo ! user approval|R1
+
+## §B BUGS
+
+id|date|cause|fix
