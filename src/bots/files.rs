@@ -4,6 +4,7 @@
 
 use super::error::BotError;
 use super::model::File;
+use super::{coderabbit, greptile, socket};
 use crate::registry::BotRow;
 
 /// The v1 bots, as a fix hint names them.
@@ -16,8 +17,21 @@ pub(crate) const BOTS: &str = "`coderabbit`, `greptile`, `socket`";
 /// The first row with an unknown bot, or an arg its bot refuses, naming
 /// the row's line (V38: the caller exits 2).
 pub(crate) fn bot_files(rows: &[BotRow]) -> Result<Vec<File>, BotError> {
-    let _ = (rows, BOTS);
-    Err(BotError::default())
+    rows.iter().map(file).collect()
+}
+
+/// One row's file, by its bot.
+fn file(row: &BotRow) -> Result<File, BotError> {
+    match row.bot.as_str() {
+        "coderabbit" => coderabbit::file(row),
+        "greptile" => greptile::file(row),
+        "socket" => socket::file(row),
+        other => Err(BotError::new(
+            row.line,
+            format!("unknown bot `{other}`"),
+            format!("use one of {BOTS}"),
+        )),
+    }
 }
 
 #[cfg(test)]

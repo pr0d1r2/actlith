@@ -20,3 +20,6 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `src/yaml`: typed workflow model and own YAML writer with fixed key
   order and quoting, `|` and `>-` blocks and the generated header; no
   file is emitted yet (T16).
+- `src/bots`: `.coderabbit.yaml` (remote config from a central repo,
+  inheritance on), `greptile.json` (skips release PRs) and `socket.yml`
+  from `## bots` rows; an unknown bot or arg names its line (T39).

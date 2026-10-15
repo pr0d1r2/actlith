@@ -7,6 +7,7 @@
 
 use super::error::BotError;
 use super::model::File;
+use super::{args, json};
 use crate::registry::BotRow;
 
 /// Where Greptile reads its config.
@@ -29,8 +30,16 @@ pub(crate) const KEYWORDS: [&str; 4] = [
 ///
 /// Any arg.
 pub(crate) fn file(row: &BotRow) -> Result<File, BotError> {
-    let _ = (row, LABELS, KEYWORDS);
-    Err(BotError::default())
+    args::known(row, &[])?;
+    let bytes = format!(
+        "{{\n  \"disabledLabels\": {},\n  \"ignoreKeywords\": {}\n}}\n",
+        json::array(&LABELS),
+        json::string(&KEYWORDS.join("\n")),
+    );
+    Ok(File {
+        path: PATH.to_owned(),
+        bytes,
+    })
 }
 
 #[cfg(test)]

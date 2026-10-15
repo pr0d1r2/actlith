@@ -21,14 +21,21 @@ impl BotError {
         what: impl Into<String>,
         fix: impl Into<String>,
     ) -> Self {
-        let _ = (line, what.into(), fix.into());
-        Self::default()
+        Self {
+            line,
+            what: what.into(),
+            fix: fix.into(),
+        }
     }
 }
 
 impl fmt::Display for BotError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.what)
+        write!(
+            f,
+            ".actlith:{}: {}\n  fix: {}",
+            self.line, self.what, self.fix
+        )
     }
 }
 
