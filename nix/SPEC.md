@@ -59,6 +59,7 @@ T56|x|push step `deny-advisories`: `cargo deny check advisories`; network ∴ pu
 T57|x|commit step `links`: lychee `--offline` over tracked `*.md`; `.pklith` row|V20,V23
 T58|x|push step `schema-pin`: `pkl/Config.pkl` == pinned hk's schema; `pkl/VENDORED.md` names version & sha256|V20
 T62|x|step `build` (`cargo build --workspace --bins`) ∀ hook set; ∀ `cargo run` step depends on it (pklith `build`)|V20,B9
+T68|x|push set: `test` waits for ∀ `cargo run` step (nextest relinks bins)|V20,B10
 
 ## §B BUGS
 
@@ -72,3 +73,4 @@ B6|2026-10-15|`49bf5c9` dropped `test` from pre-commit w/ a Pkl `for`/`when` gen
 B7|2026-10-16|`b147180` made `ci.yml` generated; 5 goldens read it as the old hand-written shape ∴ 5 tests red, committed anyway: `test` runs at pre-push only \& `hk check --all` ran after the commit|V43
 B8|2026-10-17|`schema-pin` `getFlake (toString ./.)` fetched the tree as `path:` ∴ copied `target/` while parallel cargo steps rewrote it; CI ubuntu-latest red on a vanished `target/debug/deps` file; fixed w/ `git+file:` (tracked files only)|V20
 B9|2026-10-17|macOS CI: parallel `cargo run` steps relinked `actlith-dev` while `agents-table` started it → "could not execute process … (never executed)", red w/o finding (PR #8); rerun green|T62
+B10|2026-10-17|T62 ordered `cargo run` steps after `build` only; at pre-push `test` (`nextest --workspace`) relinked `actlith-dev` beside `agents-table` → "No such file or directory"|T68
