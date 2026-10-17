@@ -53,7 +53,7 @@ T31|x|dogfood: generate own `ci.yml`, add `actlith gen --check` step in same com
 T32|x|nix package `packages.<system>.default` built & tested as built; `release.toml` + pre-release hook `hk check --all`|`.:V18`
 T41|.|guard step `no-core-worktree`: fail when `git config --local core.worktree` is set; lay via `pklith lay` w/ planted proof|V40
 T43|.|port pklith `hk-parity` step: the step set hk sees == the set `pkl eval` sees, per hook; lay w/ planted proof (a `for`/`when` generator)|V42
-T49|.|`pipelith` dep: git pin to full commit, `deny.toml` allow-git that URL, nix `outputHashes`; crates.io before T36; blocks `tests:T50`, `src/kind:T51`|`tests:V48`
+T49|.|`pipelith` dep = crates.io `0.1.0` (published ∴ ⊥ git pin, ⊥ allow-git, ⊥ `outputHashes`); notices & badges follow; blocks `tests:T50`, `src/kind:T51`|`tests:V48`
 T55|x|push step `package`: `cargo package --locked`; packaged crate builds alone (pklith T42)|V20,`.:V22`
 T56|x|push step `deny-advisories`: `cargo deny check advisories`; network ∴ push, commit `deny` stays offline|V20,V23
 T57|x|commit step `links`: lychee `--offline` over tracked `*.md`; `.pklith` row|V20,V23
