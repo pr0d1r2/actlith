@@ -6,12 +6,11 @@
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    ArgSchema, ArgSpec, CachixPush, Checkout, Kind, KindError, Row, Secret,
-    TIMEOUT, cachix, checkout, install_nix, job, matrix_runner, on_push_and_pr,
-    run, runner_matrix, timeout, workflow,
+    CachixPush, Checkout, GATE, Kind, KindError, KindSpec, Row, Secret, cachix,
+    checkout, install_nix, job, matrix_runner, on_push_and_pr, run,
+    runner_matrix, workflow,
 };
 use crate::pin::PinTable;
-use crate::system::{DEFAULT_SYSTEMS, System};
 use crate::yaml::{Comment, Step, Workflow};
 
 /// The job id and name; `pklith protect` reads it (`src/kind` V9).
@@ -19,15 +18,6 @@ const JOB: &str = "gate";
 
 /// The gate run when the row gives no `command`.
 const COMMAND: &str = "nix develop --command hk check --all --check";
-
-const SCHEMA: [ArgSpec; 2] = [
-    ArgSpec {
-        key: "command",
-        required: false,
-        default: Some(COMMAND),
-    },
-    TIMEOUT,
-];
 
 const DEPTH_WHY: &str = "Full history: tdd-order reads the push range, and \
     a later semver\nstep compares with the last release tag.";
@@ -37,16 +27,8 @@ const DEPTH_WHY: &str = "Full history: tdd-order reads the push range, and \
 pub(crate) struct Gate;
 
 impl Kind for Gate {
-    fn name(&self) -> &'static str {
-        "gate"
-    }
-
-    fn schema(&self) -> &'static ArgSchema {
-        &SCHEMA
-    }
-
-    fn default_systems(&self) -> &'static [System] {
-        &DEFAULT_SYSTEMS
+    fn spec(&self) -> &'static KindSpec {
+        &GATE
     }
 
     fn secrets(&self, row: &Row) -> Vec<Secret> {
@@ -56,7 +38,7 @@ impl Kind for Gate {
 
     fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
         let mut gate =
-            job(matrix_runner(), timeout(&row.args)?, steps(row, pins)?);
+            job(matrix_runner(), row.args.timeout()?, steps(row, pins)?);
         gate.name = Some(JOB.to_owned());
         gate.matrix = Some(runner_matrix(row)?);
         let jobs = BTreeMap::from([(JOB.to_owned(), gate)]);

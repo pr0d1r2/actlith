@@ -1,76 +1,45 @@
-//! A `## workflows` row checked for its kind: systems resolved to ones
-//! with a runner, the cache to a known key, the args to the schema
-//! (`src/registry` V10). A kind builds only from a checked row.
+//! A `## workflows` row checked for its kind by pipelith's
+//! `Row::check` (systems, cache, args, timeout and row rules;
+//! `src/registry` V10), after actlith names any system without a
+//! GitHub-hosted runner in its own words. A kind builds only from a
+//! checked row.
 
-use super::args::{Args, parse_args};
-use super::cache::Cache;
 use super::contract::Kind;
 use super::error::KindError;
+use crate::core::kind::{Extras, Row};
 use crate::registry::WorkflowRow;
-use crate::system::{System, parse_system, runner};
+use crate::system::{parse_system, runner};
 
-/// A row a kind can build from.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct Row {
-    /// The workflow id: file stem and `name`.
-    pub(crate) id: String,
-    /// The `.actlith` line of the row.
-    pub(crate) line: usize,
-    /// The systems, each with a hosted runner; the kind's default for `-`.
-    pub(crate) systems: Vec<System>,
-    pub(crate) cache: Option<Cache>,
-    pub(crate) args: Args,
-}
+/// The kinds and arg keys only actlith knows: none today, so every row
+/// actlith renders works on every forge (V49).
+pub(crate) const EXTRAS: Extras<'static> = Extras {
+    kinds: &[],
+    keys: &[],
+};
 
-impl Row {
-    /// `row` checked against `kind`.
-    pub(crate) fn parse(
-        kind: &dyn Kind,
-        row: &WorkflowRow,
-    ) -> Result<Self, KindError> {
-        let cache = row.cache.as_deref();
-        Ok(Self {
-            id: row.id.clone(),
-            line: row.line,
-            systems: systems(kind.default_systems(), row)?,
-            cache: cache.map(|c| Cache::parse(row.line, c)).transpose()?,
-            args: parse_args(kind.schema(), row)?,
-        })
-    }
-}
-
-fn systems(
-    defaults: &[System],
+/// `row` checked against `kind`.
+pub(crate) fn check(
+    kind: &dyn Kind,
     row: &WorkflowRow,
-) -> Result<Vec<System>, KindError> {
-    if row.systems.is_empty() {
-        return Ok(defaults.to_vec());
-    }
-    let mut out = Vec::new();
-    for name in &row.systems {
-        let system = hosted(row.line, name)?;
-        if out.contains(&system) {
-            return Err(twice(row.line, name));
-        }
-        out.push(system);
-    }
-    Ok(out)
+) -> Result<Row, KindError> {
+    hosted(row)?;
+    Ok(Row::check(kind.spec(), row, &EXTRAS)?)
 }
 
-fn hosted(line: usize, name: &str) -> Result<System, KindError> {
+/// Each listed system up to the first repeat (pipelith names that one)
+/// is a nix system with a GitHub-hosted runner.
+fn hosted(row: &WorkflowRow) -> Result<(), KindError> {
     let fix = "write systems with a hosted runner, or `-`";
-    let system = parse_system(name)
-        .map_err(|e| KindError::row(line, e.to_string(), fix))?;
-    runner(system).map_err(|e| KindError::row(line, e.to_string(), fix))?;
-    Ok(system)
-}
-
-fn twice(line: usize, name: &str) -> KindError {
-    KindError::row(
-        line,
-        format!("system `{name}` is listed twice"),
-        format!("keep one `{name}`"),
-    )
+    let refuse = |e: crate::system::SystemError| {
+        KindError::row(row.line, e.to_string(), fix)
+    };
+    for (n, name) in row.systems.iter().enumerate() {
+        if row.systems.iter().take(n).any(|seen| seen == name) {
+            return Ok(());
+        }
+        runner(parse_system(name).map_err(refuse)?).map_err(refuse)?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]

@@ -1,8 +1,9 @@
 //! `src/kind`: what every kind shares: the `Kind` trait, arg schema,
 //! hardening (V3), common steps and declared secrets (V14).
 //!
-//! Composition only (src C): the trait lives in `contract`, the checked
-//! row in `row` (with `args`, `cache`), the common builders in
+//! Composition only (src C): the trait lives in `contract`, the row
+//! check in `row` (the row, its args and cache are pipelith's `kind`,
+//! through `src/core`), the common builders in
 //! `workflow`, `job`, `step`, `checkout`, `nix`, `cachix` and `run`.
 //! Dead code is `allow`ed, not `expect`ed, until a consumer lands (see
 //! `src/registry`).
@@ -25,8 +26,6 @@ use crate::registry as _;
 use crate::system as _;
 use crate::yaml as _;
 
-mod args;
-mod cache;
 mod cachix;
 mod checkout;
 mod contract;
@@ -39,20 +38,19 @@ mod secret;
 mod step;
 mod workflow;
 
-pub(crate) use args::{ArgSchema, ArgSpec, Args, TIMEOUT, parse_args};
-pub(crate) use cache::Cache;
+pub(crate) use crate::core::kind::{
+    ArgDefault, ArgSpec, Args, BUILD, Cache, GATE, KindSpec, Row, TIMEOUT,
+    UPDATE_PINS, UPSTREAM, parse_args, portable,
+};
 pub(crate) use cachix::{
     CachixPush, PUSH_FILTER, SKIP_FORK_PR, SKIP_UNLESS_MAIN, cachix,
 };
 pub(crate) use checkout::{Checkout, checkout};
 pub(crate) use contract::Kind;
 pub(crate) use error::KindError;
-pub(crate) use job::{
-    DEFAULT_TIMEOUT, MAX_TIMEOUT, job, matrix_runner, runner_matrix, timeout,
-    widen,
-};
+pub(crate) use job::{job, matrix_runner, runner_matrix, widen};
 pub(crate) use nix::install_nix;
-pub(crate) use row::Row;
+pub(crate) use row::{EXTRAS, check};
 pub(crate) use run::run;
 pub(crate) use secret::Secret;
 pub(crate) use step::{step, uses};

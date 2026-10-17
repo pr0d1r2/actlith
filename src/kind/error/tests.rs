@@ -1,4 +1,4 @@
-//! A kind error prints as the row or pin error it carries (T17).
+//! A kind error prints as the row or pin error it carries (T17, T65).
 
 use crate::kind::KindError;
 use crate::pin::PinError;
@@ -20,4 +20,12 @@ fn a_pin_error_prints_as_the_pin_error() {
     let error = KindError::from(pin.clone());
     assert_eq!(error, KindError::Pin(pin.clone()));
     assert_eq!(error.to_string(), pin.to_string());
+}
+
+#[test]
+fn a_pipelith_refusal_is_a_row_error_at_its_line() {
+    let neutral = crate::core::kind::KindError::new(9, "bad", "fix it");
+    let error = KindError::from(neutral);
+    assert_eq!(error, KindError::row(9, "bad", "fix it"));
+    assert_eq!(error.to_string(), ".actlith:9: bad\n  fix: fix it");
 }

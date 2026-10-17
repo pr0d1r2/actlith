@@ -3,6 +3,7 @@
 
 use std::fmt;
 
+use crate::core::kind as neutral;
 use crate::pin::PinError;
 use crate::registry::RegistryError;
 
@@ -30,6 +31,13 @@ impl KindError {
 impl From<PinError> for KindError {
     fn from(error: PinError) -> Self {
         Self::Pin(error)
+    }
+}
+
+/// pipelith's row refusal, in actlith's `.actlith:<line>` shape.
+impl From<neutral::KindError> for KindError {
+    fn from(error: neutral::KindError) -> Self {
+        Self::row(error.line, error.what, error.fix)
     }
 }
 

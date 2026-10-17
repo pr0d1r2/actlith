@@ -2,7 +2,7 @@
 //! `package` checked as a flake attribute name before it reaches any
 //! `run:` line (`src/kind:V3`), and the job timeout.
 
-use crate::kind::{Args, Cache, KindError, Row, timeout};
+use crate::kind::{Args, Cache, KindError, Row};
 use crate::pin::PinTable;
 
 /// What every `build` job is made from.
@@ -30,7 +30,7 @@ impl<'a> Plan<'a> {
             pins,
             cache: cache(row)?,
             package: package(&row.args)?,
-            minutes: timeout(&row.args)?,
+            minutes: row.args.timeout()?,
         })
     }
 }

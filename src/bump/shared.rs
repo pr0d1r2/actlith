@@ -4,27 +4,21 @@
 //! (`src/kind:V3`), and the job's `contents` and `pull-requests` writes.
 
 use crate::kind::{
-    ArgSpec, Args, Checkout, KindError, Row, Secret, checkout, job, timeout,
-    widen,
+    Args, Checkout, KindError, Row, Secret, checkout, job, widen,
 };
 use crate::pin::PinTable;
-use crate::system::{System, runner};
+use crate::system::runner;
 use crate::yaml::{
     Action, Comment, Input, Job, Level, Scope, Step, Text, Value,
 };
 
-/// The secret a row means when it gives no `token`.
+/// The secret a row means when it gives no `token`: GitHub's job token,
+/// what pipelith's forge default (`ArgDefault::Forge`) is here.
 pub(crate) const GITHUB_TOKEN: &str = "GITHUB_TOKEN";
 
-/// `token`, the secret that pushes the branch and opens the PR (R5).
-pub(crate) const TOKEN: ArgSpec = ArgSpec {
-    key: "token",
-    required: false,
-    default: Some(GITHUB_TOKEN),
-};
-
-/// A bump kind runs one job on one Linux runner.
-pub(crate) const SYSTEMS: [System; 1] = [System::X86_64Linux];
+/// `token`, the arg naming the secret that pushes the branch and opens
+/// the PR (R5).
+const TOKEN: &str = "token";
 
 /// What a bump kind reads its token for (`report`, V14).
 const PURPOSE: &str = "push the bump branch and open its PR";
@@ -43,7 +37,7 @@ const KEEP_WHY: &str = "Credentials kept: this job pushes the bump branch.";
 /// The secret the row's `token` names; refused unless it is a secret
 /// name.
 pub(crate) fn token(args: &Args) -> Result<Secret, KindError> {
-    let name = args.get(TOKEN.key).unwrap_or(GITHUB_TOKEN);
+    let name = args.get(TOKEN).unwrap_or(GITHUB_TOKEN);
     Secret::new(name, PURPOSE).ok_or_else(|| {
         KindError::row(
             args.line(),
@@ -94,7 +88,7 @@ pub(crate) fn pushing_checkout(
 /// The one bump job: on the row's runner, timed out, writing contents
 /// (the branch) and pull requests (the PR) only.
 pub(crate) fn bump_job(row: &Row, steps: Vec<Step>) -> Result<Job, KindError> {
-    let mut bump = job(runs_on(row)?, timeout(&row.args)?, steps);
+    let mut bump = job(runs_on(row)?, row.args.timeout()?, steps);
     bump.permissions = Some(widen(&[
         (Scope::Contents, Level::Write),
         (Scope::PullRequests, Level::Write),

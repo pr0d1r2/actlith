@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 use super::error::RenderError;
 use super::kinds::{Entry, lookup, names};
 use crate::bots::{File, bot_files};
-use crate::kind::Row;
+use crate::kind::check;
 use crate::pin::PinTable;
 use crate::registry::{Registry, RegistryError, WorkflowRow};
 use crate::script::scripts;
@@ -50,7 +50,7 @@ fn workflow(
     row: &WorkflowRow,
     pins: &PinTable,
 ) -> Result<File, RenderError> {
-    let checked = Row::parse(entry.kind, row)?;
+    let checked = check(entry.kind, row)?;
     let built = entry.kind.build(&checked, pins)?;
     Ok(File {
         path: format!(".github/workflows/{}.yml", row.id),

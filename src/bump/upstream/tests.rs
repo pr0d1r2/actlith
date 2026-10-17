@@ -16,7 +16,8 @@ const CUSTOM: &str = include_str!("../../../tests/fixtures/bump/up-custom.yml");
 fn checked(id: &str) -> Result<Row, String> {
     let registry = parse(ROWS).map_err(|e| e.to_string())?;
     let row = registry.workflows.iter().find(|r| r.id == id);
-    Row::parse(&Upstream, row.ok_or("no row")?).map_err(|e| e.to_string())
+    crate::kind::check(&Upstream, row.ok_or("no row")?)
+        .map_err(|e| e.to_string())
 }
 
 fn built(id: &str) -> Result<String, String> {
@@ -85,13 +86,14 @@ fn a_cron_that_is_not_five_fields_is_refused() -> Result<(), String> {
 
 #[test]
 fn the_kind_names_its_schema_and_default_system() {
-    let keys: Vec<&str> = Upstream.schema().iter().map(|s| s.key).collect();
+    let keys: Vec<&str> =
+        Upstream.spec().schema.iter().map(|s| s.key).collect();
     assert_eq!(
         keys,
         ["script", "cron", "branch-prefix", "token", "timeout"]
     );
     assert_eq!(Upstream.name(), "upstream");
-    assert_eq!(Upstream.default_systems(), [System::X86_64Linux]);
+    assert_eq!(Upstream.spec().default_systems, [System::X86_64Linux]);
 }
 
 #[test]

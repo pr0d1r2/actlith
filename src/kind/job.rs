@@ -4,20 +4,13 @@
 use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
-use super::args::Args;
 use super::error::KindError;
-use super::row::Row;
+use crate::core::kind::Row;
 use crate::system::runner;
 use crate::yaml::{
     Axis, AxisName, Comment, Env, Expr, Job, Level, Matrix, Permissions, Scope,
     Step, Text,
 };
-
-/// Minutes a job runs when the row gives no `timeout`.
-pub(crate) const DEFAULT_TIMEOUT: u32 = 30;
-
-/// The longest job GitHub-hosted runners allow, in minutes.
-pub(crate) const MAX_TIMEOUT: u32 = 360;
 
 /// A job on `runs_on` with `steps`, stopped after `timeout` minutes.
 pub(crate) fn job(runs_on: Text, timeout: u32, steps: Vec<Step>) -> Job {
@@ -42,20 +35,6 @@ pub(crate) fn widen(need: &[(Scope, Level)]) -> Permissions {
     let mut scopes = BTreeMap::from([(Scope::Contents, Level::Read)]);
     scopes.extend(need.iter().copied());
     Permissions(scopes)
-}
-
-/// The row's `timeout` arg, or [`DEFAULT_TIMEOUT`]; refused outside
-/// 1 to [`MAX_TIMEOUT`].
-pub(crate) fn timeout(args: &Args) -> Result<u32, KindError> {
-    let minutes = args.number("timeout")?.unwrap_or(DEFAULT_TIMEOUT);
-    if (1..=MAX_TIMEOUT).contains(&minutes) {
-        return Ok(minutes);
-    }
-    Err(KindError::row(
-        args.line(),
-        format!("timeout `{minutes}` is not 1 to {MAX_TIMEOUT} minutes"),
-        format!("write `timeout=<1..{MAX_TIMEOUT}>`"),
-    ))
 }
 
 /// `fail-fast: false` over an `os` axis of the row's runner labels, the

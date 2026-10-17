@@ -17,6 +17,19 @@ the bytes actlith emits for the same inputs is at least a minor version
   lines and messages are unchanged except a newer `format` line, which
   now reads "`.actlith` is format 2; this build reads format 1" with the
   fix "upgrade to a release that reads format 2".
+- `src/kind`: `## workflows` rows are checked by pipelith's `kind` (T65):
+  its catalogue gives each kind's args and default systems, and its
+  `Row::check` checks systems, cache, args, `timeout` and the row rules
+  (cache for `build`, `package`, `cron`, `token`, plain words, one
+  system for a bump kind) before a workflow is built. Generated files
+  are unchanged. A system without a runner still reads "has no
+  GitHub-hosted runner". Two refusals read differently:
+  - a bad `token` now has the fix "write `token=<SECRET>`: letters,
+    digits and `_`, not starting with a digit" (it lacked the last
+    clause);
+  - a row with more than one fault names the first in pipelith's order
+    (systems, cache, args, `timeout`, then the rules), so it may name a
+    different fault first than before.
 
 ## [0.1.0] - 2026-10-17
 

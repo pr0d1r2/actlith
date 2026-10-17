@@ -6,31 +6,13 @@
 use std::collections::BTreeMap;
 
 use super::cron::cron;
-use super::shared::{
-    LIMITS, SYSTEMS, TOKEN, bump_job, plain, pushing_checkout, token,
-};
+use super::shared::{LIMITS, bump_job, plain, pushing_checkout, token};
 use crate::kind::{
-    ArgSchema, ArgSpec, Kind, KindError, Row, Secret, TIMEOUT, install_nix,
+    Kind, KindError, KindSpec, Row, Secret, UPDATE_PINS, install_nix,
     on_schedule, run, workflow,
 };
 use crate::pin::PinTable;
-use crate::system::System;
 use crate::yaml::{Comment, Step, Text, Workflow};
-
-const SCHEMA: [ArgSpec; 4] = [
-    ArgSpec {
-        key: "cron",
-        required: false,
-        default: Some("50 6 * * *"),
-    },
-    ArgSpec {
-        key: "build",
-        required: false,
-        default: Some(".#default"),
-    },
-    TOKEN,
-    TIMEOUT,
-];
 
 const WHY: &str = "Follow nixpkgs-lock and propose the bump as a PR. Pull \
     model: this repo\npolls; nixpkgs-lock holds no cross-repo token. \
@@ -45,16 +27,8 @@ const COMMAND: &str =
 pub(crate) struct UpdatePins;
 
 impl Kind for UpdatePins {
-    fn name(&self) -> &'static str {
-        "update-pins"
-    }
-
-    fn schema(&self) -> &'static ArgSchema {
-        &SCHEMA
-    }
-
-    fn default_systems(&self) -> &'static [System] {
-        &SYSTEMS
+    fn spec(&self) -> &'static KindSpec {
+        &UPDATE_PINS
     }
 
     fn secrets(&self, row: &Row) -> Vec<Secret> {
