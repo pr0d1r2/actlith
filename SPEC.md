@@ -85,7 +85,7 @@ V41: services: free tier ∀ adopted service (`docs/SERVICES.md` Adopt); paid �
 
 id|status|task|cites
 T1|.|rename repo dir `actionlint` → `actlith` (user, outside session) before first push|V22
-T33|.|parity check `docs/KINDS.md` ↔ kind nodes §V/§T|V25
+T33|x|parity check `docs/KINDS.md` ↔ kind nodes §V/§T|V25
 T34|x|federate `SPEC.md` w/ sherd: nodes `src/*`, `tests`, `dev`, `nix`; scaffold `src/<node>/mod.rs` w/ build-order edges for `sherd wave`|-
 T35|.|pklith: `actlith-gen-check` catalog row & `.actlith` type — PR to pklith ! user approval|I.nix
 T36|.|publish `0.1.0-rc.1` to crates.io ! user approval|V22

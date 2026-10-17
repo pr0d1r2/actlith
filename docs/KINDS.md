@@ -27,7 +27,7 @@ nix-hk `build.yml`, `update-pins.yml` and `upstream.yml` for the others.
 `.actlith` `## workflows` columns: `id|kind|systems|cache|args`.
 
 - `id`: file name `.github/workflows/<id>.yml`, and the workflow `name`.
-- `kind`: one of the kinds below, or a kind the repository adds.
+- `kind`: one of the kinds below; v1 has no repository-defined kinds.
 - `systems`: nix systems, comma-separated; `-` = the kind's default.
 - `cache`: cachix cache name; `-` = no cachix steps.
 - `args`: `key=value` pairs, comma-separated, validated per kind; an unknown
@@ -45,7 +45,7 @@ The hk gate on every supported system. Replaces the fleet `ci.yml`.
   gate command.
 - Default systems: `x86_64-linux`, `aarch64-linux`, `aarch64-darwin`.
 - args: `command` (default `nix develop --command hk check --all --check`),
-  `timeout` (minutes).
+  `timeout` (job minutes, default `30`).
 
 ## `build`
 
@@ -60,7 +60,7 @@ For packaging repositories such as nix-hk.
 - Job `verify-cache` (needs `build`, `main` push only): every system's output
   path answers 200 from the cache. Reason: a cachix push failure does not fail
   its job.
-- args: `package` (required), `timeout`.
+- args: `package` (required), `timeout` (job minutes, default `30`).
 
 ## `update-pins`
 
@@ -75,7 +75,9 @@ polls; nixpkgs-lock holds no cross-repo token.
 - Also runs `actlith pin` and `actlith gen` in the same branch, so action pins
   and a new actlith version arrive through the same reviewed PR.
 - args: `cron` (default `50 6 * * *`, after nixpkgs-lock refreshes), `build`
-  (flake attribute built before proposing; default `.#default`).
+  (flake attribute built before proposing; default `.#default`), `token`
+  (default `GITHUB_TOKEN`, see the known limit), `timeout` (job minutes,
+  default `30`).
 - Known limit: a PR opened with `GITHUB_TOKEN` does not trigger other
   workflows, so the gate does not run on it until someone pushes or reruns.
   args `token` names a secret with a GitHub App or fine-grained token to lift
@@ -91,7 +93,8 @@ PR mechanics as `update-pins`.
   script (path from args; it prints `NEW_VERSION=` to `GITHUB_OUTPUT`), then
   the seeded `open-pr.sh`.
 - args: `script` (required), `cron` (default `20 6 * * *`), `branch-prefix`
-  (default `upstream/`), `token` (as in `update-pins`).
+  (default `upstream/`), `token` (default `GITHUB_TOKEN`, as in
+  `update-pins`), `timeout` (job minutes, default `30`).
 
 ## Not in v1
 
