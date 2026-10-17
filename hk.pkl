@@ -29,6 +29,12 @@ local all = (generated.steps) {
     glob = List("pkl/**", "flake.lock", "nix/guard/schema-pin.sh")
     check = "bash nix/guard/schema-pin.sh"
   }
+  // nix T32: the flake's actlith built by nix and run as built on a
+  // fixture repository (as pklith T62). Push only: a nix build.
+  ["package-nix"] {
+    glob = List("flake.nix", "flake.lock", "Cargo.toml", "Cargo.lock", "src/**", "dev/**", "nix/guard/package-nix.sh")
+    check = "bash nix/guard/package-nix.sh"
+  }
 }
 
 hooks {
