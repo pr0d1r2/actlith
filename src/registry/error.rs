@@ -39,6 +39,14 @@ impl fmt::Display for RegistryError {
     }
 }
 
+impl From<crate::core::registry::RegistryError> for RegistryError {
+    /// pipelith's error, in actlith's shape: the file is always
+    /// `.actlith` and the column is not shown.
+    fn from(e: crate::core::registry::RegistryError) -> Self {
+        Self::new(e.line, e.what, e.fix)
+    }
+}
+
 impl std::error::Error for RegistryError {}
 
 #[cfg(test)]

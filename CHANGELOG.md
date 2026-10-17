@@ -13,6 +13,10 @@ the bytes actlith emits for the same inputs is at least a minor version
 - Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.1.0 from
   crates.io, the forge-neutral core shared with lablith. Nothing uses it
   yet; generated files are unchanged (T49).
+- `src/registry`: `.actlith` is parsed by pipelith's grammar (T64). Rows,
+  lines and messages are unchanged except a newer `format` line, which
+  now reads "`.actlith` is format 2; this build reads format 1" with the
+  fix "upgrade to a release that reads format 2".
 
 ## [0.1.0] - 2026-10-17
 

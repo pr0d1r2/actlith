@@ -16,31 +16,11 @@ pub(crate) struct Registry {
     pub(crate) bots: Vec<BotRow>,
 }
 
-/// One `key=value` pair of an `args` cell.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct Arg {
-    /// The key, validated per kind or bot by its node.
-    pub(crate) key: String,
-    /// The value, `\|` already unescaped.
-    pub(crate) value: String,
-}
+/// A `key=value` arg: pipelith's (src/core).
+pub(crate) use crate::core::registry::Arg;
 
-/// A `## workflows` row: `id|kind|systems|cache|args`.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct WorkflowRow {
-    /// The 1-based line the row is on, for errors downstream.
-    pub(crate) line: usize,
-    /// File stem of `.github/workflows/<id>.yml`.
-    pub(crate) id: String,
-    /// The kind name.
-    pub(crate) kind: String,
-    /// Nix systems; empty = the kind's default (`-`).
-    pub(crate) systems: Vec<String>,
-    /// Cachix cache name; `None` = no cachix steps (`-`).
-    pub(crate) cache: Option<String>,
-    /// `key=value` pairs, in cell order.
-    pub(crate) args: Vec<Arg>,
-}
+/// A `## workflows` row: pipelith's neutral `kind::RawRow` (src/core).
+pub(crate) type WorkflowRow = crate::core::kind::RawRow;
 
 /// A `## actions` row: `action|version|sha`.
 #[derive(Debug, Clone, PartialEq, Eq)]
