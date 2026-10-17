@@ -28,12 +28,12 @@ src/script/SPEC.md           880
 src/render/SPEC.md           730
 src/import/SPEC.md           840
 src/fetch/SPEC.md            850
-src/detect/SPEC.md           900
+src/detect/SPEC.md           1060
 src/check/SPEC.md            820
 src/gen/SPEC.md              790
 src/cli/SPEC.md              670
 src/report/SPEC.md           800
-tests/SPEC.md                460
+tests/SPEC.md                520
 dev/SPEC.md                  460
 
 # Chains

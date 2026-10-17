@@ -28,7 +28,7 @@ V48: pipelith switch ⊥ changes any golden byte; golden diff = extraction bug
 
 id|status|task|cites
 T18|.|harness: render ∀ kind × fixture args → `actionlint` + `zizmor` 0 findings; golden compare|V4,V35
-T50|.|switch `src/{registry,yaml,system,gen,detect,script}` neutral parts → `pipelith`; forge parts stay|V48
+T50|x|switch `src/{registry,yaml,system,gen,detect,script}` neutral parts → `pipelith`; forge parts stay|V48
 
 ## §B BUGS
 

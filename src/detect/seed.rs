@@ -2,11 +2,11 @@
 //! (detect V32).
 
 use std::fmt;
-use std::fs::OpenOptions;
-use std::io::{self, Write as _};
+use std::io;
 use std::path::{Path, PathBuf};
 
 use super::text::text;
+use crate::core::detect::{self, seed_init_text};
 use crate::registry::WorkflowRow;
 
 /// The file `seed --init` writes under the root.
@@ -60,19 +60,10 @@ pub(crate) fn seed_init(
     root: &Path,
     rows: &[WorkflowRow],
 ) -> Result<PathBuf, SeedError> {
-    let path = root.join(FILE);
-    let written = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&path)
-        .and_then(|mut file| file.write_all(text(rows).as_bytes()));
-    match written {
-        Ok(()) => Ok(path),
-        Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
-            Err(SeedError::Exists(path))
-        }
-        Err(e) => Err(SeedError::Write(path, e)),
-    }
+    seed_init_text(root, FILE, &text(rows)).map_err(|e| match e {
+        detect::SeedError::Exists(path) => SeedError::Exists(path),
+        detect::SeedError::Write(path, err) => SeedError::Write(path, err),
+    })
 }
 
 #[cfg(test)]
