@@ -22,6 +22,13 @@ local all = (generated.steps) {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
     check = "cargo deny check advisories"
   }
+  // nix T58: the vendored schema is the one the pinned hk ships, and
+  // pkl/VENDORED.md names its version and sha256. As pklith V28. Push
+  // only: it evaluates the flake and realises hk's source.
+  ["schema-pin"] {
+    glob = List("pkl/**", "flake.lock", "nix/guard/schema-pin.sh")
+    check = "bash nix/guard/schema-pin.sh"
+  }
 }
 
 hooks {
