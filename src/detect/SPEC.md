@@ -32,6 +32,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §C CONSTRAINTS
 
 - input = tracked file list + `flake.nix` / `flake.lock` text. ⊥ nix eval. rows printed in fixed order.
+- `detect`, `row_line`, header, `text_with`, `seed_init_text` = pipelith `detect` (`src/core`); here: V50 note & off-by-default rule, `seed --init` wording.
 
 ## §I INTERFACES
 
@@ -47,6 +48,7 @@ V50: `update-pins` off by default: `nixpkgs-lock` → `detect` & `seed --init` e
 id|status|task|cites
 T27|x|`detect` (`flake.nix` → `gate`, `nixpkgs-lock` input → `update-pins`) + `seed --init`|V32,`.:V1`
 T54|x|comment out `update-pins` in `detect` & `seed --init` output|V50,V32
+T67|x|`detect` → pipelith 0.1.1 `detect` (`text_with`, `seed_init_text`); V50 & seed wording kept; goldens unchanged|V50,V32,`tests:V48`,`src/core:V51`
 
 ## §B BUGS
 
