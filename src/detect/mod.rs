@@ -17,4 +17,4 @@ mod text;
 
 pub(crate) use rows::detect;
 pub(crate) use seed::{SeedError, seed_init};
-pub(crate) use text::row_line;
+pub(crate) use text::{proposal, row_line};

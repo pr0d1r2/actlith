@@ -6,8 +6,8 @@ use super::text::FIRST_ROW;
 use crate::registry::WorkflowRow;
 
 /// Proposed rows: `flake.nix` tracked gives `ci|gate`; a `nixpkgs-lock` node
-/// in `flake.lock` gives `update-pins|update-pins`. Always that order; each
-/// row's `line` is the one it takes in the seeded `.actlith`.
+/// in `flake.lock` gives `update-pins|update-pins`, which `text` writes
+/// commented out (V50). Always that order; `line` counts one per row.
 #[must_use]
 pub(crate) fn detect<S: AsRef<str>>(
     tracked: &[S],

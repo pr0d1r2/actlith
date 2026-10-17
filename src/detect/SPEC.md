@@ -45,7 +45,7 @@ V50: `update-pins` off by default: `nixpkgs-lock` → `detect` & `seed --init` e
 
 id|status|task|cites
 T27|x|`detect` (`flake.nix` → `gate`, `nixpkgs-lock` input → `update-pins`) + `seed --init`|V32,`.:V1`
-T54|.|comment out `update-pins` in `detect` & `seed --init` output|V50,V32
+T54|x|comment out `update-pins` in `detect` & `seed --init` output|V50,V32
 
 ## §B BUGS
 

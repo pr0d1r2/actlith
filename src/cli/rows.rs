@@ -8,18 +8,21 @@ use std::path::{Path, PathBuf};
 
 use super::exit::{FINDING, Outcome, Ran, USAGE, lines};
 use super::ls_files::tracked;
-use crate::detect::{SeedError, detect as propose, row_line, seed_init};
+use crate::detect::{
+    SeedError, detect as propose, proposal, row_line, seed_init,
+};
 use crate::import::import as matched;
 use crate::registry::WorkflowRow;
 
-/// `detect`: the proposed rows, one per line.
+/// `detect`: the proposed rows, one per line; a row off by default
+/// comes commented, under its note (`src/detect:V50`).
 ///
 /// # Errors
 ///
 /// Exit 2: the tracked file list cannot be read.
 pub(crate) fn detect(root: &Path) -> Ran {
     let rows = proposed(root)?;
-    Ok(Outcome::ok(lines(rows.iter().map(row_line))))
+    Ok(Outcome::ok(lines(rows.iter().map(proposal))))
 }
 
 /// `seed --init`: write the first `.actlith` from `detect`'s rows.
