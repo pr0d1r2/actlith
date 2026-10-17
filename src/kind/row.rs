@@ -11,7 +11,7 @@ use crate::registry::WorkflowRow;
 use crate::system::{parse_system, runner};
 
 /// The kinds and arg keys only actlith knows: none today, so every row
-/// actlith renders renders on every forge (V49).
+/// actlith renders works on every forge (V49).
 pub(crate) const EXTRAS: Extras<'static> = Extras {
     kinds: &[],
     keys: &[],
