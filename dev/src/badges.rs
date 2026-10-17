@@ -8,6 +8,8 @@ use crate::facts::{Nixpkgs, Platform};
 /// What Cargo.toml owns.
 #[derive(Debug)]
 pub(crate) struct Cargo {
+    /// The crate's `name`, as crates.io and docs.rs know it.
+    pub(crate) name: String,
     /// `owner/repo`, from `repository`.
     pub(crate) slug: String,
     /// `license`.
@@ -122,8 +124,9 @@ pub(crate) fn render(f: &Facts) -> String {
 
 impl Cargo {
     /// The template's Cargo.toml facts, by name.
-    fn values(&self) -> [(&'static str, String); 5] {
+    fn values(&self) -> [(&'static str, String); 6] {
         [
+            ("name", self.name.clone()),
             ("slug", self.slug.clone()),
             ("license", self.license.clone()),
             ("edition", self.edition.clone()),
