@@ -10,6 +10,7 @@ rel|path|lens
 up|.|-
 up|src|the tool: registry, runners, pins, YAML writer, kinds, render, verbs, CLI
 self|src/kind|kind trait, arg schemas, common parts: permissions, concurrency, timeouts, checkout, install-nix, cachix, secrets
+sib|src/core|facade: ONE node naming `pipelith`; re-exports its neutral modules
 sib|src/registry|parse `.actlith`: format line, `## workflows`, `## actions`, `## hand-written`; row errors
 sib|src/system|nix system → runner label table
 sib|src/yaml|workflow model types & own YAML writer: key order, quoting, comments, header

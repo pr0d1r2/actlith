@@ -26,7 +26,7 @@ lived in prose would be arguing against itself. So the standard here is:
 
 [`SPEC.md`](../SPEC.md) and one `SPEC.md` per node below it are the law,
 not a description written afterwards. Together they carry
-**52 invariants** (the `V` rows: what must stay true), `T` tasks (what is
+**53 invariants** (the `V` rows: what must stay true), `T` tasks (what is
 decided and what is not), **8 bugs** in their `B` tables (each paired
 with the rule that now catches it), and `R` research (the
 measurements the constraints rest on). A rule and its checker land in the
