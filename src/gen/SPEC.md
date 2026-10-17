@@ -32,6 +32,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §C CONSTRAINTS
 
 - only node besides `src/fetch`-driven `pin` that writes files: rendered paths ONLY, under `--root`.
+- write, compare, path check = pipelith `files` via `src/core`; `File` = `core::files::File` (render & bots too).
 
 ## §I INTERFACES
 
@@ -45,6 +46,7 @@ V6: `gen --check` writes ⊥; ∃ stale | missing generated file → exit 1 nami
 
 id|status|task|cites
 T24|x|`gen` + `gen --check` over a temp root fixture|V6,`.:V1`
+T61|x|`gen`, `check`, `target`, `File` → `src/core` files; goldens unchanged|V6,`tests:V48`,`src/core:V51`
 
 ## §B BUGS
 

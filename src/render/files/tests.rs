@@ -219,3 +219,10 @@ fn two_rows_at_one_path_are_refused() -> Result<(), String> {
     assert_eq!(error, RenderError::Duplicate(path));
     Ok(())
 }
+
+#[test]
+fn file_is_pipelith_file() {
+    use std::any::TypeId;
+    let ours = TypeId::of::<crate::render::File>();
+    assert_eq!(ours, TypeId::of::<crate::core::files::File>());
+}

@@ -8,7 +8,7 @@ use crate::r#gen::{Stale, check, r#gen};
 use crate::registry::parse;
 use crate::render::{File, render};
 
-const REPO: &str = include_str!("../../../tests/fixtures/gen/repo.actlith");
+const REPO: &str = include_str!("../../tests/fixtures/gen/repo.actlith");
 
 /// A fresh, empty directory for one test.
 fn scratch(name: &str) -> PathBuf {
