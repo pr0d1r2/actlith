@@ -1,6 +1,6 @@
 [package]
 name = "actlith"
-# Unpublished until the first release candidate (T36).
+# Unpublished until 0.1.0, the first release (T36).
 version = "0.0.0"
 edition = "2024"
 # The fleet pin: nixpkgs-lock (nixos-26.05) carries rustc 1.95.
