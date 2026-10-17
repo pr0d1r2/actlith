@@ -315,3 +315,13 @@ fn verify_cache_fails_when_a_path_is_missing() -> io::Result<()> {
     assert!(ran.log.contains("aarch64linux.narinfo"), "{}", ran.log);
     Ok(())
 }
+
+#[test]
+fn every_header_is_pipelith_header() {
+    let neutral = crate::core::files::header("actlith", ".actlith");
+    assert_eq!(HEADER, neutral);
+    assert_eq!(format!("{}\n", crate::yaml::HEADER), neutral);
+    for (path, bytes) in scripts() {
+        assert!(bytes.starts_with(&neutral), "{path}");
+    }
+}
