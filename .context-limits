@@ -15,7 +15,7 @@ SPEC.md                      2720
 nix/SPEC.md                  2650
 src/SPEC.md                  1010
 src/bump/SPEC.md             1130
-src/kind/SPEC.md             1170
+src/kind/SPEC.md             1420
 src/pin/SPEC.md              1120
 src/registry/SPEC.md         1050
 src/bots/SPEC.md             1690
@@ -51,7 +51,7 @@ src/fetch                    2910
 src/gate                     2970
 src/gen                      2870
 src/import                   2910
-src/kind                     3150
+src/kind                     3560
 src/pin                      2990
 src/registry                 3110
 src/render                   2920
