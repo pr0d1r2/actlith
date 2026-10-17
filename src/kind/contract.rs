@@ -5,9 +5,18 @@ use super::args::ArgSchema;
 use super::error::KindError;
 use super::row::Row;
 use super::secret::Secret;
+use crate::core::kind::KindSpec;
 use crate::pin::PinTable;
 use crate::system::System;
 use crate::yaml::Workflow;
+
+/// Not yet a catalogue entry.
+const UNSET: KindSpec = KindSpec {
+    name: "",
+    schema: &[],
+    default_systems: &[],
+    secrets: &[],
+};
 
 /// A workflow kind (`docs/KINDS.md`).
 pub(crate) trait Kind {
@@ -20,9 +29,18 @@ pub(crate) trait Kind {
     /// The systems a row's `-` means.
     fn default_systems(&self) -> &'static [System];
 
+    /// The kind's pipelith catalogue entry (V49): name, schema, default
+    /// systems.
+    fn spec(&self) -> &'static KindSpec {
+        &UNSET
+    }
+
     /// Every secret the workflow built from `row` reads (V14).
     fn secrets(&self, row: &Row) -> Vec<Secret>;
 
     /// The workflow for `row`, its actions pinned from `pins`.
     fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError>;
 }
+
+#[cfg(test)]
+mod tests;
