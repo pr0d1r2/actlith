@@ -15,6 +15,13 @@ local all = (generated.steps) {
     glob = List("Cargo.toml", "Cargo.lock", "src/**")
     check = "cargo package --locked --allow-dirty -q -p actlith"
   }
+  // nix T56: no dependency with a published advisory. It fetches the
+  // advisory database, so it runs at push, which needs the network anyway;
+  // the commit-time `deny` step stays offline. As pklith T40.
+  ["deny-advisories"] {
+    glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
+    check = "cargo deny check advisories"
+  }
 }
 
 hooks {
