@@ -10,7 +10,7 @@
 [![network actlith pin only](https://img.shields.io/badge/network-actlith_pin_only-brightgreen)](SPEC.md)
 
 [![gate hk](https://img.shields.io/badge/gate-hk-6E4AFF)](hk.pkl)
-[![gate steps 48 commit / 53 push](https://img.shields.io/badge/gate_steps-48_commit_%2F_53_push-6E4AFF)](hk.pkl)
+[![gate steps 48 commit / 54 push](https://img.shields.io/badge/gate_steps-48_commit_%2F_54_push-6E4AFF)](hk.pkl)
 [![coverage floor 99.84%](https://img.shields.io/badge/coverage_floor-%E2%89%A599.84%25-brightgreen)](.coverage)
 [![invariants 52](https://img.shields.io/badge/invariants-52-6E4AFF)](SPEC.md)
 [![bugs logged 8](https://img.shields.io/badge/bugs_logged-8-6E4AFF)](SPEC.md)
@@ -94,14 +94,20 @@ Every message names its fix.
 
 ## Install
 
-Until the first release, build from source with Rust 1.95 or newer:
+With nix, run it from the flake, or add `packages.<system>.default` to
+your dev shell:
+
+```sh
+nix run github:pr0d1r2/actlith -- --help
+```
+
+Or build from source with Rust 1.95 or newer:
 
 ```sh
 cargo install --git https://github.com/pr0d1r2/actlith actlith
 ```
 
-A crates.io release (`cargo install actlith`) and a nix package come with
-`0.1.0`.
+A crates.io release (`cargo install actlith`) comes with `0.1.0`.
 
 ## Quick start
 

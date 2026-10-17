@@ -10,6 +10,9 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Added
 
+- nix: the flake's `packages.<system>.default` is actlith
+  (`nix run github:pr0d1r2/actlith`), built from the crate alone and
+  tested as built on a fixture repository (T32).
 - `src/cli`: the `actlith` command: `gen [--check]`, `check`, `detect`,
   `seed --init`, `import FILE...`, `report [--format text|json|md]`,
   `pin [--dry-run]`, `completions <shell>` and `man`, with `--root DIR`
