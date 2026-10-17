@@ -31,7 +31,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §C CONSTRAINTS
 
-- zero deps. pure fns over text; ⊥ I/O (caller reads file).
+- grammar = pipelith `registry` (`src/core`) vs actlith schema; here: GitHub rows, `full_sha`, `.actlith:N:` error shape. pure fns over text; ⊥ I/O (caller reads file).
 - format = pklith registry style: `format N` line, `## <section>`, pipe tables, `#` comments, `-` empty, `\|` literal pipe.
 
 ## §I INTERFACES
@@ -49,6 +49,7 @@ V12: missing `.actlith` → `gen`|`check` exit 2, ⊥ pass, ⊥ empty render. mi
 
 id|status|task|cites
 T13|x|parse `format`, `## workflows`, `## actions`, `## hand-written`; duplicate id, empty reason, bad cell count → error w/ line; fixtures 1-to-1|V10,V11,V12
+T64|x|grammar → pipelith `registry`, `WorkflowRow` = `kind::RawRow`, `Arg` pipelith; newer format in pipelith words (3a); fixtures unchanged|V10,V11,`tests:V48`,`src/core:V51`
 
 ## §B BUGS
 
