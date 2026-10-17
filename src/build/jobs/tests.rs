@@ -2,6 +2,7 @@
 //! `main`, flake check plus eval-only systems, verify-cache through the
 //! seeded script and never inline shell.
 
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use super::{VERIFY_SCRIPT, build, check, eval_only, jobs, matrix, verify};
@@ -107,9 +108,9 @@ fn build_passes_the_system_through_env() -> Result<(), String> {
     let want = "nix build --print-build-logs \".#packages.$SYSTEM.actlith\"";
     assert_eq!(commands(&job), [want]);
     let run = job.steps.last().ok_or("no step")?;
-    let system = run.env.get("SYSTEM").map(crate::yaml::Text::render);
+    let system = run.env.get("SYSTEM").map(|t| t.render(&GITHUB));
     assert_eq!(system.as_deref(), Some("${{ matrix.system }}"));
-    assert_eq!(job.runs_on.render(), "${{ matrix.os }}");
+    assert_eq!(job.runs_on.render(&GITHUB), "${{ matrix.os }}");
     Ok(())
 }
 
@@ -140,7 +141,7 @@ fn check_runs_the_flake_check_then_evaluates_runnerless_systems()
         "nix eval --raw .#packages.x86_64-darwin.actlith.drvPath",
     ];
     assert_eq!(commands(&job), want);
-    assert_eq!(job.runs_on.render(), "ubuntu-latest");
+    assert_eq!(job.runs_on.render(&GITHUB), "ubuntu-latest");
     assert!(job.needs.is_empty() && job.condition.is_none());
     Ok(())
 }
@@ -163,7 +164,7 @@ fn verify_cache_runs_the_seeded_script_after_main_builds() -> Result<(), String>
     let main = "github.ref == 'refs/heads/main' && \
                 github.event_name == 'push'";
     assert_eq!(condition, Some(main));
-    assert_eq!(job.runs_on.render(), "ubuntu-latest");
+    assert_eq!(job.runs_on.render(&GITHUB), "ubuntu-latest");
     Ok(())
 }
 

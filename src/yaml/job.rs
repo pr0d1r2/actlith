@@ -2,10 +2,10 @@
 
 use std::collections::BTreeMap;
 
-use super::node::{Entry, Node, Value};
 use super::step::Step;
-use super::text::{Comment, Expr, Text};
 use super::workflow::{Env, Permissions, env, list, put, string};
+use crate::core::yaml::{Comment, Expr, Text};
+use crate::core::yaml::{Entry, Node, Value};
 
 /// A job. Keys are written as `name`, `needs`, `if`, `runs-on`,
 /// `permissions`, `strategy`, `timeout-minutes`, `env`, `steps`.

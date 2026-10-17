@@ -13,18 +13,15 @@
 
 mod dialect;
 mod job;
-mod node;
 mod render;
-mod scalar;
 mod step;
-mod text;
 mod workflow;
 
+pub(crate) use crate::core::yaml::{Comment, Expr, Text, Value};
+pub(crate) use dialect::GITHUB;
 pub(crate) use job::{Axis, AxisName, Job, Matrix};
-pub(crate) use node::Value;
 pub(crate) use render::{HEADER, render, write};
 pub(crate) use step::{Action, Input, Step, Uses, With};
-pub(crate) use text::{Comment, Expr, Part, Text};
 pub(crate) use workflow::{
     Concurrency, Env, Level, Permissions, Push, Scope, Trigger, Workflow,
 };

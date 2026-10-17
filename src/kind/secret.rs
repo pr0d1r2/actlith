@@ -2,6 +2,7 @@
 //! `report` can list them per workflow.
 
 use crate::yaml::Expr;
+use crate::yaml::GITHUB;
 
 /// A repository secret and what the workflow reads it for.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -18,7 +19,8 @@ impl Secret {
         let word = |c: char| c.is_ascii_alphanumeric() || c == '_';
         let first = name.chars().next().filter(|c| !c.is_ascii_digit());
         let named = first.is_some() && name.chars().all(word);
-        let expr = Expr::new(&format!("secrets.{name}")).filter(|_| named)?;
+        let expr =
+            Expr::new(&GITHUB, &format!("secrets.{name}")).filter(|_| named)?;
         Some(Self {
             name: name.to_owned(),
             purpose,

@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 
 use super::{Level, Permissions, Push, Scope, Trigger, Workflow};
-use crate::yaml::node::document;
+use crate::core::yaml::document;
+use crate::yaml::GITHUB;
 use crate::yaml::{Env, Text};
 
 fn bare(on: Trigger) -> Workflow {
@@ -17,7 +18,7 @@ fn bare(on: Trigger) -> Workflow {
 }
 
 fn out(w: &Workflow) -> String {
-    document(&w.comments, &w.entries())
+    document(&GITHUB, &w.comments, &w.entries())
 }
 
 #[test]

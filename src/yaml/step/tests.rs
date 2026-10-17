@@ -1,5 +1,6 @@
 use super::{Action, Input, Step, Uses, With};
-use crate::yaml::node::{Entry, Node, document};
+use crate::core::yaml::{Entry, Node, document};
+use crate::yaml::GITHUB;
 use crate::yaml::{Comment, Env, Text, Value};
 
 fn run(cmd: &str) -> Step {
@@ -15,7 +16,7 @@ fn run(cmd: &str) -> Step {
 
 fn out(step: &Step) -> String {
     let steps = Node::Seq(vec![step.entries()]);
-    document(&[], &[Entry::fixed("steps", steps)])
+    document(&GITHUB, &[], &[Entry::fixed("steps", steps)])
 }
 
 #[test]

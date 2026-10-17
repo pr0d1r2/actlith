@@ -3,6 +3,7 @@
 //! `open-pr.sh`, idempotent per V26. Shape: nix-hk `upstream.yml`
 //! (`.:R3`); the cache is only read, the PR's own CI pushes.
 
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use super::cron::cron;
@@ -116,7 +117,7 @@ fn open(row: &Row, token: &Secret) -> Result<Step, KindError> {
     let script = plain(&row.args, "script")?;
     let body = format!("Bumped by {script}, which ran before this PR.");
     let mut step = run(row.line, OPEN, &[("GH_TOKEN", token.expr())])?;
-    step.condition = Expr::new(&format!("{VERSION} != ''"));
+    step.condition = Expr::new(&GITHUB, &format!("{VERSION} != ''"));
     let mut put = |key: &str, text| step.env.insert(key.to_owned(), text);
     put("BRANCH", versioned(prefix));
     put("TITLE", versioned("build: bump to "));
@@ -126,7 +127,7 @@ fn open(row: &Row, token: &Secret) -> Result<Step, KindError> {
 
 /// `lead` followed by the version the bump step printed.
 fn versioned(lead: &str) -> Text {
-    Expr::new(VERSION)
+    Expr::new(&GITHUB, VERSION)
         .into_iter()
         .fold(Text::lit(lead), Text::then_expr)
 }

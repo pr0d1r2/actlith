@@ -4,8 +4,8 @@
 use std::collections::BTreeMap;
 
 use super::job::Job;
-use super::node::{Entry, Node, Value};
-use super::text::{Comment, Text};
+use crate::core::yaml::{Comment, Text};
+use crate::core::yaml::{Entry, Node, Value};
 
 /// Environment variables, written in name order.
 pub(crate) type Env = BTreeMap<String, Text>;

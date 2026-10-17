@@ -2,6 +2,7 @@
 //! (T17, V3).
 
 use crate::kind::{KindError, run};
+use crate::yaml::GITHUB;
 use crate::yaml::{Action, Expr, Text};
 
 fn refused(command: &str, env: &[(&str, Expr)]) -> String {
@@ -16,7 +17,7 @@ const FIX: &str = "\n  fix: write one command line; pass values through env, \
 
 #[test]
 fn a_command_runs_with_its_values_in_env() -> Result<(), KindError> {
-    let reference = Expr::new("github.ref")
+    let reference = Expr::new(&GITHUB, "github.ref")
         .ok_or_else(|| KindError::row(0, "bad expression", "-"))?;
     let step = run(5, "scripts/x.sh \"$REF\"", &[("REF", reference.clone())])?;
     assert_eq!(step.action, Action::Run("scripts/x.sh \"$REF\"".to_owned()));
@@ -52,7 +53,9 @@ fn a_multi_line_or_empty_command_is_refused() {
 #[test]
 fn a_bad_env_name_is_refused() {
     for name in ["", "1A", "A-B", "A B"] {
-        let value = Expr::new("github.ref").into_iter().map(|e| (name, e));
+        let value = Expr::new(&GITHUB, "github.ref")
+            .into_iter()
+            .map(|e| (name, e));
         let env: Vec<(&str, Expr)> = value.collect();
         let error = refused("true", &env);
         assert!(error.contains("is not a shell variable name"), "{name}");

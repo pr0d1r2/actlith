@@ -6,6 +6,7 @@ use crate::kind::{
     cachix, job, workflow,
 };
 use crate::pin::PinTable;
+use crate::yaml::GITHUB;
 use crate::yaml::{
     Action, Comment, Expr, HEADER, Input, Step, Text, Trigger, Value, With,
     render,
@@ -89,7 +90,7 @@ fn pushing_modes_declare_the_cachix_secret() {
 fn the_filter_and_skip_are_the_documented_ones() {
     assert_eq!(PUSH_FILTER, "(-source$|nixpkgs\\.tar\\.gz$)");
     assert!(SKIP_FORK_PR.starts_with("github.event_name == 'pull_request'"));
-    assert!(Expr::new(SKIP_FORK_PR).is_some());
+    assert!(Expr::new(&GITHUB, SKIP_FORK_PR).is_some());
 }
 
 #[test]

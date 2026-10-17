@@ -4,6 +4,7 @@
 //! (`src/kind:V9`); every value GitHub evaluates reaches a command
 //! through `env:` (`src/kind:V3`).
 
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use super::plan::Plan;
@@ -55,7 +56,7 @@ pub(crate) fn build(plan: &Plan) -> Result<Job, KindError> {
         "nix build --print-build-logs \".#packages.$SYSTEM.{}\"",
         plan.package
     );
-    let env: Vec<_> = Expr::new("matrix.system")
+    let env: Vec<_> = Expr::new(&GITHUB, "matrix.system")
         .into_iter()
         .map(|e| ("SYSTEM", e))
         .collect();
@@ -102,7 +103,7 @@ pub(crate) fn verify(plan: &Plan) -> Result<Job, KindError> {
         named("verify-cache", linux(plan.row.line)?, plan, steps);
     verified.comments = vec![Comment::new(VERIFY_WHY)];
     verified.needs = vec!["build".to_owned()];
-    verified.condition = Expr::new(MAIN_PUSH);
+    verified.condition = Expr::new(&GITHUB, MAIN_PUSH);
     Ok(verified)
 }
 

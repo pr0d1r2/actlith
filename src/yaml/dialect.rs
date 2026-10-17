@@ -11,16 +11,22 @@ pub(crate) struct Github;
 pub(crate) const GITHUB: Github = Github;
 
 impl Dialect for Github {
-    /// RED stub: refuses every expression.
-    fn expr(&self, _inner: &str) -> Option<String> {
-        None
+    /// `${{ inner }}`; `None` when `inner` holds `${{` or `}}`, which would
+    /// nest or end the expression early: an injected expression (V5).
+    fn expr(&self, inner: &str) -> Option<String> {
+        let broken = inner.contains("${{") || inner.contains("}}");
+        (!broken).then(|| format!("${{{{ {inner} }}}}"))
     }
 
-    /// RED stub: leaves literals as they are.
+    /// A literal `${{` becomes an expression that yields `${{`, so literal
+    /// text never opens one.
     fn escape(&self, lit: &str) -> String {
-        lit.to_owned()
+        lit.replace("${{", OPEN_ESCAPED)
     }
 }
+
+/// The literal `${{`, written as an expression that yields it.
+const OPEN_ESCAPED: &str = "${{ '${{' }}";
 
 #[cfg(test)]
 mod tests;

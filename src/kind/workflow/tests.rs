@@ -2,6 +2,7 @@
 //! enough: a kind made of nothing but them renders this repository's own
 //! `ci.yml` byte for byte.
 
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use crate::kind::{
@@ -130,10 +131,13 @@ fn every_workflow_reads_contents_only_at_the_top() {
 #[test]
 fn push_and_pr_runs_cancel_scheduled_runs_do_not() {
     let push = concurrency("ci", &on_push_and_pr());
-    assert_eq!(push.group.render(), "ci-${{ github.ref }}");
+    assert_eq!(push.group.render(&GITHUB), "ci-${{ github.ref }}");
     assert!(push.cancel_in_progress);
     let scheduled = concurrency("update-pins", &on_schedule("50 6 * * *"));
-    assert_eq!(scheduled.group.render(), "update-pins-${{ github.ref }}");
+    assert_eq!(
+        scheduled.group.render(&GITHUB),
+        "update-pins-${{ github.ref }}"
+    );
     assert!(!scheduled.cancel_in_progress);
 }
 
