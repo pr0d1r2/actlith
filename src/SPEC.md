@@ -10,7 +10,7 @@ dir|owns|⊥owns|tokens
 core|facade: ONE node naming `pipelith`; re-exports its neutral modules|any logic|-
 registry|parse `.actlith`: format line, `## workflows`, `## actions`, `## hand-written`; row errors|what a kind accepts|-
 system|nix system → runner label table|kind shapes|-
-yaml|workflow model types & own YAML writer: key order, quoting, comments, header|what any workflow says|-
+yaml|workflow model types on pipelith YAML writer: key order, quoting, comments, header|what any workflow says|-
 script|seeded shell scripts shipped in the crate (`update-pins.sh`, `open-pr.sh`) & their bats|when a kind needs them|-
 pin|pin table: built-in pins + `## actions` overrides; `uses:` lines|resolving tags (network)|-
 kind|kind trait, arg schemas, common parts: permissions, concurrency, timeouts, checkout, install-nix, cachix, secrets|any one kind's jobs|-
