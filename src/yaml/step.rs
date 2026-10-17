@@ -1,9 +1,9 @@
 //! A step and its `with:` inputs, lowered in a fixed key order (V5).
 
 use super::job::condition;
-use super::node::{Entry, Node, Value};
-use super::text::{Comment, Expr};
 use super::workflow::{Env, env, put, string};
+use crate::core::yaml::{Comment, Expr};
+use crate::core::yaml::{Entry, Node, Value};
 
 /// A step. Keys are written as `name`, `id`, `if`, `uses` or `run`,
 /// `with`, `env`.

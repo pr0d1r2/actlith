@@ -1,7 +1,8 @@
 //! A workflow to bytes: the generated header, then the document (V5, V8).
 
-use super::node::document;
+use super::dialect::GITHUB;
 use super::workflow::Workflow;
+use crate::core::yaml::document;
 
 /// The first line of every generated file (V8, `.:I` file).
 pub(crate) const HEADER: &str =
@@ -14,7 +15,7 @@ pub(crate) fn render(workflow: &Workflow) -> String {
 
 /// The workflow as YAML without the header: `---`, its comments, its keys.
 pub(crate) fn write(workflow: &Workflow) -> String {
-    document(&workflow.comments, &workflow.entries())
+    document(&GITHUB, &workflow.comments, &workflow.entries())
 }
 
 #[cfg(test)]

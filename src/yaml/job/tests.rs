@@ -1,8 +1,9 @@
 use std::collections::BTreeMap;
 
 use super::{Axis, AxisName, Job, Matrix};
+use crate::core::yaml::document;
 use crate::yaml::Env;
-use crate::yaml::node::document;
+use crate::yaml::GITHUB;
 
 fn job() -> Job {
     Job {
@@ -20,7 +21,7 @@ fn job() -> Job {
 }
 
 fn out(job: &Job) -> String {
-    document(&[], &[job.entry("j")])
+    document(&GITHUB, &[], &[job.entry("j")])
 }
 
 #[test]

@@ -2,6 +2,7 @@
 //! say `pull_request_target`, top `permissions: contents: read`, and the
 //! `<id>-${{ github.ref }}` concurrency group.
 
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use crate::yaml::{
@@ -42,7 +43,7 @@ pub(crate) fn read_only() -> Permissions {
 pub(crate) fn concurrency(id: &str, on: &Trigger) -> Concurrency {
     let group = Text::lit(&format!("{id}-"));
     Concurrency {
-        group: Expr::new("github.ref")
+        group: Expr::new(&GITHUB, "github.ref")
             .into_iter()
             .fold(group, Text::then_expr),
         cancel_in_progress: on.schedule.is_empty(),

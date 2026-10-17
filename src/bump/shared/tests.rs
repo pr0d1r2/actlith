@@ -58,7 +58,7 @@ fn the_default_token_is_github_token() -> Result<(), String> {
 #[test]
 fn a_named_token_is_the_secret_read() -> Result<(), String> {
     let secret = token(&args("token=APP_TOKEN")?).map_err(|e| e.to_string())?;
-    assert_eq!(secret.expr().render(), "${{ secrets.APP_TOKEN }}");
+    assert_eq!(secret.expr().text(), "${{ secrets.APP_TOKEN }}");
     Ok(())
 }
 

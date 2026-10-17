@@ -1,3 +1,4 @@
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use crate::yaml::{
@@ -35,7 +36,7 @@ const NIX_CONFIG: &str = "extra-substituters = https://pr0d1r2.cachix.org\n\
     NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=\n";
 
 fn expr(inner: &str) -> Built<Expr> {
-    Expr::new(inner).ok_or("bad expression")
+    Expr::new(&GITHUB, inner).ok_or("bad expression")
 }
 
 fn comments(text: &str) -> Vec<Comment> {

@@ -1,6 +1,7 @@
 //! Job hardening: timeout always set and bounded, permissions widened
 //! only by the declared need, runner matrix (T17, V3).
 
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use crate::kind::{
@@ -102,7 +103,7 @@ fn the_matrix_runs_on_each_system_runner() -> Result<(), KindError> {
         .and_then(|a| a.comments.first())
         .map(crate::yaml::Comment::lines);
     assert_eq!(comment, Some(vec!["# aarch64-darwin, x86_64-linux".into()]));
-    assert_eq!(matrix_runner().render(), "${{ matrix.os }}");
+    assert_eq!(matrix_runner().render(&GITHUB), "${{ matrix.os }}");
     Ok(())
 }
 

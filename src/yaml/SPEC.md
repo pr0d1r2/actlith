@@ -9,7 +9,7 @@
 rel|path|lens
 up|.|-
 up|src|the tool: registry, runners, pins, YAML writer, kinds, render, verbs, CLI
-self|src/yaml|workflow model types & own YAML writer: key order, quoting, comments, header
+self|src/yaml|workflow model types on pipelith YAML writer: key order, quoting, comments, header
 sib|src/core|facade: ONE node naming `pipelith`; re-exports its neutral modules
 sib|src/registry|parse `.actlith`: format line, `## workflows`, `## actions`, `## hand-written`; row errors
 sib|src/system|nix system → runner label table
@@ -31,7 +31,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §C CONSTRAINTS
 
-- zero deps. writer only, ⊥ reader. output style = yamllint-clean under repo `.yamllint.yaml`: `---` start, 2 spaces before comments, ≤120 cols (fold long expressions w/ `>-`).
+- writer = pipelith `yaml` (`src/core`); here: GitHub model, `Github` dialect, header. writer only, ⊥ reader. output style = yamllint-clean under repo `.yamllint.yaml`: `---` start, 2 spaces before comments, ≤120 cols (fold long expressions w/ `>-`).
 
 ## §I INTERFACES
 
@@ -49,6 +49,7 @@ V8: ∀ generated file (workflow, seeded script) starts w/ generated header; han
 
 id|status|task|cites
 T16|x|model types + writer: fixed order & quoting, header, comments, folded scalars; golden bytes tests incl. pklith `ci.yml` shape|V5,V8,`.:V1`
+T63|x|writer → pipelith `yaml` + `Github` dialect (`${{ }}`, `${{` escaped); goldens unchanged|V5,`tests:V48`,`src/core:V51`
 
 ## §B BUGS
 

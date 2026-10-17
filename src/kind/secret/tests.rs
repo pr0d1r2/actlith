@@ -9,7 +9,7 @@ fn the_cachix_secret_is_the_documented_one() {
     assert_eq!(name, Some("CACHIX_AUTH_TOKEN"));
     let purpose = secret.as_ref().map(Secret::purpose);
     assert_eq!(purpose, Some("cachix push"));
-    let expr = secret.map(|s| s.expr().render());
+    let expr = secret.map(|s| s.expr().text().to_owned());
     assert_eq!(expr.as_deref(), Some("${{ secrets.CACHIX_AUTH_TOKEN }}"));
 }
 

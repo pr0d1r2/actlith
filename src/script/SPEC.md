@@ -13,7 +13,7 @@ self|src/script|seeded shell scripts shipped in the crate (`update-pins.sh`, `op
 sib|src/core|facade: ONE node naming `pipelith`; re-exports its neutral modules
 sib|src/registry|parse `.actlith`: format line, `## workflows`, `## actions`, `## hand-written`; row errors
 sib|src/system|nix system → runner label table
-sib|src/yaml|workflow model types & own YAML writer: key order, quoting, comments, header
+sib|src/yaml|workflow model types on pipelith YAML writer: key order, quoting, comments, header
 sib|src/pin|pin table: built-in pins + `## actions` overrides; `uses:` lines
 sib|src/kind|kind trait, arg schemas, common parts: permissions, concurrency, timeouts, checkout, install-nix, cachix, secrets
 sib|src/gate|kind `gate`: hk gate per system

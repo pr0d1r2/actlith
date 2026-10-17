@@ -7,6 +7,7 @@ use super::error::KindError;
 use super::secret::Secret;
 use super::step::uses;
 use crate::pin::PinTable;
+use crate::yaml::GITHUB;
 use crate::yaml::{Comment, Expr, Input, Step, Text, Value, With};
 
 /// Store paths never pushed: sources and the nixpkgs tarball.
@@ -85,7 +86,7 @@ fn pushing(with: With, secret: &Secret, skip: &str) -> With {
         value: Value::Text(Text::lit(PUSH_FILTER)),
     };
     with.set("authToken", Input::new(expr(Some(secret.expr()))))
-        .set("skipPush", Input::new(expr(Expr::new(skip))))
+        .set("skipPush", Input::new(expr(Expr::new(&GITHUB, skip))))
         .set("pushFilter", filter)
 }
 

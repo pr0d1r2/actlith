@@ -1,6 +1,7 @@
 //! Job-level hardening (V3): every job has `timeout-minutes`, and a job
 //! widens permissions only by the scopes it declares.
 
+use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use super::args::Args;
@@ -85,7 +86,7 @@ fn labels(row: &Row) -> Result<Vec<String>, KindError> {
 
 /// `${{ matrix.os }}`, the `runs-on` of a [`runner_matrix`] job.
 pub(crate) fn matrix_runner() -> Text {
-    Expr::new("matrix.os")
+    Expr::new(&GITHUB, "matrix.os")
         .into_iter()
         .fold(Text::default(), Text::then_expr)
 }
