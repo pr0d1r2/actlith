@@ -56,7 +56,7 @@ T43|.|port pklith `hk-parity` step: the step set hk sees == the set `pkl eval` s
 T49|.|`pipelith` dep: git pin to full commit, `deny.toml` allow-git that URL, nix `outputHashes`; crates.io before T36; blocks `tests:T50`, `src/kind:T51`|`tests:V48`
 T55|x|push step `package`: `cargo package --locked`; packaged crate builds alone (pklith T42)|V20,`.:V22`
 T56|x|push step `deny-advisories`: `cargo deny check advisories`; network ∴ push, commit `deny` stays offline|V20,V23
-T57|.|commit step `links`: lychee `--offline` over tracked `*.md`; `.pklith` row|V20,V23
+T57|x|commit step `links`: lychee `--offline` over tracked `*.md`; `.pklith` row|V20,V23
 T58|.|push step `schema-pin`: `pkl/Config.pkl` == pinned hk's schema; `pkl/VENDORED.md` names version & sha256|V20
 
 ## §B BUGS

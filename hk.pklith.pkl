@@ -132,6 +132,10 @@ steps: Mapping<String, Config.Step> = new {
       ["RUSTDOCFLAGS"] = "-D warnings"
     }
   }
+  ["links"] {
+    glob = List("**/*.md")
+    check = "command -v git >/dev/null 2>&1 || { echo 'links: git is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v lychee >/dev/null 2>&1 || { echo 'links: lychee is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments || { echo 'links: a relative link or anchor is broken' >&2; exit 1; }"
+  }
   ["json"] {
     glob = List("**/*.json")
     check = "command -v jq >/dev/null 2>&1 || { echo 'json: jq is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; jq -e . {{files}} >/dev/null || { echo 'json: a JSON file does not parse' >&2; exit 1; }"

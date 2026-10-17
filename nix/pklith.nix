@@ -12,6 +12,7 @@ catalog: [
   catalog.gnugrep
   catalog.itok
   catalog.jq
+  catalog.lychee
   catalog.markdownlint-cli
   catalog.microlith
   catalog.nixfmt

@@ -28,7 +28,7 @@ Instructions for coding agents working in this repository.
 Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 
 <!-- BEGIN steps: generated from hk.pkl by `cargo run -p actlith-dev -- agents`; do not edit -->
-46 steps run on every commit and 51 on push and `hk check`; the commit-msg hook checks the message.
+47 steps run on every commit and 52 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 | --- | --- | --- | --- |
@@ -61,6 +61,7 @@ Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 | `xnl-lint` | commit | `**/*.nix` `**/*.pkl` `.envrc` `.githooks/*` | yes |
 | `rust-mirror` | commit | `**/*.rs` `nix/guard/rust-mirror.sh` | - |
 | `rustdoc` | commit | `**/*.rs` `Cargo.toml` | - |
+| `links` | commit | `**/*.md` | - |
 | `json` | commit | `**/*.json` | - |
 | `rekall` | commit | `AGENTS.md` `CLAUDE.md` `rekall.toml` | - |
 | `mth-fmt` | commit | `**/SPEC.md` | yes |
