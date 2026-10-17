@@ -44,12 +44,15 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 V3: hardening ⊥ optional, ∀ kind: top `permissions: contents: read` (job widens only declared need) · checkout `persist-credentials: false` unless job pushes · `concurrency` group `<id>-${{ github.ref }}` (cancel for push/PR kinds, ⊥ for scheduled) · `timeout-minutes` ∀ job · ⊥ `pull_request_target` · ⊥ `${{ }}` inside `run:` (values pass via `env:`)
 V9: job names stable across versions (`pklith protect` reads them); rename = breaking change + CHANGELOG entry
 V14: ∀ kind declares ∀ secret it reads; `report` lists them per workflow. fork PR needs ⊥ secret (cachix push skipped, read-only cache works)
+V49: kind ∈ pipelith catalogue only if it renders on both forges, else forge-only & named by portability check. refines `.:V24`
 
 ## §T TASKS
 
 id|status|task|cites
 T17|x|`Kind` trait, arg schema & parse, common parts (permissions, concurrency, timeouts, checkout, install-nix, cachix, env-only expressions); tests per part|V3,V14,`src/registry:V10`
 T44|.|`.actlith` `## caches` section (columns name, public-key; `src/registry`) so a repo names its own cachix cache; built-in table stays the default|`src/registry:V10`
+T51|.|rows, args, contract → `pipelith` `kind`; mark forge-only arg keys|`tests:V48`,V49
+T53|.|split `docs/KINDS.md`: neutral → pipelith, GitHub syntax → `docs/KINDS-GITHUB.md`|`.:V25`,V49
 
 ## §B BUGS
 

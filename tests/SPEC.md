@@ -22,11 +22,13 @@ sib|nix|repo gate: dev shell, guardrails, hk steps, CI, release, dogfood
 
 V4: ∀ kind × fixture args → rendered workflow passes `actionlint` & `zizmor` w/ 0 findings, in actlith's OWN test suite. template change failing either = red build, ⊥ consumer surprise
 V35: golden files change only w/ a CHANGELOG entry (`.:V18`); `UPDATE_GOLDEN=1` rewrites them, ⊥ default
+V48: pipelith switch ⊥ changes any golden byte; golden diff = extraction bug
 
 ## §T TASKS
 
 id|status|task|cites
 T18|.|harness: render ∀ kind × fixture args → `actionlint` + `zizmor` 0 findings; golden compare|V4,V35
+T50|.|switch `src/{registry,yaml,system,gen,detect,script}` neutral parts → `pipelith`; forge parts stay|V48
 
 ## §B BUGS
 
