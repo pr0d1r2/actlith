@@ -8,6 +8,12 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+### Changed
+
+- Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.1.0 from
+  crates.io, the forge-neutral core shared with lablith. Nothing uses it
+  yet; generated files are unchanged (T49).
+
 ## [0.1.0] - 2026-10-17
 
 ### Added
