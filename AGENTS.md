@@ -28,7 +28,7 @@ Instructions for coding agents working in this repository.
 Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 
 <!-- BEGIN steps: generated from hk.pkl by `cargo run -p actlith-dev -- agents`; do not edit -->
-46 steps run on every commit and 49 on push and `hk check`; the commit-msg hook checks the message.
+46 steps run on every commit and 50 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 | --- | --- | --- | --- |
@@ -81,4 +81,5 @@ Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 | `test` | push | `**/*.rs` `Cargo.toml` `Cargo.lock` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
 | `tdd-order` | push | `**/*.rs` `nix/guard/tdd-order.sh` `nix/guard/tdd-order.exempt` | - |
+| `package` | push | `Cargo.toml` `Cargo.lock` `src/**` | - |
 <!-- END steps -->

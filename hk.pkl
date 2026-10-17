@@ -5,7 +5,17 @@ amends "pkl/Config.pkl"
 // (excludes, depends) by amending a step by its id.
 import "hk.pklith.pkl" as generated
 
-local all = (generated.steps) { ...generated.push }
+local all = (generated.steps) {
+  ...generated.push
+  // nix T55: the crate packages, and the packaged crate alone builds; a
+  // file the build embeds but the package leaves out (src/script/*.sh)
+  // fails here, not at publish. As pklith T42. Push only: it builds the
+  // crate again from the tarball.
+  ["package"] {
+    glob = List("Cargo.toml", "Cargo.lock", "src/**")
+    check = "cargo package --locked --allow-dirty -q -p actlith"
+  }
+}
 
 hooks {
   ["pre-commit"] {
