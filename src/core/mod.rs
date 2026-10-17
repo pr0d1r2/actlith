@@ -2,6 +2,4 @@
 //! re-exports pipelith's neutral modules, one per switch (`tests:T50`);
 //! every other node reaches them through `crate::core`.
 
-#![allow(unused_imports, reason = "src/detect switches in the next commit")]
-
 pub(crate) use pipelith::{detect, files, kind, registry, system, yaml};

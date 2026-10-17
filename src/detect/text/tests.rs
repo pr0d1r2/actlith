@@ -1,7 +1,7 @@
 //! Row text round-trips through `src/registry` (detect T27, `.:I` file).
 
-use super::{FIRST_ROW, HEADER, OFF_NOTE, proposal, text};
-use crate::detect::row_line;
+use super::{OFF_NOTE, proposal, text};
+use crate::core::detect::{FIRST_ROW, header, row_line};
 use crate::registry::{Arg, WorkflowRow, parse};
 
 fn bare(line: usize, id: &str, kind: &str) -> WorkflowRow {
@@ -52,7 +52,7 @@ fn text_is_the_header_then_rows() {
     let rows = [bare(5, "ci", "gate"), bare(6, "update-pins", "update-pins")];
     let want = include_str!("../../../tests/fixtures/detect/both.actlith");
     assert_eq!(text(&rows), want);
-    assert_eq!(text(&[]), HEADER);
+    assert_eq!(text(&[]), header());
 }
 
 #[test]
@@ -87,7 +87,4 @@ fn text_is_pipelith_text_with_proposal() {
     ];
     let neutral = crate::core::detect::text_with(&rows, proposal);
     assert_eq!(text(&rows), neutral);
-    assert_eq!(HEADER, crate::core::detect::header());
-    assert_eq!(FIRST_ROW, crate::core::detect::FIRST_ROW);
-    assert_eq!(row_line(&full()), crate::core::detect::row_line(&full()));
 }
