@@ -49,7 +49,7 @@ self|.|-
 
 - cmd: `actlith gen [--root DIR] [--check]` → write `.github/workflows/<id>.yml` ∀ row & `scripts/actlith/*.sh` the kinds need. `--check` writes ⊥, exit 1 naming each stale | missing file
 - cmd: `actlith check [--root DIR]` → totality: ∀ file ∈ `.github/workflows/` generated | `## hand-written`; ⊥ listed path missing; ⊥ generated file w/o row
-- cmd: `actlith detect [--root DIR]` → proposed `## workflows` rows from tracked files (`flake.nix` → `gate`; `nixpkgs-lock` input → `update-pins`), 1 per line, stdout
+- cmd: `actlith detect [--root DIR]` → proposed `## workflows` rows from tracked files (`flake.nix` → `gate`; `nixpkgs-lock` input → `update-pins` commented), 1 per line, stdout
 - cmd: `actlith seed --init` → first `.actlith` from `detect`; ⊥ over existing file
 - cmd: `actlith import FILE…` → `.actlith` row per workflow that matches a kind, stdout; ⊥ match → exit 1 naming first differing key
 - cmd: `actlith report [--format text|json|md]` → workflow × system × action@pin, secrets per workflow. json versioned

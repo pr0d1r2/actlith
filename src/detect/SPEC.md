@@ -34,16 +34,18 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- fns: `detect(&[path], flake_lock: Option<&str>) -> Vec<WorkflowRow>` (ids `ci` for gate, `update-pins`); `seed_init(root, rows)` writes `.actlith` ⊥ over existing (`src/cli` lists files & reads `flake.lock` ∴ node stays pure); `SeedError::code()` 1 exists | 2 I/O.
+- fns: `detect(&[path], flake_lock: Option<&str>) -> Vec<WorkflowRow>` (ids `ci` for gate, `update-pins` commented); `seed_init(root, rows)` writes `.actlith` ⊥ over existing (`src/cli` lists files & reads `flake.lock` ∴ node stays pure); `SeedError::code()` 1 exists | 2 I/O.
 
 ## §V INVARIANTS
 
 V32: `seed --init` ⊥ overwrites an existing `.actlith`; exit 1 naming it
+V50: `update-pins` off by default: `nixpkgs-lock` → `detect` & `seed --init` emit `# off by default: uncomment to get daily nixpkgs-lock bump PRs` + `# update-pins|update-pins|-|-|-`, ⊥ live row
 
 ## §T TASKS
 
 id|status|task|cites
 T27|x|`detect` (`flake.nix` → `gate`, `nixpkgs-lock` input → `update-pins`) + `seed --init`|V32,`.:V1`
+T54|.|comment out `update-pins` in `detect` & `seed --init` output|V50,V32
 
 ## §B BUGS
 
