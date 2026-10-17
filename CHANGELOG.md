@@ -8,6 +8,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-17
+
 ### Added
 
 - nix: the flake's `packages.<system>.default` is actlith
