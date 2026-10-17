@@ -10,6 +10,7 @@ rel|path|lens
 up|.|-
 up|src|the tool: registry, runners, pins, YAML writer, kinds, render, verbs, CLI
 self|src/system|nix system → runner label table
+sib|src/core|facade: ONE node naming `pipelith`; re-exports its neutral modules
 sib|src/registry|parse `.actlith`: format line, `## workflows`, `## actions`, `## hand-written`; row errors
 sib|src/yaml|workflow model types & own YAML writer: key order, quoting, comments, header
 sib|src/script|seeded shell scripts shipped in the crate (`update-pins.sh`, `open-pr.sh`) & their bats
@@ -30,7 +31,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §C CONSTRAINTS
 
-- zero deps. 1 `const` table. ⊥ runner label literal anywhere else in the crate.
+- `System`, parse & defaults from `src/core` (pipelith); this node = GitHub runner table & its error. 1 `const` table. ⊥ runner label literal anywhere else in the crate.
 
 ## §I INTERFACES
 
@@ -50,6 +51,7 @@ V15: system → runner mapping in ONE table; ⊥ runner label literal elsewhere 
 
 id|status|task|cites
 T14|x|`System` enum, parse, runner table; refuse `x86_64-darwin` naming hand verification on Intel Mac|V15,`src/registry:V10`
+T60|x|`System`, `parse_system`, `DEFAULT_SYSTEMS` → `src/core` (pipelith); keep `runner` & "GitHub-hosted runner" error; goldens unchanged|V15,`tests:V48`,`src/core:V51`
 
 ## §B BUGS
 

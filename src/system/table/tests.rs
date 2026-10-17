@@ -94,3 +94,10 @@ fn error_is_a_std_error() {
         &SystemError::NoRunner(System::X86_64Darwin);
     assert!(err.source().is_none());
 }
+
+#[test]
+fn system_is_pipelith_system() {
+    use std::any::TypeId;
+    let ours = TypeId::of::<System>();
+    assert_eq!(ours, TypeId::of::<crate::core::system::System>());
+}

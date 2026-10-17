@@ -9,6 +9,7 @@ mod build;
 mod bump;
 mod check;
 mod cli;
+mod core;
 mod detect;
 mod fetch;
 mod gate;

@@ -12,9 +12,9 @@
 [![gate hk](https://img.shields.io/badge/gate-hk-6E4AFF)](hk.pkl)
 [![gate steps 48 commit / 54 push](https://img.shields.io/badge/gate_steps-48_commit_%2F_54_push-6E4AFF)](hk.pkl)
 [![coverage floor 99.84%](https://img.shields.io/badge/coverage_floor-%E2%89%A599.84%25-brightgreen)](.coverage)
-[![invariants 52](https://img.shields.io/badge/invariants-52-6E4AFF)](SPEC.md)
+[![invariants 53](https://img.shields.io/badge/invariants-53-6E4AFF)](SPEC.md)
 [![bugs logged 8](https://img.shields.io/badge/bugs_logged-8-6E4AFF)](SPEC.md)
-[![federated nodes 23](https://img.shields.io/badge/federated_nodes-23-6E4AFF)](SPEC.md)
+[![federated nodes 24](https://img.shields.io/badge/federated_nodes-24-6E4AFF)](SPEC.md)
 
 [![nix flake](https://img.shields.io/badge/nix-flake-5277C3?logo=nixos&logoColor=white)](flake.nix)
 [![nixpkgs 26.05 (2026-10-15 - 26f4107)](https://img.shields.io/badge/nixpkgs-26.05_(2026--10--15_--_26f4107)-5277C3?logo=nixos&logoColor=white)](flake.lock)

@@ -10,6 +10,7 @@ rel|path|lens
 up|.|-
 up|src|the tool: registry, runners, pins, YAML writer, kinds, render, verbs, CLI
 self|src/registry|parse `.actlith`: format line, `## workflows`, `## actions`, `## hand-written`; row errors
+sib|src/core|facade: ONE node naming `pipelith`; re-exports its neutral modules
 sib|src/system|nix system → runner label table
 sib|src/yaml|workflow model types & own YAML writer: key order, quoting, comments, header
 sib|src/script|seeded shell scripts shipped in the crate (`update-pins.sh`, `open-pr.sh`) & their bats

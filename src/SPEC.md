@@ -7,6 +7,7 @@
 ## §F FEDERATION
 
 dir|owns|⊥owns|tokens
+core|facade: ONE node naming `pipelith`; re-exports its neutral modules|any logic|-
 registry|parse `.actlith`: format line, `## workflows`, `## actions`, `## hand-written`; row errors|what a kind accepts|-
 system|nix system → runner label table|kind shapes|-
 yaml|workflow model types & own YAML writer: key order, quoting, comments, header|what any workflow says|-
@@ -38,8 +39,8 @@ sib|nix|repo gate: dev shell, guardrails, hk steps, CI, release, dogfood
 ## §C CONSTRAINTS
 
 - module = dir + `mod.rs`. `mod.rs` composes, ⊥ implements.
-- ∀ external dep ! ONE facade node: `clap` → `src/cli` · HTTP client (if any) → `src/fetch`.
-- dep order (waves): `registry`, `system`, `yaml`, `script` → `pin`, `detect`, `bots` → `kind`, `fetch` → `gate`, `build`, `bump` → `render` → `gen`, `check`, `import`, `report` → `cli`. edges = `use crate::<node> as _;` lines in each `mod.rs`, 1 per line (sherd reads 1st line only).
+- ∀ external dep ! ONE facade node: `clap` → `src/cli` · `pipelith` → `src/core` · HTTP client (if any) → `src/fetch`.
+- dep order (waves): `core` → `registry`, `system`, `yaml`, `script` → `pin`, `detect`, `bots` → `kind`, `fetch` → `gate`, `build`, `bump` → `render` → `gen`, `check`, `import`, `report` → `cli`. edges = `use crate::<node> as _;` lines in each `mod.rs`, 1 per line (sherd reads 1st line only).
 
 ## §V INVARIANTS
 
