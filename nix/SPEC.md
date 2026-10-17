@@ -58,7 +58,7 @@ T55|x|push step `package`: `cargo package --locked`; packaged crate builds alone
 T56|x|push step `deny-advisories`: `cargo deny check advisories`; network ∴ push, commit `deny` stays offline|V20,V23
 T57|x|commit step `links`: lychee `--offline` over tracked `*.md`; `.pklith` row|V20,V23
 T58|x|push step `schema-pin`: `pkl/Config.pkl` == pinned hk's schema; `pkl/VENDORED.md` names version & sha256|V20
-T62|.|step `build` (`cargo build --workspace --bins`) ∀ hook set; ∀ `cargo run` step depends on it (pklith `build`)|V20,B9
+T62|x|step `build` (`cargo build --workspace --bins`) ∀ hook set; ∀ `cargo run` step depends on it (pklith `build`)|V20,B9
 
 ## §B BUGS
 
