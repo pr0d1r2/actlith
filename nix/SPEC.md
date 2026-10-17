@@ -58,6 +58,7 @@ T55|x|push step `package`: `cargo package --locked`; packaged crate builds alone
 T56|x|push step `deny-advisories`: `cargo deny check advisories`; network ∴ push, commit `deny` stays offline|V20,V23
 T57|x|commit step `links`: lychee `--offline` over tracked `*.md`; `.pklith` row|V20,V23
 T58|x|push step `schema-pin`: `pkl/Config.pkl` == pinned hk's schema; `pkl/VENDORED.md` names version & sha256|V20
+T62|x|step `build` (`cargo build --workspace --bins`) ∀ hook set; ∀ `cargo run` step depends on it (pklith `build`)|V20,B9
 
 ## §B BUGS
 
@@ -70,3 +71,4 @@ B5|2026-10-15|recursion's scratch `git init` wrote `core.worktree` into shared `
 B6|2026-10-15|`49bf5c9` dropped `test` from pre-commit w/ a Pkl `for`/`when` generator; `pkl eval` & `hk validate` passed, hk's own pklr evaluated it EMPTY ∴ pre-commit ran 0 steps until fixed; caught by wave workers seeing "hk no steps to run"|V42
 B7|2026-10-16|`b147180` made `ci.yml` generated; 5 goldens read it as the old hand-written shape ∴ 5 tests red, committed anyway: `test` runs at pre-push only \& `hk check --all` ran after the commit|V43
 B8|2026-10-17|`schema-pin` `getFlake (toString ./.)` fetched the tree as `path:` ∴ copied `target/` while parallel cargo steps rewrote it; CI ubuntu-latest red on a vanished `target/debug/deps` file; fixed w/ `git+file:` (tracked files only)|V20
+B9|2026-10-17|macOS CI: parallel `cargo run` steps relinked `actlith-dev` while `agents-table` started it → "could not execute process … (never executed)", red w/o finding (PR #8); rerun green|T62
