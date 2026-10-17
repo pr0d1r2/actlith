@@ -11,6 +11,7 @@
     )
 )]
 
+mod dialect;
 mod job;
 mod node;
 mod render;

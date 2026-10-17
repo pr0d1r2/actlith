@@ -2,4 +2,4 @@
 //! re-exports pipelith's neutral modules, one per switch (`tests:T50`);
 //! every other node reaches them through `crate::core`.
 
-pub(crate) use pipelith::{files, system};
+pub(crate) use pipelith::{files, system, yaml};
