@@ -12,6 +12,7 @@ fn nixpkgs() -> Nixpkgs {
 
 fn cargo() -> Cargo {
     Cargo {
+        name: "c".into(),
         slug: "o/r".into(),
         license: "MIT".into(),
         edition: "2024".into(),
@@ -49,11 +50,15 @@ fn the_block_renders_every_group() {
     }
 }
 
-/// Unpublished: no badge points at crates.io or docs.rs (T36).
+/// Published (T36): the crate's crates.io and docs.rs pages, by name.
 #[test]
-fn no_badge_claims_a_publication() {
+fn the_crate_badges_point_at_its_pages() {
     let block = render(&facts());
-    assert!(!block.contains("crates.io") && !block.contains("docs.rs"));
+    let crates = "[![crates.io](https://img.shields.io/crates/v/c.svg)](https://crates.io/crates/c)";
+    let docs =
+        "[![docs.rs](https://img.shields.io/docsrs/c)](https://docs.rs/c)";
+    assert!(block.contains(crates), "{block}");
+    assert!(block.contains(docs), "{block}");
     assert!(!block.contains('{'), "{block}");
 }
 

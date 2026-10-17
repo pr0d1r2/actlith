@@ -50,6 +50,7 @@ fn cargo(text: &str) -> Result<Cargo, Failed> {
     let field = |key: &str| facts::quoted(text, key).unwrap_or_default();
     let no_table = || (2, "Cargo.toml has no [dependencies] table".to_owned());
     Ok(Cargo {
+        name: field("name"),
         slug: field("repository").replace("https://github.com/", ""),
         license: field("license"),
         edition: field("edition"),
