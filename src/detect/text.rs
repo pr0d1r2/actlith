@@ -20,6 +20,16 @@ pub(crate) fn text(rows: &[WorkflowRow]) -> String {
     })
 }
 
+/// The line above a row proposed off by default (V50).
+pub(crate) const OFF_NOTE: &str =
+    "# off by default: uncomment to get daily nixpkgs-lock bump PRs";
+
+/// A proposed row as `detect` and `seed` write it. RED stub: always live.
+#[must_use]
+pub(crate) fn proposal(row: &WorkflowRow) -> String {
+    row_line(row)
+}
+
 /// One `id|kind|systems|cache|args` row; `-` for an empty cell, `\|` for
 /// a pipe.
 #[must_use]
