@@ -8,6 +8,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-17
+
 ### Added
 
 - nix: the flake's `packages.<system>.default` is actlith
@@ -74,3 +76,10 @@ the bytes actlith emits for the same inputs is at least a minor version
   only from `main`), `check` (`nix flake check --all-systems` plus
   eval-only systems) and `verify-cache` (runs the seeded
   `verify-cache.sh`); no file is emitted yet (T20, V30).
+
+### Changed
+
+- `src/detect`: `detect` and `seed --init` propose `update-pins` commented
+  out, under `# off by default: uncomment to get daily nixpkgs-lock bump
+  PRs`, so a seeded repository runs no scheduled bump workflow until it
+  opts in (T54, V50). A seeded `.actlith` now holds `ci` only.

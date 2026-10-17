@@ -24,10 +24,18 @@ actlith gen           # write .github/workflows/*.yml and scripts/actlith/*.sh
 actlith check         # exit 0: every workflow file is accounted for
 ```
 
-`detect` proposes a `gate` row when it finds `flake.nix`, and an
-`update-pins` row when `flake.lock` has a `nixpkgs-lock` input. Edit
-`.actlith` before `gen` if you want different systems, a cache or other
-args; [REGISTRY.md](REGISTRY.md) describes every column. Review the
+`detect` proposes a `gate` row when it finds `flake.nix`. When
+`flake.lock` has a `nixpkgs-lock` input it also proposes `update-pins`,
+commented out: that workflow pushes branches and opens pull requests on a
+schedule, so it stays off until you uncomment it:
+
+```text
+# off by default: uncomment to get daily nixpkgs-lock bump PRs
+# update-pins|update-pins|-|-|-
+```
+
+Edit `.actlith` before `gen` if you want different systems, a cache or
+other args; [REGISTRY.md](REGISTRY.md) describes every column. Review the
 generated files, commit them together with `.actlith`, and push.
 
 The scripts under `scripts/actlith/` are generated too (the bump kinds run

@@ -1,6 +1,6 @@
 //! Row text round-trips through `src/registry` (detect T27, `.:I` file).
 
-use super::{FIRST_ROW, HEADER, text};
+use super::{FIRST_ROW, HEADER, OFF_NOTE, proposal, text};
 use crate::detect::row_line;
 use crate::registry::{Arg, WorkflowRow, parse};
 
@@ -56,9 +56,25 @@ fn text_is_the_header_then_rows() {
 }
 
 #[test]
-fn text_parses_back_to_the_rows() {
-    let rows = vec![full(), bare(FIRST_ROW + 1, "update-pins", "update-pins")];
-    let reg = parse(&text(&rows)).unwrap_or_default();
-    assert_eq!(reg.workflows, rows);
+fn text_parses_back_to_the_rows_that_are_on() {
+    let pins = bare(FIRST_ROW + 1, "update-pins", "update-pins");
+    let reg = parse(&text(&[full(), pins])).unwrap_or_default();
+    assert_eq!(reg.workflows, vec![full()]);
     assert_eq!(parse(&text(&[])).map(|r| r.workflows.len()), Ok(0));
+}
+
+#[test]
+fn update_pins_is_proposed_off_with_its_note() {
+    let pins = bare(FIRST_ROW, "update-pins", "update-pins");
+    let want = format!("{OFF_NOTE}\n# update-pins|update-pins|-|-|-");
+    assert_eq!(proposal(&pins), want);
+    assert_eq!(
+        OFF_NOTE,
+        "# off by default: uncomment to get daily nixpkgs-lock bump PRs"
+    );
+}
+
+#[test]
+fn a_gate_row_is_proposed_on() {
+    assert_eq!(proposal(&bare(FIRST_ROW, "ci", "gate")), "ci|gate|-|-|-");
 }

@@ -10,14 +10,33 @@ pub(crate) const HEADER: &str =
 /// The 1-based line the first row lands on under [`HEADER`].
 pub(crate) const FIRST_ROW: usize = 5;
 
-/// A whole `.actlith`: [`HEADER`], then one line per row.
+/// A whole `.actlith`: [`HEADER`], then each row's [`proposal`].
 #[must_use]
 pub(crate) fn text(rows: &[WorkflowRow]) -> String {
     rows.iter().fold(String::from(HEADER), |mut out, row| {
-        out.push_str(&row_line(row));
+        out.push_str(&proposal(row));
         out.push('\n');
         out
     })
+}
+
+/// The line above a row proposed off by default (V50).
+pub(crate) const OFF_NOTE: &str =
+    "# off by default: uncomment to get daily nixpkgs-lock bump PRs";
+
+/// Kinds proposed commented out: they push branches and open PRs on a
+/// schedule, so a repository opts in by uncommenting (V50).
+const OFF_BY_DEFAULT: [&str; 1] = ["update-pins"];
+
+/// A proposed row as `detect` and `seed` write it: the row, or for a kind
+/// off by default, [`OFF_NOTE`] and the row commented out.
+#[must_use]
+pub(crate) fn proposal(row: &WorkflowRow) -> String {
+    let line = row_line(row);
+    if OFF_BY_DEFAULT.contains(&row.kind.as_str()) {
+        return format!("{OFF_NOTE}\n# {line}");
+    }
+    line
 }
 
 /// One `id|kind|systems|cache|args` row; `-` for an empty cell, `\|` for

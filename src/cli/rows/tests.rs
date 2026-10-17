@@ -34,8 +34,19 @@ fn flake(name: &str) -> PathBuf {
 fn detect_prints_one_row_per_line() {
     let root = flake("rows-detect");
     let rows = ran(detect(&root));
-    let want = "ci|gate|-|-|-\nupdate-pins|update-pins|-|-|-\n";
+    let want = "ci|gate|-|-|-\n# off by default: uncomment to get daily \
+                nixpkgs-lock bump PRs\n# update-pins|update-pins|-|-|-\n";
     assert_eq!(rows, Outcome::ok(want));
+    let _ = fs::remove_dir_all(&root);
+}
+
+#[test]
+fn seed_leaves_update_pins_off() {
+    let root = flake("rows-seed-off");
+    assert_eq!(ran(seed(&root, true)).code, 0);
+    let text = fs::read_to_string(root.join(".actlith")).unwrap_or_default();
+    let on = crate::registry::parse(&text).map(|r| r.workflows.len());
+    assert_eq!(on, Ok(1), "only `ci` is live; update-pins is commented");
     let _ = fs::remove_dir_all(&root);
 }
 
