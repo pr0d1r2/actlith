@@ -45,7 +45,7 @@ V51: ⊥ `pipelith::` path outside `src/core`; ∀ other node reaches pipelith t
 ## §T TASKS
 
 id|status|task|cites
-T59|.|node + `system` re-export (1st switch), then 1 module per switch PR|V51,`tests:V48`
+T59|x|node + `system` re-export (1st switch), then 1 module per switch PR|V51,`tests:V48`
 
 ## §B BUGS
 
