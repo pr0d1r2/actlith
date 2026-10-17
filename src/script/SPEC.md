@@ -46,6 +46,7 @@ V13: ∀ emitted `run:` = 1 line. logic > 1 cmd → seeded script `scripts/actli
 
 id|status|task|cites
 T21|x|`update-pins.sh` (update input, build, branch `pins/nixpkgs-<short>`, PR; idempotent), `open-pr.sh`, `verify-cache.sh`; tested from Rust under bash w/ stub tools (⊥ bats in dev shell); embedded w/ header|V13,`src/yaml:V8`,`src/bump:V26`
+T66|x|header = pipelith `files::header("actlith", ".actlith")`: test pins script & `src/yaml` copies to it (`concat!` ⊥ calls fns)|`src/yaml:V8`,`tests:V48`
 
 ## §B BUGS
 
