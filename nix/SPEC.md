@@ -48,7 +48,7 @@ T7|x|spec gates: `mth`, `itok` + `.context-limits`, `sherd`|V20
 T8|x|`ctrm`, `rekall` (`AGENTS.md`), `xnl check`/`xnl lint`|V20
 T9|x|`nix/guard/` scripts; `rust-mirror`, `tdd-order` + exemptions; doctest, rustdoc, `cargo deny`|V20,V23,V28
 T10|x|hand-written `.github/workflows/ci.yml` in pklith shape; `actionlint`, `zizmor`, yamllint config|V20,V21
-T12|.|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
+T12|x|`no-commit-to-branch` main; guardrails done → ASK user reload|V19
 T31|x|dogfood: generate own `ci.yml`, add `actlith gen --check` step in same commit|V21
 T32|.|nix package `packages.<system>.default` built & tested as built; `release.toml` + pre-release hook `hk check --all`|`.:V18`
 T41|.|guard step `no-core-worktree`: fail when `git config --local core.worktree` is set; lay via `pklith lay` w/ planted proof|V40

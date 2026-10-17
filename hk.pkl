@@ -41,7 +41,17 @@ hooks {
     stash = "none"
     // `test` is in the push set (category coverage in .pklith), not here: a
     // RED commit must land with failing tests (TDD), as in congestimancer.
-    steps = generated.steps
+    steps = (generated.steps) {
+      // nix T12 (V19): commits land through a branch and pull request,
+      // never directly on main. HERE, not in `all`: it is a rule about
+      // making a commit, which happens only on a development machine,
+      // through this hook. pre-push, `hk check`, CI and the release hook
+      // all run on main by design, so there the step could only fail. As
+      // pklith T19.
+      ["no-commit-to-branch"] {
+        check = "hk util no-commit-to-branch --branch main"
+      }
+    }
   }
   // T5: subject `type(scope): claim`, at most 72 characters, a body that
   // says why. hk passes the file git gave the hook (MERGE_MSG on a merge).
