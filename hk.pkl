@@ -12,8 +12,8 @@ hooks {
     fix = true
     // "none", not "git": the git stash is shared by every worktree, so with
     // parallel wave workers one hook popped another checkout's files
-    // (nix:B5). hk 1.58.1 keeps patch files outside the git dir too (fixed
-    // upstream in jdx/hk#1705), so "patch-file" is no safer yet.
+    // (nix:B5). hk 2.7.0 keeps patch files in the git dir (jdx/hk#1705), so
+    // "patch-file" would now be safe; "none" stays until that is measured.
     stash = "none"
     // `test` is in the push set (category coverage in .pklith), not here: a
     // RED commit must land with failing tests (TDD), as in congestimancer.
@@ -45,6 +45,8 @@ hooks {
   }
   ["fix"] {
     fix = true
+    // hk 2.x stages fixes only in pre-commit unless a hook asks for it.
+    stage = true
     steps = all
   }
 }
