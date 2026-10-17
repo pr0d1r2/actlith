@@ -122,3 +122,18 @@ fn a_section_may_be_empty_or_header_only() {
     let reg = parse("format 1\n## workflows\n## actions\naction|version|sha\n");
     assert_eq!(reg, Ok(Registry::default()));
 }
+
+#[test]
+fn a_newer_format_reads_as_pipelith_words_it() {
+    let e = refused("format 2\n");
+    assert_eq!(e.line, 1);
+    assert_eq!(e.what, "`.actlith` is format 2; this build reads format 1");
+    assert_eq!(e.fix, "upgrade to a release that reads format 2");
+}
+
+#[test]
+fn a_workflow_row_is_pipelith_raw_row() {
+    use std::any::TypeId;
+    let ours = TypeId::of::<crate::registry::WorkflowRow>();
+    assert_eq!(ours, TypeId::of::<crate::core::kind::RawRow>());
+}
