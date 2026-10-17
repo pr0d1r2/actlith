@@ -1,14 +1,14 @@
 # Third-party notices
 
-`actlith` ships **3 direct dependencies**, which pulls in 14 crates in
+`actlith` ships **4 direct dependencies**, which pulls in 15 crates in
 total. This file says what they are, why each direct one is there rather
 than hand-rolled, and what licence the set carries.
 
 ## Why each direct one is there
 
 The project's own constraint is *keep dependencies minimal, and justify
-each one in `SPEC.md`*; all three live in one facade node, `src/cli`
-(`src/cli` C), and nothing else links them.
+each one in `SPEC.md`*. The three clap crates live in one facade node,
+`src/cli` (`src/cli` C), and nothing else links them.
 
 - [`clap`](https://github.com/clap-rs/clap) (derive): the argv table,
   `--help` with examples and usage errors (D15). Built without colour or
@@ -19,6 +19,12 @@ each one in `SPEC.md`*; all three live in one facade node, `src/cli`
   never drift from what parses.
 - [`clap_mangen`](https://github.com/clap-rs/clap): `actlith man`, the
   roff man page from the same table.
+- [`pipelith`](https://github.com/pr0d1r2/pipelith): the forge-neutral
+  core actlith shares with lablith, its GitLab counterpart: the pipe-table
+  registry, the YAML writer, the generated-file drift check and the kind
+  catalogue. Shared rather than copied, so both tools read a row and write
+  a file the same way (SPEC.md FORGES). It is std only and pulls in
+  nothing else. Its parts move in with tests T50 and src/kind T51.
 
 ## The full set
 
@@ -36,6 +42,7 @@ of `actlith`:
 | clap_lex | 1.1.1 | MIT OR Apache-2.0 |
 | clap_mangen | 0.3.3 | MIT OR Apache-2.0 |
 | heck | 0.5.0 | MIT OR Apache-2.0 |
+| pipelith | 0.1.0 | MIT |
 | proc-macro2 | 1.0.107 | MIT OR Apache-2.0 |
 | quote | 1.0.47 | MIT OR Apache-2.0 |
 | roff | 1.1.1 | MIT OR Apache-2.0 |
