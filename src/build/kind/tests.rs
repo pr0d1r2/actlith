@@ -39,7 +39,7 @@ const GIT_ENV: [&str; 6] = [
 fn row(text: &str) -> Result<Row, String> {
     let registry = parse(text).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    Row::parse(&Build, row).map_err(|e| e.to_string())
+    crate::kind::check(&Build, row).map_err(|e| e.to_string())
 }
 
 fn rendered(text: &str) -> Result<String, String> {
@@ -99,7 +99,7 @@ fn every_golden_file_passes_zizmor_offline() -> Result<(), String> {
 #[test]
 fn the_kind_says_its_name_and_schema() {
     assert_eq!(Build.name(), "build");
-    let keys: Vec<_> = Build.schema().iter().map(|s| s.key).collect();
+    let keys: Vec<_> = Build.spec().schema.iter().map(|s| s.key).collect();
     assert_eq!(keys, ["package", "timeout"]);
 }
 

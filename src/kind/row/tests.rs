@@ -1,7 +1,9 @@
-//! A row checked for a kind: default and listed systems, cache, args
-//! (T17, `src/registry` V10).
+//! A row checked for a kind: default and listed systems, cache, args,
+//! in actlith's `.actlith:<line>` words (T17, T65, `src/registry` V10).
 
-use crate::kind::{ArgSchema, Cache, Kind, KindError, Row, Secret, TIMEOUT};
+use crate::kind::{
+    Cache, EXTRAS, Kind, KindError, KindSpec, Row, Secret, TIMEOUT, portable,
+};
 use crate::pin::PinTable;
 use crate::registry::{WorkflowRow, parse};
 use crate::system::System;
@@ -9,22 +11,22 @@ use crate::yaml::Workflow;
 
 const ROWS: &str = include_str!("../../../tests/fixtures/kind/rows.actlith");
 
-const SCHEMA: [crate::kind::ArgSpec; 1] = [TIMEOUT];
+/// Every kind with every arg and system shape actlith renders.
+const ALL: &str = include_str!("../../../tests/fixtures/render/all.actlith");
 
 /// A kind that takes `timeout` and defaults to one system.
+const PROBE: KindSpec = KindSpec {
+    name: "probe",
+    schema: &[TIMEOUT],
+    default_systems: &[System::Aarch64Linux],
+    secrets: &[],
+};
+
 struct Probe;
 
 impl Kind for Probe {
-    fn name(&self) -> &'static str {
-        "probe"
-    }
-
-    fn schema(&self) -> &'static ArgSchema {
-        &SCHEMA
-    }
-
-    fn default_systems(&self) -> &'static [System] {
-        &[System::Aarch64Linux]
+    fn spec(&self) -> &'static KindSpec {
+        &PROBE
     }
 
     fn secrets(&self, _row: &Row) -> Vec<Secret> {
@@ -43,7 +45,22 @@ fn workflow_row(id: &str) -> Option<WorkflowRow> {
 
 fn checked(id: &str) -> Result<Row, String> {
     let row = workflow_row(id).ok_or("no such row")?;
-    Row::parse(&Probe, &row).map_err(|e| e.to_string())
+    crate::kind::check(&Probe, &row).map_err(|e| e.to_string())
+}
+
+fn refused_args(cell: &str) -> String {
+    let text = format!(
+        "format 1\n## workflows\nid|kind|systems|cache|args\n\
+         w|probe|-|-|{cell}\n"
+    );
+    let row = parse(&text)
+        .ok()
+        .and_then(|r| r.workflows.into_iter().next());
+    let row = row.unwrap_or_default();
+    crate::kind::check(&Probe, &row)
+        .err()
+        .map(|e| e.to_string())
+        .unwrap_or_default()
 }
 
 fn refused(id: &str) -> String {
@@ -99,27 +116,55 @@ fn a_repeated_system_is_refused() {
 }
 
 #[test]
-fn an_unknown_cache_is_refused() {
-    let error = refused("stranger");
-    assert!(
-        error.starts_with(".actlith:12: cache `nix-community`"),
-        "{error}"
+fn an_unknown_arg_is_refused() {
+    assert_eq!(
+        refused("extra"),
+        ".actlith:13: kind `probe` has no arg `colour`\n  fix: remove \
+         `colour` or use one of: timeout"
     );
 }
 
 #[test]
-fn an_unknown_arg_is_refused() {
-    let error = refused("extra");
-    assert!(
-        error.starts_with(".actlith:13: kind `probe` has no arg `colour`"),
-        "{error}"
+fn a_timeout_out_of_range_is_refused() {
+    for minutes in ["0", "361"] {
+        let want = format!(
+            ".actlith:4: timeout `{minutes}` is not 1 to 360 minutes\n  fix: \
+             write `timeout=<1..360>`"
+        );
+        assert_eq!(refused_args(&format!("timeout={minutes}")), want);
+    }
+    assert_eq!(
+        refused_args("timeout=soon"),
+        ".actlith:4: arg `timeout` is `soon`, not a whole number\n  fix: \
+         write `timeout=<number>`"
     );
+}
+
+#[test]
+fn an_unknown_cache_names_the_known_ones() {
+    assert_eq!(
+        refused("stranger"),
+        ".actlith:12: cache `nix-community` has no known public key\n  fix: \
+         use one of: pr0d1r2, or `-` for no cache"
+    );
+}
+
+#[test]
+fn every_rendered_row_renders_on_every_forge() -> Result<(), String> {
+    let registry = parse(ALL).map_err(|e| e.to_string())?;
+    assert!(!registry.workflows.is_empty());
+    for row in &registry.workflows {
+        assert_eq!(portable(row, &EXTRAS), [], "{}", row.id);
+    }
+    assert!(EXTRAS.kinds.is_empty() && EXTRAS.keys.is_empty());
+    Ok(())
 }
 
 #[test]
 fn the_probe_kind_answers_its_contract() -> Result<(), String> {
     let row = checked("plain")?;
     assert_eq!(Probe.name(), "probe");
+    assert_eq!(Probe.spec().default_systems, [System::Aarch64Linux]);
     assert!(Probe.secrets(&row).is_empty());
     let built = Probe.build(&row, &PinTable::builtin()).err();
     assert_eq!(built, Some(KindError::row(7, "probe", "none")));

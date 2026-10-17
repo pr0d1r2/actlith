@@ -4,22 +4,11 @@
 use super::jobs::{VERIFY_SCRIPT, jobs};
 use super::plan::Plan;
 use crate::kind::{
-    ArgSchema, ArgSpec, CachixPush, Kind, KindError, Row, Secret, TIMEOUT,
-    on_push_and_pr, workflow,
+    BUILD, CachixPush, Kind, KindError, KindSpec, Row, Secret, on_push_and_pr,
+    workflow,
 };
 use crate::pin::PinTable;
-use crate::system::{DEFAULT_SYSTEMS, System};
 use crate::yaml::Workflow;
-
-/// `package` (required) and `timeout`.
-const SCHEMA: [ArgSpec; 2] = [
-    ArgSpec {
-        key: "package",
-        required: true,
-        default: None,
-    },
-    TIMEOUT,
-];
 
 /// The seeded scripts a `build` workflow runs: `gen` writes them too.
 pub(crate) const SCRIPTS: [&str; 1] = [VERIFY_SCRIPT];
@@ -36,16 +25,8 @@ impl Build {
 }
 
 impl Kind for Build {
-    fn name(&self) -> &'static str {
-        "build"
-    }
-
-    fn schema(&self) -> &'static ArgSchema {
-        &SCHEMA
-    }
-
-    fn default_systems(&self) -> &'static [System] {
-        &DEFAULT_SYSTEMS
+    fn spec(&self) -> &'static KindSpec {
+        &BUILD
     }
 
     /// `CACHIX_AUTH_TOKEN` for the push from `main` (`src/kind:V14`); a

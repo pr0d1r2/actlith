@@ -1,38 +1,22 @@
 //! The `Kind` trait: what a kind is (C). A kind is typed Rust data, never
-//! a text template; it builds a [`Workflow`] from a checked [`Row`].
+//! a text template: its pipelith catalogue entry, the secrets it reads,
+//! and the [`Workflow`] it builds from a checked [`Row`].
 
-use super::args::ArgSchema;
 use super::error::KindError;
-use super::row::Row;
 use super::secret::Secret;
-use crate::core::kind::KindSpec;
+use crate::core::kind::{KindSpec, Row};
 use crate::pin::PinTable;
-use crate::system::System;
 use crate::yaml::Workflow;
-
-/// Not yet a catalogue entry.
-const UNSET: KindSpec = KindSpec {
-    name: "",
-    schema: &[],
-    default_systems: &[],
-    secrets: &[],
-};
 
 /// A workflow kind (`docs/KINDS.md`).
 pub(crate) trait Kind {
+    /// The kind's pipelith catalogue entry (V49): its name, every arg it
+    /// takes (any other key is refused) and the systems a row's `-` means.
+    fn spec(&self) -> &'static KindSpec;
+
     /// The name a `## workflows` row writes in its `kind` cell.
-    fn name(&self) -> &'static str;
-
-    /// Every arg the kind takes; any other key is refused.
-    fn schema(&self) -> &'static ArgSchema;
-
-    /// The systems a row's `-` means.
-    fn default_systems(&self) -> &'static [System];
-
-    /// The kind's pipelith catalogue entry (V49): name, schema, default
-    /// systems.
-    fn spec(&self) -> &'static KindSpec {
-        &UNSET
+    fn name(&self) -> &'static str {
+        self.spec().name
     }
 
     /// Every secret the workflow built from `row` reads (V14).

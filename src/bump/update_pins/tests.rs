@@ -18,7 +18,8 @@ const CUSTOM: &str =
 fn row(id: &str) -> Result<Row, String> {
     let registry = parse(ROWS).map_err(|e| e.to_string())?;
     let row = registry.workflows.iter().find(|r| r.id == id);
-    Row::parse(&UpdatePins, row.ok_or("no row")?).map_err(|e| e.to_string())
+    crate::kind::check(&UpdatePins, row.ok_or("no row")?)
+        .map_err(|e| e.to_string())
 }
 
 fn built(id: &str) -> Result<String, String> {
@@ -75,8 +76,8 @@ fn it_declares_the_token_it_reads() -> Result<(), String> {
 }
 
 #[test]
-fn a_bad_token_declares_nothing_and_is_refused() -> Result<(), String> {
-    assert_eq!(UpdatePins.secrets(&row("bad-token")?), []);
+fn a_bad_token_is_refused_before_it_is_declared() -> Result<(), String> {
+    assert!(row("bad-token").is_err());
     assert!(refusal("bad-token")?.contains("token `1BAD`"));
     Ok(())
 }
@@ -104,8 +105,9 @@ fn more_than_one_system_is_refused() -> Result<(), String> {
 
 #[test]
 fn the_kind_names_its_schema_and_default_system() {
-    let keys: Vec<&str> = UpdatePins.schema().iter().map(|s| s.key).collect();
+    let keys: Vec<&str> =
+        UpdatePins.spec().schema.iter().map(|s| s.key).collect();
     assert_eq!(keys, ["cron", "build", "token", "timeout"]);
     assert_eq!(UpdatePins.name(), "update-pins");
-    assert_eq!(UpdatePins.default_systems(), [System::X86_64Linux]);
+    assert_eq!(UpdatePins.spec().default_systems, [System::X86_64Linux]);
 }

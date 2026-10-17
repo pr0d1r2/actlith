@@ -2,24 +2,39 @@
 //! `src/kind:V14`).
 
 use crate::bump::shared::{
-    GITHUB_TOKEN, SYSTEMS, TOKEN, bump_job, plain, pushing_checkout, runs_on,
-    token,
+    GITHUB_TOKEN, bump_job, plain, pushing_checkout, runs_on, token,
 };
-use crate::kind::{ArgSpec, Args, Row, Secret, TIMEOUT, parse_args};
+use crate::kind::{
+    ArgDefault, ArgSpec, Args, EXTRAS, KindSpec, Row, Secret, TIMEOUT,
+    UPDATE_PINS, parse_args,
+};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::System;
 use crate::yaml::{Action, Level, Scope, Step, Text};
 
-const SCHEMA: [ArgSpec; 3] = [
-    ArgSpec {
-        key: "word",
-        required: false,
-        default: None,
-    },
-    TOKEN,
-    TIMEOUT,
-];
+/// The systems a bump kind runs on.
+const SYSTEMS: &[System] = UPDATE_PINS.default_systems;
+
+/// A bump-like kind with a free `word` arg, a forge-default `token`.
+const PROBE: KindSpec = KindSpec {
+    name: "k",
+    schema: &[
+        ArgSpec {
+            key: "word",
+            required: false,
+            default: ArgDefault::None,
+        },
+        ArgSpec {
+            key: "token",
+            required: false,
+            default: ArgDefault::Forge,
+        },
+        TIMEOUT,
+    ],
+    default_systems: SYSTEMS,
+    secrets: &[],
+};
 
 fn args(cell: &str) -> Result<Args, String> {
     let text = format!(
@@ -27,7 +42,7 @@ fn args(cell: &str) -> Result<Args, String> {
     );
     let registry = parse(&text).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    parse_args(&SCHEMA, row).map_err(|e| e.to_string())
+    parse_args(&PROBE, row, &EXTRAS).map_err(|e| e.to_string())
 }
 
 fn row(systems: &[System]) -> Result<Row, String> {
@@ -75,7 +90,7 @@ fn a_token_that_is_no_secret_name_is_refused() -> Result<(), String> {
 
 #[test]
 fn one_system_gives_its_runner() -> Result<(), String> {
-    let label = runs_on(&row(&SYSTEMS)?).map_err(|e| e.to_string())?;
+    let label = runs_on(&row(SYSTEMS)?).map_err(|e| e.to_string())?;
     assert_eq!(label, Text::lit("ubuntu-latest"));
     Ok(())
 }
@@ -123,7 +138,7 @@ fn a_named_token_checks_out_with_it() -> Result<(), String> {
 #[test]
 fn the_job_writes_contents_and_pull_requests_only() -> Result<(), String> {
     let job =
-        bump_job(&row(&SYSTEMS)?, Vec::new()).map_err(|e| e.to_string())?;
+        bump_job(&row(SYSTEMS)?, Vec::new()).map_err(|e| e.to_string())?;
     let scopes: Vec<_> = job.permissions.ok_or("none")?.0.into_iter().collect();
     let write = Level::Write;
     let want = [(Scope::Contents, write), (Scope::PullRequests, write)];

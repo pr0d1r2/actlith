@@ -17,7 +17,7 @@ const HEAD: &str = "format 1\n\n## workflows\nid|kind|systems|cache|args\n";
 fn checked(text: &str) -> Result<Row, String> {
     let registry = parse(text).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    Row::parse(&Gate, row).map_err(|e| e.to_string())
+    crate::kind::check(&Gate, row).map_err(|e| e.to_string())
 }
 
 fn row(cells: &str) -> Result<Row, String> {
@@ -56,7 +56,7 @@ fn the_own_row_renders_ci_yml_byte_for_byte() -> Result<(), String> {
 #[test]
 fn the_kind_is_named_gate_and_takes_command_and_timeout() {
     assert_eq!(Gate.name(), "gate");
-    let keys: Vec<&str> = Gate.schema().iter().map(|s| s.key).collect();
+    let keys: Vec<&str> = Gate.spec().schema.iter().map(|s| s.key).collect();
     assert_eq!(keys, ["command", "timeout"]);
 }
 
@@ -112,8 +112,7 @@ fn the_systems_pick_the_runners() -> Result<(), String> {
 
 #[test]
 fn a_bad_arg_is_a_row_error() -> Result<(), String> {
-    let timeout = row("ci|gate|-|-|timeout=soon")?;
-    assert!(built(&timeout).is_err());
+    assert!(row("ci|gate|-|-|timeout=soon").is_err());
     let command = row("ci|gate|-|-|command=a ${{ b }}")?;
     assert!(built(&command).is_err());
     Ok(())

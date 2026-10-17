@@ -7,36 +7,13 @@ use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use super::cron::cron;
-use super::shared::{
-    LIMITS, SYSTEMS, TOKEN, bump_job, plain, pushing_checkout, token,
-};
+use super::shared::{LIMITS, bump_job, plain, pushing_checkout, token};
 use crate::kind::{
-    ArgSchema, ArgSpec, CachixPush, Kind, KindError, Row, Secret, TIMEOUT,
-    cachix, install_nix, on_schedule, run, workflow,
+    CachixPush, Kind, KindError, KindSpec, Row, Secret, UPSTREAM, cachix,
+    install_nix, on_schedule, run, workflow,
 };
 use crate::pin::PinTable;
-use crate::system::System;
 use crate::yaml::{Comment, Expr, Step, Text, Workflow};
-
-const SCHEMA: [ArgSpec; 5] = [
-    ArgSpec {
-        key: "script",
-        required: true,
-        default: None,
-    },
-    ArgSpec {
-        key: "cron",
-        required: false,
-        default: Some("20 6 * * *"),
-    },
-    ArgSpec {
-        key: "branch-prefix",
-        required: false,
-        default: Some("upstream/"),
-    },
-    TOKEN,
-    TIMEOUT,
-];
 
 const WHY: &str = "Poll upstream for a new release and propose the bump as \
     a PR. Pull model:\nno cross-repo token, nothing upstream needs to know \
@@ -61,16 +38,8 @@ const VERSION: &str = "steps.bump.outputs.NEW_VERSION";
 pub(crate) struct Upstream;
 
 impl Kind for Upstream {
-    fn name(&self) -> &'static str {
-        "upstream"
-    }
-
-    fn schema(&self) -> &'static ArgSchema {
-        &SCHEMA
-    }
-
-    fn default_systems(&self) -> &'static [System] {
-        &SYSTEMS
+    fn spec(&self) -> &'static KindSpec {
+        &UPSTREAM
     }
 
     /// The token only: the cachix step never pushes, so it reads no

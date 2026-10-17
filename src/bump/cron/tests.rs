@@ -1,14 +1,8 @@
 //! The `cron` arg: five fields or refused (T22, T23).
 
 use crate::bump::cron::cron;
-use crate::kind::{ArgSpec, Args, parse_args};
+use crate::kind::{Args, EXTRAS, UPDATE_PINS, parse_args};
 use crate::registry::parse;
-
-const SCHEMA: [ArgSpec; 1] = [ArgSpec {
-    key: "cron",
-    required: false,
-    default: Some("50 6 * * *"),
-}];
 
 fn args(cell: &str) -> Result<Args, String> {
     let text = format!(
@@ -16,7 +10,7 @@ fn args(cell: &str) -> Result<Args, String> {
     );
     let registry = parse(&text).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    parse_args(&SCHEMA, row).map_err(|e| e.to_string())
+    parse_args(&UPDATE_PINS, row, &EXTRAS).map_err(|e| e.to_string())
 }
 
 fn checked(cell: &str) -> Result<Result<String, String>, String> {

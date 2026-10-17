@@ -6,14 +6,12 @@ use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    ArgSchema, ArgSpec, CachixPush, Checkout, Kind, KindError, Row, Secret,
-    TIMEOUT, cachix, checkout, concurrency, install_nix, job, matrix_runner,
-    on_push_and_pr, on_schedule, read_only, run, runner_matrix, timeout,
-    workflow,
+    CachixPush, Checkout, GATE, Kind, KindError, KindSpec, Row, Secret, cachix,
+    checkout, concurrency, install_nix, job, matrix_runner, on_push_and_pr,
+    on_schedule, read_only, run, runner_matrix, workflow,
 };
 use crate::pin::PinTable;
 use crate::registry::parse;
-use crate::system::{DEFAULT_SYSTEMS, System};
 use crate::yaml::{Comment, Level, Scope, Step, Workflow, write};
 
 /// The hand-written ci.yml this repository had before actlith generated
@@ -30,29 +28,12 @@ const CI_WHY: &str = "Hand-written until `actlith gen` can render the gate \
 const DEPTH_WHY: &str = "Full history: tdd-order reads the push range, and \
     a later semver\nstep compares with the last release tag.";
 
-const SCHEMA: [ArgSpec; 2] = [
-    ArgSpec {
-        key: "command",
-        required: false,
-        default: Some("nix develop --command hk check --all --check"),
-    },
-    TIMEOUT,
-];
-
 /// The gate shape, built from the common builders only.
 struct Gate;
 
 impl Kind for Gate {
-    fn name(&self) -> &'static str {
-        "gate"
-    }
-
-    fn schema(&self) -> &'static ArgSchema {
-        &SCHEMA
-    }
-
-    fn default_systems(&self) -> &'static [System] {
-        &DEFAULT_SYSTEMS
+    fn spec(&self) -> &'static KindSpec {
+        &GATE
     }
 
     fn secrets(&self, row: &Row) -> Vec<Secret> {
@@ -62,7 +43,7 @@ impl Kind for Gate {
 
     fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
         let mut gate =
-            job(matrix_runner(), timeout(&row.args)?, steps(row, pins)?);
+            job(matrix_runner(), row.args.timeout()?, steps(row, pins)?);
         gate.name = Some("gate".to_owned());
         gate.matrix = Some(runner_matrix(row)?);
         let jobs = BTreeMap::from([("gate".to_owned(), gate)]);
@@ -93,7 +74,7 @@ fn steps(row: &Row, pins: &PinTable) -> Result<Vec<Step>, KindError> {
 fn ci_row() -> Result<Row, String> {
     let registry = parse(ROW).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    Row::parse(&Gate, row).map_err(|e| e.to_string())
+    crate::kind::check(&Gate, row).map_err(|e| e.to_string())
 }
 
 #[test]

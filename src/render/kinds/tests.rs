@@ -2,7 +2,7 @@
 //! parity with `docs/KINDS.md` and each kind's node spec (V25, T33).
 
 use super::{entries, lookup, names};
-use crate::core::kind::{BUILD, GATE, UPDATE_PINS, UPSTREAM};
+use crate::kind::{ArgDefault, BUILD, GATE, UPDATE_PINS, UPSTREAM};
 use crate::script::scripts;
 
 const KINDS_MD: &str = include_str!("../../../docs/KINDS.md");
@@ -152,15 +152,26 @@ fn doc_args(name: &str) -> Vec<Arg<'static>> {
         .collect()
 }
 
+/// The default `docs/KINDS.md` names: the forge's is GitHub's job token,
+/// which `src/bump` reads when a row gives no `token`.
+fn default(given: ArgDefault) -> Option<&'static str> {
+    match given {
+        ArgDefault::None => None,
+        ArgDefault::Value(value) => Some(value),
+        ArgDefault::Forge => Some("GITHUB_TOKEN"),
+    }
+}
+
 #[test]
 fn the_doc_args_are_each_schema_in_order() {
     for entry in entries() {
         let name = entry.kind.name();
         let code: Vec<Arg<'_>> = entry
             .kind
-            .schema()
+            .spec()
+            .schema
             .iter()
-            .map(|a| (a.key, a.required, a.default))
+            .map(|a| (a.key, a.required, default(a.default)))
             .collect();
         assert_eq!(doc_args(name), code, "docs/KINDS.md `{name}` args");
     }

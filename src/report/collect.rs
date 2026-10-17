@@ -9,7 +9,7 @@ use super::apps::{self, NOTE, app};
 use super::error::ReportError;
 use super::kinds::{lookup, names};
 use super::model::{App, Hosted, Manual, Need, Report, Workflow};
-use crate::kind::{Kind, KindError, Row};
+use crate::kind::{Kind, KindError, Row, check};
 use crate::pin::{PinTable, Uses};
 use crate::registry::{BotRow, Registry, RegistryError, WorkflowRow};
 use crate::system::runner;
@@ -44,7 +44,7 @@ fn workflow(
     pins: &PinTable,
 ) -> Result<Workflow, ReportError> {
     let kind = lookup(&row.kind).ok_or_else(|| unknown_kind(row))?;
-    let checked = Row::parse(kind, row)?;
+    let checked = check(kind, row)?;
     let built = kind.build(&checked, pins)?;
     Ok(Workflow {
         id: checked.id.clone(),

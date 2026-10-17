@@ -19,7 +19,7 @@ const ROW: &str = include_str!("../../../tests/fixtures/build/picked.actlith");
 fn picked() -> Result<Row, String> {
     let registry = parse(ROW).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    Row::parse(&Build, row).map_err(|e| e.to_string())
+    crate::kind::check(&Build, row).map_err(|e| e.to_string())
 }
 
 fn made(

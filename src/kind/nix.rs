@@ -1,8 +1,8 @@
 //! The install-nix step, trusting the row's cache as a substituter.
 
-use super::cache::Cache;
 use super::error::KindError;
 use super::step::uses;
+use crate::core::kind::Cache;
 use crate::pin::PinTable;
 use crate::yaml::{Input, Step, Text, Value, With};
 

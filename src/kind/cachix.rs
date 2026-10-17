@@ -2,10 +2,10 @@
 //! skipped while the cache still serves reads; `pushFilter` keeps
 //! sources and tarballs out of the cache.
 
-use super::cache::Cache;
 use super::error::KindError;
 use super::secret::Secret;
 use super::step::uses;
+use crate::core::kind::Cache;
 use crate::pin::PinTable;
 use crate::yaml::GITHUB;
 use crate::yaml::{Comment, Expr, Input, Step, Text, Value, With};

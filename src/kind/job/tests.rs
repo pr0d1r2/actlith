@@ -1,34 +1,14 @@
-//! Job hardening: timeout always set and bounded, permissions widened
+//! Job hardening: timeout always set, permissions widened
 //! only by the declared need, runner matrix (T17, V3).
 
 use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    ArgSpec, Args, DEFAULT_TIMEOUT, KindError, MAX_TIMEOUT, Row, TIMEOUT, job,
-    matrix_runner, parse_args, runner_matrix, timeout, widen,
+    Args, KindError, Row, job, matrix_runner, runner_matrix, widen,
 };
-use crate::registry::{Arg, WorkflowRow};
 use crate::system::System;
 use crate::yaml::{Level, Scope, Text};
-
-fn args(schema: &[ArgSpec], pairs: &[(&str, &str)]) -> Args {
-    let row = WorkflowRow {
-        line: 4,
-        id: "w".to_owned(),
-        kind: "k".to_owned(),
-        systems: Vec::new(),
-        cache: None,
-        args: pairs
-            .iter()
-            .map(|&(k, v)| Arg {
-                key: k.to_owned(),
-                value: v.to_owned(),
-            })
-            .collect(),
-    };
-    parse_args(schema, &row).unwrap_or_default()
-}
 
 fn row(systems: Vec<System>) -> Row {
     Row {
@@ -46,35 +26,6 @@ fn a_job_always_has_its_timeout() {
     assert_eq!(built.timeout_minutes, 12);
     assert_eq!(built.permissions, None);
     assert_eq!(built.runs_on, Text::lit("ubuntu-latest"));
-}
-
-#[test]
-fn timeout_defaults_to_thirty() -> Result<(), KindError> {
-    assert_eq!(DEFAULT_TIMEOUT, 30);
-    assert_eq!(timeout(&args(&[TIMEOUT], &[]))?, 30);
-    assert_eq!(timeout(&args(&[], &[]))?, 30);
-    assert_eq!(timeout(&args(&[TIMEOUT], &[("timeout", "360")]))?, 360);
-    Ok(())
-}
-
-#[test]
-fn timeout_out_of_range_is_refused() {
-    assert_eq!(MAX_TIMEOUT, 360);
-    for minutes in ["0", "361"] {
-        let given = args(&[TIMEOUT], &[("timeout", minutes)]);
-        let error = timeout(&given).err().map(|e| e.to_string());
-        let want = format!(
-            ".actlith:4: timeout `{minutes}` is not 1 to 360 minutes\n  fix: \
-             write `timeout=<1..360>`"
-        );
-        assert_eq!(error, Some(want));
-    }
-}
-
-#[test]
-fn a_non_number_timeout_is_refused() {
-    let given = args(&[TIMEOUT], &[("timeout", "x")]);
-    assert!(timeout(&given).is_err());
 }
 
 #[test]
