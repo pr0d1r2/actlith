@@ -30,4 +30,5 @@
 
 Read [LLM-DISCLAIMER](docs/LLM-DISCLAIMER.md) first.
 
-Materialize GitHub Actions workflows from a small config. Design: [`SPEC.md`](SPEC.md).
+Materialize hardened, SHA-pinned GitHub Actions workflows from a small
+`.actlith` registry. Design: [`SPEC.md`](SPEC.md).

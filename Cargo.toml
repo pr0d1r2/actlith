@@ -6,7 +6,7 @@ edition = "2024"
 # The fleet pin: nixpkgs-lock (nixos-26.05) carries rustc 1.95.
 rust-version = "1.95"
 license = "MIT"
-description = "Materialize GitHub Actions workflows from a small config"
+description = "Materialize hardened, SHA-pinned GitHub Actions workflows from a small .actlith registry"
 repository = "https://github.com/pr0d1r2/actlith"
 readme = "README.md"
 keywords = ["github-actions", "ci", "workflow", "generator", "nix"]
