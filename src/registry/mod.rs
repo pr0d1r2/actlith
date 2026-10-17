@@ -14,13 +14,10 @@
     )
 )]
 
-mod cells;
 mod error;
-mod format;
 mod model;
 mod parse;
 mod rows;
-mod table;
 
 pub(crate) use error::RegistryError;
 #[cfg_attr(
