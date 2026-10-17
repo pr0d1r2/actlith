@@ -78,3 +78,16 @@ fn update_pins_is_proposed_off_with_its_note() {
 fn a_gate_row_is_proposed_on() {
     assert_eq!(proposal(&bare(FIRST_ROW, "ci", "gate")), "ci|gate|-|-|-");
 }
+
+#[test]
+fn text_is_pipelith_text_with_proposal() {
+    let rows = [
+        bare(FIRST_ROW, "ci", "gate"),
+        bare(FIRST_ROW + 1, "update-pins", "update-pins"),
+    ];
+    let neutral = crate::core::detect::text_with(&rows, proposal);
+    assert_eq!(text(&rows), neutral);
+    assert_eq!(HEADER, crate::core::detect::header());
+    assert_eq!(FIRST_ROW, crate::core::detect::FIRST_ROW);
+    assert_eq!(row_line(&full()), crate::core::detect::row_line(&full()));
+}
