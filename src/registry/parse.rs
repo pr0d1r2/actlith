@@ -11,26 +11,29 @@ use crate::core::registry::{self, Schema, SectionSpec};
 /// The file name every error and every message names.
 pub(crate) const FILE: &str = ".actlith";
 
-/// A section keyed by its first column, as every actlith section is.
-const fn keyed(
-    name: &'static str,
-    columns: &'static [&'static str],
-) -> SectionSpec<'static> {
-    SectionSpec {
-        name,
-        columns,
-        required: false,
-        key: Some(0),
-    }
-}
-
-/// actlith's sections: pipelith's neutral `## workflows`, then GitHub's.
+/// actlith's sections: pipelith's neutral `## workflows`, then GitHub's,
+/// each keyed by its first column.
 const SCHEMA: Schema<'static> = Schema {
     sections: &[
         kind::WORKFLOWS,
-        keyed("actions", &["action", "version", "sha"]),
-        keyed("hand-written", &["path", "reason"]),
-        keyed("bots", &["bot", "args"]),
+        SectionSpec {
+            name: "actions",
+            columns: &["action", "version", "sha"],
+            required: false,
+            key: Some(0),
+        },
+        SectionSpec {
+            name: "hand-written",
+            columns: &["path", "reason"],
+            required: false,
+            key: Some(0),
+        },
+        SectionSpec {
+            name: "bots",
+            columns: &["bot", "args"],
+            required: false,
+            key: Some(0),
+        },
     ],
 };
 
