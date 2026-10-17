@@ -19,9 +19,11 @@ fail() {
 }
 
 # The hk this flake's dev shell runs: nix-hk's package for this system.
-# The `${...}` is Nix interpolation, for nix to expand, not the shell.
-# shellcheck disable=SC2016
-hk='(builtins.getFlake (toString ./.)).inputs.nix-hk.packages.${builtins.currentSystem}.default'
+# `git+file:` reads tracked files only. A bare path would copy the whole
+# work tree, target/ included, while cargo steps beside this one rewrite
+# it (CI failed on a vanished target/debug/deps file).
+flake="git+file://$root"
+hk="(builtins.getFlake \"$flake\").inputs.nix-hk.packages.\${builtins.currentSystem}.default"
 src="$(nix build --impure --no-link --print-out-paths --expr "$hk.src")"
 version="$(nix eval --impure --raw --expr "$hk.version")"
 
