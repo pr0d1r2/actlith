@@ -19,6 +19,11 @@ the bytes actlith emits for the same inputs is at least a minor version
   value that is not digits and dots is refused. `xcode` is GitHub-only:
   the portability check names it, and the other kinds refuse it.
   Rows without it render the same bytes as before.
+- `report`: a pinned Xcode is listed beside its runner (T70): text
+  `system <s> on <runner>, xcode <v>`, md `(Xcode <v>)` after the
+  runner, and json an `xcode` field in each system object, present only
+  when pinned (`schema_version` stays 1). Reports of rows without it
+  are unchanged.
 
 ### Changed
 

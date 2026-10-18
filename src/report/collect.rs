@@ -53,7 +53,7 @@ fn workflow(
         cache: checked.cache.as_ref().map(|c| c.name().to_owned()),
         actions: actions(&built, pins)?,
         secrets: secrets(kind, &checked),
-        xcode: None,
+        xcode: checked.args.get("xcode").map(str::to_owned),
     })
 }
 
