@@ -170,3 +170,11 @@ fn an_unknown_bot_names_its_line() {
             .to_owned())
     );
 }
+
+#[test]
+fn a_gate_row_lists_its_pinned_xcode() -> Result<(), String> {
+    let pinned = one("ci|gate|aarch64-darwin|-|xcode=26.4")?;
+    assert_eq!(pinned.xcode.as_deref(), Some("26.4"));
+    assert_eq!(one("ci|gate|aarch64-darwin|-|-")?.xcode, None);
+    Ok(())
+}

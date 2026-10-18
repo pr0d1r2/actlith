@@ -29,6 +29,8 @@ pub(crate) struct Workflow {
     pub(crate) actions: Vec<Uses>,
     /// Every secret the workflow reads (`src/kind:V14`), by name.
     pub(crate) secrets: Vec<Need>,
+    /// The Xcode a `gate` row pins on its macOS runners (`src/gate:V52`).
+    pub(crate) xcode: Option<String>,
 }
 
 /// A nix system and the hosted runner it runs on.

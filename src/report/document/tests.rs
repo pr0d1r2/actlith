@@ -25,6 +25,7 @@ fn workflow() -> Workflow {
         cache: None,
         actions: vec![uses()],
         secrets: vec![Need { name, purpose }],
+        xcode: None,
     }
 }
 
@@ -57,4 +58,29 @@ fn a_workflow_carries_every_field_and_null_for_no_cache() {
                 \x20         \"name\": \"S\",\n          \"purpose\": \"p\"\n\
                 \x20       }\n      ]\n    }\n";
     assert!(got.contains(want), "{got}");
+}
+
+/// [`workflow`] on `aarch64-darwin`, Xcode `xcode` pinned.
+fn darwin(xcode: Option<&str>) -> String {
+    let (system, runner) = ("aarch64-darwin".to_owned(), "macos-latest");
+    let workflows = vec![Workflow {
+        systems: vec![Hosted { system, runner }],
+        xcode: xcode.map(str::to_owned),
+        ..workflow()
+    }];
+    let report = Report {
+        workflows,
+        ..Report::default()
+    };
+    write(&document(&report))
+}
+
+#[test]
+fn a_pinned_xcode_is_a_field_beside_the_runner() {
+    let got = darwin(Some("26.4"));
+    let want = "          \"runner\": \"macos-latest\",\n          \
+                \"xcode\": \"26.4\"\n        }";
+    assert!(got.contains(want), "{got}");
+    let bare = darwin(None);
+    assert!(!bare.contains("xcode"), "{bare}");
 }
