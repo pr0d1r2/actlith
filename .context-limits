@@ -23,7 +23,7 @@ src/build/SPEC.md            980
 src/system/SPEC.md           980
 src/core/SPEC.md             790
 src/yaml/SPEC.md             990
-src/gate/SPEC.md             1180
+src/gate/SPEC.md             1340
 src/script/SPEC.md           880
 src/render/SPEC.md           730
 src/import/SPEC.md           840

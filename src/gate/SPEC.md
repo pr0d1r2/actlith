@@ -53,7 +53,9 @@ V29: `gate` render of actlith's own row == this repo's hand-written `.github/wor
 id|status|task|cites
 T19|x|kind `gate` + golden vs own `ci.yml`|V29,`src/kind:V3`,`src/kind:V9`
 T69|x|`gate` arg `xcode`: env + check step, refusals, golden through actionlint & zizmor (issue #18)|V52,`src/kind:V49`,`tests:V4`
+T71|.|`xcode` pin must reach the dev shell (B11), e.g. default `command` hands it over as `HOST_DEVELOPER_DIR`; test: ⊥ row loses the pin. open: how|B11,V52
 
 ## §B BUGS
 
 id|date|cause|fix
+B11|2026-10-18|age-plugin-se PR #9 (open, head `a6bf8dd`): `nix develop` overwrote job `DEVELOPER_DIR` w/ stdenv apple-sdk before shell hook ∴ `xcode=` pin lost silently. workaround: `command=HOST_DEVELOPER_DIR="$DEVELOPER_DIR" nix develop …`, hook reads it first|T71 open

@@ -21,7 +21,7 @@
 [![gate steps 49 commit / 55 push](https://img.shields.io/badge/gate_steps-49_commit_%2F_55_push-6E4AFF)](hk.pkl)
 [![coverage floor 99.84%](https://img.shields.io/badge/coverage_floor-%E2%89%A599.84%25-brightgreen)](.coverage)
 [![invariants 54](https://img.shields.io/badge/invariants-54-6E4AFF)](SPEC.md)
-[![bugs logged 10](https://img.shields.io/badge/bugs_logged-10-6E4AFF)](SPEC.md)
+[![bugs logged 11](https://img.shields.io/badge/bugs_logged-11-6E4AFF)](SPEC.md)
 [![federated nodes 24](https://img.shields.io/badge/federated_nodes-24-6E4AFF)](SPEC.md)
 
 [![nix flake](https://img.shields.io/badge/nix-flake-5277C3?logo=nixos&logoColor=white)](flake.nix)
@@ -140,6 +140,8 @@ existing repository with workflows of its own.
 - [Integration](docs/INTEGRATION.md): from hand-copied workflows to
   generated ones, step by step, and what actlith will not do to your
   repository.
+- [CI in an existing repository](docs/EXISTING-REPO.md): a worked example
+  on a Swift fork, with a pinned Xcode and upstream workflows left alone.
 - [The `.actlith` registry](docs/REGISTRY.md): the one file you write.
 - [Workflow kinds](docs/KINDS.md): what each kind generates, its triggers,
   jobs and args.
