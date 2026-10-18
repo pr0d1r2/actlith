@@ -8,6 +8,18 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+### Added
+
+- `gate`: the `xcode=<version>` arg pins the Xcode a macOS row builds
+  with, for a repository whose toolchain nix cannot supply (T69, issue
+  #18). Its workflow sets `DEVELOPER_DIR` to
+  `/Applications/Xcode_<version>.app/Contents/Developer` on the job, and
+  a first step fails naming that path when the runner image lacks it,
+  then prints `xcodebuild -version`. A row with a Linux system or a
+  value that is not digits and dots is refused. `xcode` is GitHub-only:
+  the portability check names it, and the other kinds refuse it.
+  Rows without it render the same bytes as before.
+
 ### Changed
 
 - Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.1.0 from

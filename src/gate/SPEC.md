@@ -52,7 +52,7 @@ V29: `gate` render of actlith's own row == this repo's hand-written `.github/wor
 
 id|status|task|cites
 T19|x|kind `gate` + golden vs own `ci.yml`|V29,`src/kind:V3`,`src/kind:V9`
-T69|.|`gate` arg `xcode`: env + check step, refusals, golden through actionlint & zizmor (issue #18)|V52,`src/kind:V49`,`tests:V4`
+T69|x|`gate` arg `xcode`: env + check step, refusals, golden through actionlint & zizmor (issue #18)|V52,`src/kind:V49`,`tests:V4`
 
 ## §B BUGS
 
