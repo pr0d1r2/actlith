@@ -156,7 +156,26 @@ fn every_rendered_row_renders_on_every_forge() -> Result<(), String> {
     for row in &registry.workflows {
         assert_eq!(portable(row, &EXTRAS), [], "{}", row.id);
     }
-    assert!(EXTRAS.kinds.is_empty() && EXTRAS.keys.is_empty());
+    assert!(EXTRAS.kinds.is_empty());
+    Ok(())
+}
+
+#[test]
+fn xcode_is_the_one_github_only_key() -> Result<(), String> {
+    let keys: Vec<&str> = EXTRAS.keys.iter().map(|s| s.key).collect();
+    assert_eq!(keys, ["xcode"]);
+    let text = "format 1\n\n## workflows\nid|kind|systems|cache|args\n\
+                ci|gate|aarch64-darwin|-|xcode=26.4\n";
+    let registry = parse(text).map_err(|e| e.to_string())?;
+    let row = registry.workflows.first().ok_or("no row")?;
+    let found: Vec<String> = portable(row, &EXTRAS)
+        .iter()
+        .map(ToString::to_string)
+        .collect();
+    assert_eq!(
+        found,
+        ["line 5: arg `xcode` is forge-only; the other forge refuses this row"]
+    );
     Ok(())
 }
 
@@ -166,6 +185,7 @@ fn the_probe_kind_answers_its_contract() -> Result<(), String> {
     assert_eq!(Probe.name(), "probe");
     assert_eq!(Probe.spec().default_systems, [System::Aarch64Linux]);
     assert!(Probe.secrets(&row).is_empty());
+    assert!(Probe.forge_args().is_empty(), "no forge key by default");
     let built = Probe.build(&row, &PinTable::builtin()).err();
     assert_eq!(built, Some(KindError::row(7, "probe", "none")));
     Ok(())

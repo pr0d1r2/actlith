@@ -171,6 +171,7 @@ fn the_doc_args_are_each_schema_in_order() {
             .spec()
             .schema
             .iter()
+            .chain(entry.kind.forge_args())
             .map(|a| (a.key, a.required, default(a.default)))
             .collect();
         assert_eq!(doc_args(name), code, "docs/KINDS.md `{name}` args");

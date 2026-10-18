@@ -1,0 +1,7 @@
+format 1
+
+# A Swift repository: macOS only, the Xcode pinned by version (T69).
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|aarch64-darwin|-|xcode=26.4

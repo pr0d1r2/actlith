@@ -1,16 +1,24 @@
 //! Kind `gate` (T19): the golden against this repository's own `ci.yml`
-//! (V29), and every arg, system and cache choice a row can make.
+//! (V29), and every arg, system and cache choice a row can make. The
+//! `xcode` arg (T69, V52) renders its golden, which passes `actionlint`
+//! and `zizmor --offline` (`tests:V4`; a missing tool fails the test).
+
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use crate::gate::Gate;
 use crate::kind::{Kind, Row};
 use crate::pin::PinTable;
 use crate::registry::parse;
-use crate::yaml::{Comment, Workflow, write};
+use crate::yaml::{Comment, Workflow, render, write};
 
 /// The hand-written ci.yml this repository had before actlith generated
 /// it (nix T10): the golden shape the model and builders must reproduce.
 const CI: &str = include_str!("../../../tests/fixtures/yaml/ci-hand.yml");
 const ROW: &str = include_str!("../../../tests/fixtures/gate/ci.actlith");
+const XCODE_ROW: &str =
+    include_str!("../../../tests/fixtures/gate/xcode.actlith");
+const XCODE_YML: &str = include_str!("../../../tests/fixtures/gate/xcode.yml");
 
 const HEAD: &str = "format 1\n\n## workflows\nid|kind|systems|cache|args\n";
 
@@ -58,6 +66,8 @@ fn the_kind_is_named_gate_and_takes_command_and_timeout() {
     assert_eq!(Gate.name(), "gate");
     let keys: Vec<&str> = Gate.spec().schema.iter().map(|s| s.key).collect();
     assert_eq!(keys, ["command", "timeout"]);
+    let forge: Vec<&str> = Gate.forge_args().iter().map(|s| s.key).collect();
+    assert_eq!(forge, ["xcode"]);
 }
 
 #[test]
@@ -115,5 +125,137 @@ fn a_bad_arg_is_a_row_error() -> Result<(), String> {
     assert!(row("ci|gate|-|-|timeout=soon").is_err());
     let command = row("ci|gate|-|-|command=a ${{ b }}")?;
     assert!(built(&command).is_err());
+    Ok(())
+}
+
+/// A hook's git environment, dropped from every tool the tests run.
+const GIT_ENV: [&str; 6] = [
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+];
+
+fn fixture(name: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/gate")
+        .join(name)
+}
+
+/// `tool args... file`, without the hook's git environment.
+fn lint(tool: &str, args: &[&str], file: &Path) -> Result<(), String> {
+    let mut command = Command::new(tool);
+    for var in GIT_ENV {
+        command.env_remove(var);
+    }
+    let out = command
+        .args(args)
+        .arg(file)
+        .output()
+        .map_err(|e| format!("{tool}: {e} (run inside `nix develop`)"))?;
+    if out.status.success() {
+        return Ok(());
+    }
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    Err(format!("{tool} {}:\n{stdout}{stderr}", file.display()))
+}
+
+/// The refusal of `cells`, as `.actlith:<line>: ...` words.
+fn refused(cells: &str) -> Result<String, String> {
+    match row(cells).and_then(|r| built(&r)) {
+        Ok(_) => Err(format!("`{cells}` rendered")),
+        Err(error) => Ok(error),
+    }
+}
+
+#[test]
+fn the_xcode_row_renders_its_golden_file() -> Result<(), String> {
+    assert_eq!(render(&built(&checked(XCODE_ROW)?)?), XCODE_YML);
+    Ok(())
+}
+
+#[test]
+fn the_xcode_golden_passes_actionlint() -> Result<(), String> {
+    lint("actionlint", &["-no-color"], &fixture("xcode.yml"))
+}
+
+#[test]
+fn the_xcode_golden_passes_zizmor_offline() -> Result<(), String> {
+    lint(
+        "zizmor",
+        &["--offline", "--no-progress"],
+        &fixture("xcode.yml"),
+    )
+}
+
+fn rendered_text(text: &crate::yaml::Text) -> String {
+    text.render(&crate::yaml::GITHUB)
+}
+
+#[test]
+fn xcode_sets_developer_dir_on_the_job() -> Result<(), String> {
+    let gate = built(&row("ci|gate|aarch64-darwin|-|xcode=16.4")?)?;
+    let job = gate.jobs.get("gate").ok_or("no job")?;
+    let dir = job.env.get("DEVELOPER_DIR").map(rendered_text);
+    assert_eq!(
+        dir.as_deref(),
+        Some("/Applications/Xcode_16.4.app/Contents/Developer")
+    );
+    Ok(())
+}
+
+#[test]
+fn xcode_is_checked_by_the_first_step() -> Result<(), String> {
+    let text = write(&built(&row("ci|gate|aarch64-darwin|-|xcode=16.4")?)?);
+    let steps = text.split("    steps:\n").nth(1).unwrap_or_default();
+    assert!(
+        steps.starts_with("      # xcode=16.4: this Xcode"),
+        "{text}"
+    );
+    let first = steps.lines().find(|l| l.starts_with("      - "));
+    let checks =
+        first.is_some_and(|l| l.contains("test -d \"$DEVELOPER_DIR\""));
+    assert!(checks, "{text}");
+    Ok(())
+}
+
+#[test]
+fn rows_without_xcode_have_no_developer_dir() -> Result<(), String> {
+    for cells in ["ci|gate|-|-|-", "ci|gate|aarch64-darwin|pr0d1r2|-"] {
+        let text = write(&built(&row(cells)?)?);
+        assert!(!text.contains("DEVELOPER_DIR"), "{text}");
+        assert!(!text.contains("xcodebuild"), "{text}");
+    }
+    Ok(())
+}
+
+#[test]
+fn xcode_on_a_linux_system_is_refused() -> Result<(), String> {
+    for cells in [
+        "ci|gate|-|-|xcode=26.4",
+        "ci|gate|aarch64-darwin, x86_64-linux|-|xcode=26.4",
+        "ci|gate|aarch64-linux|-|xcode=26.4",
+    ] {
+        let error = refused(cells)?;
+        assert!(error.starts_with(".actlith:5: "), "{error}");
+        assert!(error.contains("-linux` is Linux"), "{error}");
+        assert!(error.contains("fix: list only darwin systems"), "{error}");
+    }
+    Ok(())
+}
+
+#[test]
+fn xcode_must_be_a_version_number() -> Result<(), String> {
+    for bad in ["latest", "26.", ".4", "26..4", "26.4-beta", "2 6.4"] {
+        let error = refused(&format!("ci|gate|aarch64-darwin|-|xcode={bad}"))?;
+        assert!(error.contains("is not an Xcode version"), "{bad}: {error}");
+    }
+    for good in ["26.4", "16.4", "26.0.1"] {
+        row(&format!("ci|gate|aarch64-darwin|-|xcode={good}"))
+            .and_then(|r| built(&r))?;
+    }
     Ok(())
 }

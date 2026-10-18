@@ -45,7 +45,16 @@ The hk gate on every supported system. Replaces the fleet `ci.yml`.
   gate command.
 - Default systems: `x86_64-linux`, `aarch64-linux`, `aarch64-darwin`.
 - args: `command` (default `nix develop --command hk check --all --check`),
-  `timeout` (job minutes, default `30`).
+  `timeout` (job minutes, default `30`), `xcode` (GitHub only, macOS rows
+  only: an Xcode version such as `26.4`).
+- `xcode=<version>`: for a repository whose toolchain nix cannot supply
+  (Swift, XCTest). The job sets `DEVELOPER_DIR` to
+  `/Applications/Xcode_<version>.app/Contents/Developer`, and its first
+  step fails, naming that path, when the runner image does not carry it;
+  it never falls back to the image's default Xcode. It then prints
+  `xcodebuild -version`, so the log records the Xcode the gate ran with.
+  A row with a Linux system (the `-` default has two) is refused, and
+  `actlith report` lists the Xcode beside the runner.
 
 ## `build`
 
