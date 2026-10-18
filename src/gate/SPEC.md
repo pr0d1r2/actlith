@@ -58,4 +58,4 @@ T71|.|`xcode` pin must reach the dev shell (B11), e.g. default `command` hands i
 ## §B BUGS
 
 id|date|cause|fix
-B11|2026-10-18|age-plugin-se PR #9 (open, head `a6bf8dd`): `nix develop` overwrote job `DEVELOPER_DIR` w/ stdenv apple-sdk before shell hook ∴ `xcode=` pin lost silently. workaround: `command=HOST_DEVELOPER_DIR="$DEVELOPER_DIR" nix develop …`, hook reads it first|T71 open
+B11|2026-10-18|age-plugin-se PR #9 (merged `e9e7a34`): `nix develop` overwrote job `DEVELOPER_DIR` w/ stdenv apple-sdk before shell hook ∴ `xcode=` pin lost silently. workaround: `command=HOST_DEVELOPER_DIR="$DEVELOPER_DIR" nix develop …`, hook reads it first|T71 open
