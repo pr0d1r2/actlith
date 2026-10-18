@@ -27,6 +27,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Changed
 
+- `update-pins.sh` resolves nixpkgs through the root's `nixpkgs-lock`
+  input, so renamed lock nodes no longer hide available bumps (issue #22).
 - Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.1.0 from
   crates.io, the forge-neutral core shared with lablith. Nothing uses it
   yet; generated files are unchanged (T49).
