@@ -23,7 +23,13 @@ case "$tool $*" in
   : >"$STUB_LOG.updated"
   ;;
 "nix eval --raw --impure"*)
-  # The nixpkgs rev: STUB_REV_BEFORE until `flake update`, then AFTER.
+  # With renamed nodes, `.nodes.nixpkgs` is a decoy that never moves while
+  # the root's `nixpkgs-lock` follows the moving `.nodes.nixpkgs_2` node.
+  if [ "${STUB_RENAMED_NODES:-}" = 1 ] && [[ "$*" != *"nixpkgs-lock"* ]]; then
+    echo "${STUB_REV_BEFORE:-}"
+    exit 0
+  fi
+  # The root-followed nixpkgs rev: BEFORE until `flake update`, then AFTER.
   if [ -e "$STUB_LOG.updated" ]; then
     echo "${STUB_REV_AFTER:-}"
   else

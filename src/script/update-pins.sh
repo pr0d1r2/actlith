@@ -22,7 +22,15 @@ here="$(dirname "${BASH_SOURCE[0]}")"
 
 nixpkgs_rev() {
   nix eval --raw --impure --expr \
-    '(builtins.fromJSON (builtins.readFile ./flake.lock)).nodes.nixpkgs.locked.rev'
+    "let
+        lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+        resolvePath = path:
+          builtins.foldl' (node: name: resolveInput node.inputs.\${name}) lock.nodes.root path;
+        resolveInput = input:
+          if builtins.isList input then resolvePath input else lock.nodes.\${input};
+        nixpkgsLock = resolveInput lock.nodes.root.inputs.nixpkgs-lock;
+        nixpkgs = resolveInput nixpkgsLock.inputs.nixpkgs;
+      in nixpkgs.locked.rev"
 }
 
 before="$(nixpkgs_rev)"
