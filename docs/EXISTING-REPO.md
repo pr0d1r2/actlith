@@ -4,8 +4,8 @@ A worked example of materializing a repository's guardrails in CI with
 actlith, in a repository that already has workflows it must not rewrite.
 The example is
 [age-plugin-se PR #9](https://github.com/pr0d1r2/age-plugin-se/pull/9),
-a fork of an upstream age plugin written in Swift. On 2026-10-18 it is
-open at head `a6bf8dd`, and its `gate (macos-latest)` check has passed.
+a fork of an upstream age plugin written in Swift, merged on 2026-10-18 as
+`e9e7a34` (its last commit `844d789`), with `gate (macos-latest)` green.
 Its local gate was built earlier with pklith (see pklith's
 [worked example](https://github.com/pr0d1r2/pklith/blob/main/docs/EXISTING-REPO.md));
 this PR runs that same gate on GitHub Actions.
@@ -105,7 +105,11 @@ actlith does not change repository settings. On this fork they were:
    workflows run too: `build.yml` on every push and pull request, and
    `build-main.yml` and `release.yml` on `main` and on releases. Check
    what they need (a packaging secret, GitHub Pages) or accept their
-   failures.
+   failures. Here upstream's Alpine packaging job reads an `ALPINE_KEY`
+   secret the fork lacked. A CI-only key fills it:
+   `release/alpine-keygen.sh` makes a throwaway key in memory, writes no
+   file, and sets the secret with `gh secret set` (it does nothing if one
+   is set; `--rotate` replaces it).
 2. **Optional: `CACHIX_AUTH_TOKEN`**, so the job pushes to the cache.
    Without it the job only reads.
 3. **Require the check** after a green run. When `main` has no required
