@@ -66,6 +66,11 @@ Job names are stable across actlith versions, because branch protection
 refers to them: after moving `ci.yml` to the `gate` kind, check that your
 required status checks still match (`gate (ubuntu-latest)` and so on).
 
+A fork that keeps upstream's workflows untouched, gates its own with
+actionlint, zizmor and yamllint, and pins an Xcode on macOS is walked
+through in [EXISTING-REPO.md](EXISTING-REPO.md), including a known gotcha
+with `xcode=` and `nix develop`.
+
 ## Keeping it true
 
 Add both checks to the gate that runs on every commit, so drift fails

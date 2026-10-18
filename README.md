@@ -140,6 +140,8 @@ existing repository with workflows of its own.
 - [Integration](docs/INTEGRATION.md): from hand-copied workflows to
   generated ones, step by step, and what actlith will not do to your
   repository.
+- [CI in an existing repository](docs/EXISTING-REPO.md): a worked example
+  on a Swift fork, with a pinned Xcode and upstream workflows left alone.
 - [The `.actlith` registry](docs/REGISTRY.md): the one file you write.
 - [Workflow kinds](docs/KINDS.md): what each kind generates, its triggers,
   jobs and args.
