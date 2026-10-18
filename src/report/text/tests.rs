@@ -23,6 +23,7 @@ fn bare() -> Workflow {
         cache: None,
         actions: Vec::new(),
         secrets: Vec::new(),
+        xcode: None,
     }
 }
 
@@ -36,4 +37,29 @@ fn a_workflow_with_no_cache_shows_a_dash() {
         "workflows\n  ci: kind gate, cache -\n    system x86_64-linux on \
          ubuntu-latest\nhand-written\n"
     ));
+}
+
+/// A gate on `aarch64-darwin` with Xcode 26.4 pinned.
+fn pinned() -> Report {
+    let system = "aarch64-darwin".to_owned();
+    let systems = vec![Hosted {
+        system,
+        runner: "macos-latest",
+    }];
+    let xcode = Some("26.4".to_owned());
+    let workflows = vec![Workflow {
+        systems,
+        xcode,
+        ..bare()
+    }];
+    Report {
+        workflows,
+        ..Report::default()
+    }
+}
+
+#[test]
+fn a_pinned_xcode_sits_beside_the_runner() {
+    let want = "\n    system aarch64-darwin on macos-latest, xcode 26.4\n";
+    assert!(text(&pinned()).contains(want));
 }

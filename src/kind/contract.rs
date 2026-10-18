@@ -4,7 +4,7 @@
 
 use super::error::KindError;
 use super::secret::Secret;
-use crate::core::kind::{KindSpec, Row};
+use crate::core::kind::{ArgSpec, KindSpec, Row};
 use crate::pin::PinTable;
 use crate::yaml::Workflow;
 
@@ -13,6 +13,13 @@ pub(crate) trait Kind {
     /// The kind's pipelith catalogue entry (V49): its name, every arg it
     /// takes (any other key is refused) and the systems a row's `-` means.
     fn spec(&self) -> &'static KindSpec;
+
+    /// The GitHub-only arg keys the kind takes beyond its catalogue
+    /// schema (V49): each one of `EXTRAS.keys`. None by default, so any
+    /// other kind refuses them as unknown.
+    fn forge_args(&self) -> &'static [ArgSpec] {
+        &[]
+    }
 
     /// The name a `## workflows` row writes in its `kind` cell.
     fn name(&self) -> &'static str {

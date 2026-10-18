@@ -39,10 +39,11 @@ fn workflow(w: &Workflow) -> String {
 
 /// The workflow's systems, actions and secrets, a line each.
 fn details(w: &Workflow) -> String {
+    let xcode = pinned(w);
     let systems = w
         .systems
         .iter()
-        .map(|h| format!("    system {} on {}\n", h.system, h.runner));
+        .map(|h| format!("    system {} on {}{xcode}\n", h.system, h.runner));
     let actions = w
         .actions
         .iter()
@@ -52,6 +53,12 @@ fn details(w: &Workflow) -> String {
         .iter()
         .map(|n| format!("    secret {}: {}\n", n.name, n.purpose));
     systems.chain(actions).chain(secrets).collect()
+}
+
+/// `, xcode <v>` when the workflow pins an Xcode (`src/gate:V52`).
+fn pinned(w: &Workflow) -> String {
+    let xcode = w.xcode.as_deref();
+    xcode.map_or_else(String::new, |v| format!(", xcode {v}"))
 }
 
 fn manual(m: &Manual) -> String {

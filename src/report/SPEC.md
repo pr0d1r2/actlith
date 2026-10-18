@@ -36,6 +36,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §I INTERFACES
 
 - fns: `report(&Registry, &PinTable, Format) -> Result<String, ReportError>` (refused row → error naming line, exit 2). actions = `uses:` of the BUILT workflow, sorted.
+- pinned Xcode (`src/gate:V52`) beside runner: text `…, xcode <v>`, md `(Xcode <v>)`, json `xcode` only when pinned (V33: addition). ⊥ pin → bytes unchanged
 
 ## §V INVARIANTS
 
@@ -46,6 +47,7 @@ V33: json carries `schema_version`; field rename | removal bumps it
 id|status|task|cites
 T28|x|`report` text/json/md incl. secrets per workflow|V33,`src/kind:V14`
 T48|.|mark `GITHUB_TOKEN` "built-in, nothing to configure" apart from repo secrets; take kind & bot lists from `src/render` & `src/bots` exports ∴ drop the copies in `src/report`, `src/check`; text golden → fixture file once `.pklith` types `txt`|`src/kind:V14`,V33
+T70|x|`report` lists the pinned Xcode per workflow; rows w/o it unchanged|`src/gate:V52`,V33
 
 ## §B BUGS
 

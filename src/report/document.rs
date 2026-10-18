@@ -32,15 +32,23 @@ fn workflow(w: &Workflow) -> Json {
     Json::Object(vec![
         ("id", s(&w.id)),
         ("kind", s(w.kind)),
-        ("systems", array(&w.systems, hosted)),
+        ("systems", systems(w)),
         ("cache", cache),
         ("actions", array(&w.actions, uses)),
         ("secrets", array(&w.secrets, need)),
     ])
 }
 
-fn hosted(h: &Hosted) -> Json {
-    Json::Object(vec![("system", s(&h.system)), ("runner", s(h.runner))])
+/// Each system and its runner, then the pinned Xcode when there is one
+/// (`src/gate:V52`); no `xcode` field otherwise.
+fn systems(w: &Workflow) -> Json {
+    let hosted = |h: &Hosted| {
+        let mut fields =
+            vec![("system", s(&h.system)), ("runner", s(h.runner))];
+        fields.extend(w.xcode.as_deref().map(|v| ("xcode", s(v))));
+        Json::Object(fields)
+    };
+    Json::Array(w.systems.iter().map(hosted).collect())
 }
 
 fn uses(u: &Uses) -> Json {

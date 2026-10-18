@@ -183,6 +183,21 @@ fn an_unknown_or_unhosted_system_names_its_row() -> Result<(), String> {
 }
 
 #[test]
+fn only_gate_takes_xcode() -> Result<(), String> {
+    let rows_with = [
+        "b|build|aarch64-darwin|pr0d1r2|package=hk, xcode=26.4",
+        "p|update-pins|-|-|xcode=26.4",
+        "u|upstream|-|-|script=s.sh, xcode=26.4",
+    ];
+    for cells in rows_with {
+        let error = refused(&rows(cells))?.to_string();
+        assert!(error.contains("has no arg `xcode`"), "{cells}: {error}");
+    }
+    rendered(&rows("ci|gate|aarch64-darwin|-|xcode=26.4"))?;
+    Ok(())
+}
+
+#[test]
 fn a_row_its_kind_refuses_is_a_kind_error() -> Result<(), String> {
     let error = refused(&rows("b|build|-|-|-"))?;
     assert!(matches!(error, RenderError::Kind(_)), "{error}");

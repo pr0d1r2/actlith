@@ -6,24 +6,37 @@
 
 use super::contract::Kind;
 use super::error::KindError;
-use crate::core::kind::{Extras, Row};
+use crate::core::kind::{ArgDefault, ArgSpec, Extras, Row};
 use crate::registry::WorkflowRow;
 use crate::system::{parse_system, runner};
 
-/// The kinds and arg keys only actlith knows: none today, so every row
-/// actlith renders works on every forge (V49).
-pub(crate) const EXTRAS: Extras<'static> = Extras {
-    kinds: &[],
-    keys: &[],
+/// `xcode`: the Xcode a macOS `gate` job builds with (`src/gate` V52).
+/// GitHub-only, since it names a GitHub runner image's install path.
+pub(crate) const XCODE: ArgSpec = ArgSpec {
+    key: "xcode",
+    required: false,
+    default: ArgDefault::None,
 };
 
-/// `row` checked against `kind`.
+/// The kinds and arg keys only actlith knows (V49): no kind, and the
+/// `xcode` key, which the portability check names on any row giving it.
+pub(crate) const EXTRAS: Extras<'static> = Extras {
+    kinds: &[],
+    keys: &[XCODE],
+};
+
+/// `row` checked against `kind`, which takes only the forge keys it
+/// names (`Kind::forge_args`).
 pub(crate) fn check(
     kind: &dyn Kind,
     row: &WorkflowRow,
 ) -> Result<Row, KindError> {
     hosted(row)?;
-    Ok(Row::check(kind.spec(), row, &EXTRAS)?)
+    let extras = Extras {
+        kinds: &[],
+        keys: kind.forge_args(),
+    };
+    Ok(Row::check(kind.spec(), row, &extras)?)
 }
 
 /// Each listed system up to the first repeat (pipelith names that one)

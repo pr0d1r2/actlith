@@ -57,10 +57,14 @@ fn line<S: AsRef<str>>(cells: &[S]) -> String {
 }
 
 fn workflow(w: &Workflow) -> Vec<String> {
+    let xcode = w
+        .xcode
+        .as_deref()
+        .map_or_else(String::new, |v| format!(" (Xcode {})", code(v)));
     let systems: Vec<String> = w
         .systems
         .iter()
-        .map(|h| format!("{} on {}", code(&h.system), code(h.runner)))
+        .map(|h| format!("{} on {}{xcode}", code(&h.system), code(h.runner)))
         .collect();
     let cache = w.cache.as_deref().map_or_else(|| "-".to_owned(), code);
     vec![code(&w.id), code(w.kind), systems.join(", "), cache]
