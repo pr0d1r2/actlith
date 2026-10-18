@@ -32,12 +32,12 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §C CONSTRAINTS
 
 - a kind = Rust type implementing `Kind`: `spec()` (pipelith catalogue entry), secrets, `build(&Row, &PinTable) -> Workflow`. ⊥ text templates.
-- row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (forge-only kinds, keys: ∅).
+- row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (kinds ∅, keys `xcode`); `check` passes a kind only its `Kind::forge_args` (default ∅) ∴ other kinds refuse `xcode`.
 - common parts here, used by every kind: top permissions, concurrency, job timeout, checkout, install-nix w/ cache substituter, cachix (fork-PR skip, `pushFilter`).
 
 ## §I INTERFACES
 
-- types: `Kind` trait, `Secret`, `KindError` (`Row` ← pipelith's | `Pin`); `Row`, `Args`, `Cache` = pipelith's.
+- types: `Kind` trait (+ `forge_args`), `Secret`, `KindError` (`Row` ← pipelith's | `Pin`); `Row`, `Args`, `Cache` = pipelith's.
 - fns: `check(&dyn Kind, &WorkflowRow) -> Result<Row, KindError>`: systems w/ GitHub runner, then pipelith `Row::check` (keys, cache, timeout 1..=360, rules → error naming line); builders flat (⊥ `common` module).
 - cache: public keys from pipelith's built-in table (v1: `pr0d1r2` only); other cache names refused w/ fix hint, ⊥ guessed key. `## caches` (`name|public-key`) = T44.
 
