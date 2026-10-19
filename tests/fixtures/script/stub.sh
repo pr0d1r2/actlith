@@ -25,7 +25,8 @@ case "$tool $*" in
 "nix eval --raw --impure"*)
   # With renamed nodes, `.nodes.nixpkgs` is a decoy that never moves while
   # the root's `nixpkgs-lock` follows the moving `.nodes.nixpkgs_2` node.
-  if [ "${STUB_RENAMED_NODES:-}" = 1 ] && [[ "$*" != *"nixpkgs-lock"* ]]; then
+  if [ "${STUB_RENAMED_NODES:-}" = 1 ] &&
+    [[ "$*" != *"nixpkgsLock = resolveInput"* ]]; then
     echo "${STUB_REV_BEFORE:-}"
     exit 0
   fi
