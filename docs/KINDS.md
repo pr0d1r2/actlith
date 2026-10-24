@@ -33,17 +33,50 @@ nix-hk `build.yml`, `update-pins.yml` and `upstream.yml` for the others.
 - `args`: `key=value` pairs, comma-separated, validated per kind; an unknown
   key is an error, not ignored.
 
+## Own runners
+
+`## runners`, columns `system|labels`, optional: a row moves that
+system's jobs, in every row, from GitHub's hosted runner to the
+repository's own runner, one carrying every listed label.
+
+```text
+## runners
+system|labels
+x86_64-darwin|self-hosted, macOS, X64
+```
+
+- The job runs on `runs-on: [<label>, ...]`. It is a job of its own,
+  `<job>-<system>`, never an entry in the hosted matrix: a job's `if:`
+  cannot read the matrix, so only a job of its own can carry the guard
+  below.
+- The guard: `if: github.event_name != 'pull_request' ||
+  github.event.pull_request.head.repo.full_name == github.repository`.
+  The job runs for a push, a schedule, a manual run or a pull request
+  from a branch of this repository, never for a fork's pull request,
+  whose code would otherwise run on your machine. There is no switch to
+  turn it off. Hosted jobs never carry it.
+- On a public repository, also register the runner to that one
+  repository, and require approval before workflows from forks run.
+- A fork's pull request shows the guarded job as skipped, not failed;
+  it runs on the push after the merge.
+- actionlint knows `self-hosted`, `macOS`, `Linux`, `X64` and `ARM64`; a
+  label of your own needs its `self-hosted-runner.labels` config.
+
 ## `gate`
 
 The hk gate on every supported system. Replaces the fleet `ci.yml`.
 
 - Triggers: push to `main`, `pull_request`, `workflow_dispatch`.
-- Job `gate` (name is stable: `pklith protect` reads it), matrix over systems,
-  `fail-fast: false`.
+- Job `gate` (name is stable: `pklith protect` reads it), matrix over the
+  hosted systems, `fail-fast: false`. A system on an own runner gets job
+  `gate-<system>`, named `gate (<system>)` so its check reads like the
+  matrix's, with the same steps and the guard.
 - Steps: checkout (`fetch-depth: 0`, the semver step needs tags), install-nix,
   cachix (push skipped for fork PRs, `pushFilter` keeps sources out), run the
   gate command.
-- Default systems: `x86_64-linux`, `aarch64-linux`, `aarch64-darwin`.
+- Default systems: `x86_64-linux`, `aarch64-linux`, `aarch64-darwin`,
+  `x86_64-darwin` (on `macos-15-intel`, GitHub's last Intel image,
+  available until August 2027).
 - args: `command` (default `nix develop --command hk check --all --check`),
   `timeout` (job minutes, default `30`), `xcode` (GitHub only, macOS rows
   only: an Xcode version such as `26.4`), `cache-push` (set to `false` for a
@@ -63,11 +96,13 @@ Build and cache a flake package on every system, then prove the cache has it.
 For packaging repositories such as nix-hk.
 
 - Triggers: as `gate`.
-- Job `build`: matrix over systems, `nix build --print-build-logs
-  .#packages.<system>.<package>`; cachix push only from `main`.
-- Job `check`: `nix flake check --all-systems`, then eval-only for systems
-  without a runner (`x86_64-darwin`), so they cannot rot silently.
-- Job `verify-cache` (needs `build`, `main` push only): every system's output
+- Job `build`: matrix over the hosted systems, `nix build
+  --print-build-logs .#packages.<system>.<package>`; cachix push only from
+  `main`. A system on an own runner gets job `build-<system>`, named
+  `build`, with the same steps and the guard.
+- Job `check`: `nix flake check --all-systems`. Every system has a
+  runner, so none is only evaluated.
+- Job `verify-cache` (needs every build job, `main` push only): every system's output
   path answers 200 from the cache. Reason: a cachix push failure does not fail
   its job.
 - args: `package` (required), `timeout` (job minutes, default `30`).

@@ -121,5 +121,11 @@ actlith gen
   `GITHUB_TOKEN` does not start other workflows, so the gate does not run
   on it until someone pushes or re-runs it. The `token` arg names a secret
   holding a GitHub App or fine-grained token that lifts this.
-- No `x86_64-darwin` runner exists; the `build` kind still evaluates that
-  system without building it.
+- `x86_64-darwin` runs on `macos-15-intel`, which GitHub says is its last
+  Intel image, available until August 2027 (actions/runner-images#13045).
+  After that, a `## runners` row naming your own Intel Mac keeps the
+  system in CI ([REGISTRY.md](REGISTRY.md#-runners)); otherwise drop it
+  from the row's systems.
+- Since pipelith 0.2, `-` in `systems` means all four systems, so a `gate`
+  or `build` row written with `-` gains an Intel macOS job when you take
+  this actlith. List the systems you want if you do not want that job.
