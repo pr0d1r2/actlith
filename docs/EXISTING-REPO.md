@@ -25,6 +25,8 @@ ci|gate|aarch64-darwin|pr0d1r2|xcode=26.6, timeout=60, command=HOST_DEVELOPER_DI
 
 - `aarch64-darwin` only, which actlith maps to `macos-latest`: the Swift
   toolchain and XCTest come from Xcode, which nix does not supply.
+  Because the row names its system, it does not pick up the
+  `x86_64-darwin` job (on `macos-15-intel`) that `-` now brings.
 - `xcode=26.6` pins that Xcode instead of the image's default
   ([KINDS.md](KINDS.md), src/gate V52). The job sets `DEVELOPER_DIR`, and
   its first step fails naming the path if the image does not have it.

@@ -33,6 +33,10 @@ path|reason
 ## bots
 bot|args
 coderabbit|central=my-org/coderabbit
+
+## runners
+system|labels
+x86_64-darwin|self-hosted, macOS, X64
 ```
 
 - The first line is `format 1`. A file with a newer format is refused, so
@@ -67,7 +71,9 @@ Systems map to GitHub runners:
 | `x86_64-linux` | `ubuntu-latest` |
 | `aarch64-linux` | `ubuntu-24.04-arm` |
 | `aarch64-darwin` | `macos-latest` |
-| `x86_64-darwin` | refused: GitHub has no such runner |
+| `x86_64-darwin` | `macos-15-intel`, GitHub's last Intel image, available until August 2027 |
+
+A `## runners` row puts a system on your own runner instead (below).
 
 An unknown kind, arg or system is an error, never ignored. Args and
 systems split on `,`, so an arg value cannot hold a comma. Every kind
@@ -109,3 +115,21 @@ files; installing each bot's GitHub App is your step, and
 As with workflows, `actlith check` reports a bot file that no row backs.
 [SERVICES.md](SERVICES.md) lists the services considered, with their
 free-tier terms.
+
+## `## runners`
+
+Your own runners, by nix system. The section is optional and reads the
+same in lablith's file.
+
+| column | meaning |
+| --- | --- |
+| `system` | a nix system, once per section |
+| `labels` | the runner's labels, comma-separated, at least one; each is letters, digits, `.`, `_` and `-`, not starting with `-` |
+
+Every row's jobs for that system run on `runs-on: [<labels>]`, in a job
+of their own (`gate-<system>`, `build-<system>`), and only for a push, a
+schedule, a manual run or a pull request from this repository: never for
+a fork's pull request, which would run a stranger's code on your machine.
+There is no switch to turn that off; [KINDS.md](KINDS.md#own-runners)
+has the details. A system without a row runs on the hosted runner in the
+table above.
