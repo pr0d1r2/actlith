@@ -187,7 +187,7 @@ steps: Mapping<String, Config.Step> = new {
   }
   ["doctest"] {
     glob = List("**/*.rs", "Cargo.toml")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'doctest: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo test --doc -q || { echo 'doctest: a doc example failed' >&2; exit 1; }"
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'doctest: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo test --workspace --doc -q || { echo 'doctest: a doc example failed' >&2; exit 1; }"
   }
   ["deny"] {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
