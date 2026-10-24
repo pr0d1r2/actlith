@@ -35,7 +35,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- kind name `gate`; job `gate` (stable); matrix over systems, `fail-fast: false`; checkout `fetch-depth: 0`; args `command` (default `nix develop --command hk check --all --check`), `timeout` (min, default 30); default systems `x86_64-linux aarch64-linux aarch64-darwin`; secret `CACHIX_AUTH_TOKEN` when `cache` set.
+- kind name `gate`; job `gate` (stable); matrix over systems, `fail-fast: false`; checkout `fetch-depth: 0`; args `command` (default `nix develop --command hk check --all --check`), `timeout` (min, default 30); default systems ∀ 4 (`x86_64-darwin` on `macos-15-intel`); `## runners` system → job `gate-<system>` named `gate (<system>)`, same steps, on its labels w/ fork-PR guard (`src/kind:V54`), ⊥ in matrix; ⊥ hosted system → ⊥ `gate` job; secret `CACHIX_AUTH_TOKEN` when `cache` set.
 - arg `xcode=<v>` (GitHub-only, `src/kind:V49`; digits & dots): job env `DEVELOPER_DIR=/Applications/Xcode_<v>.app/Contents/Developer` (R17); first step `test -d` it else `::error::` & exit 1, then `xcodebuild -version`. ⊥ arg → ⊥ env, ⊥ step.
 
 ## §R RESEARCH
@@ -54,6 +54,7 @@ id|status|task|cites
 T19|x|kind `gate` + golden vs own `ci.yml`|V29,`src/kind:V3`,`src/kind:V9`
 T69|x|`gate` arg `xcode`: env + check step, refusals, golden through actionlint & zizmor (issue #18)|V52,`src/kind:V49`,`tests:V4`
 T71|.|`xcode` pin must reach the dev shell (B11), e.g. default `command` hands it over as `HOST_DEVELOPER_DIR`; test: ⊥ row loses the pin. open: how|B11,V52
+T75|.|`gate` default matrix gains `x86_64-darwin`; own-runner job per `## runners` system; golden: default row + `## runners` override, guard on own job only, actionlint & zizmor|V29,`src/kind:V54`,`tests:V4`
 
 ## §B BUGS
 

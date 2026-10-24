@@ -38,8 +38,14 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §I INTERFACES
 
 - types: `Kind` trait (+ `forge_args`), `Secret`, `KindError` (`Row` ← pipelith's | `Pin`); `Row`, `Args`, `Cache` = pipelith's.
-- fns: `check(&dyn Kind, &WorkflowRow) -> Result<Row, KindError>`: systems w/ GitHub runner, then pipelith `Row::check` (keys, cache, timeout 1..=360, rules → error naming line); builders flat (⊥ `common` module).
+- fns: `check(&dyn Kind, &WorkflowRow) -> Result<Row, KindError>`: systems known (∀ has a host, `src/system:V53` ∴ ⊥ refused at render), then pipelith `Row::check` (keys, cache, timeout 1..=360, rules → error naming line); builders flat (⊥ `common` module).
+- runners: `Kind::build(&Row, &PinTable, &Runners)`; `hosts(&Row, &Runners) -> Hosts` splits systems hosted | own; `own(Job, labels)` → `runs-on: [labels]` + guard `if:` (V54).
 - cache: public keys from pipelith's built-in table (v1: `pr0d1r2` only); other cache names refused w/ fix hint, ⊥ guessed key. `## caches` (`name|public-key`) = T44.
+
+## §R RESEARCH
+
+id|topic|finding|src
+R19|own runner shape|job `if:` ⊥ sees `matrix` (evaluated before expansion; actionlint refuses) ∴ 1 matrix job ⊥ guards 1 entry; `include` list `os` hides labels behind `${{ matrix.os }}` ∴ own runner = own job `<job>-<system>`, literal `runs-on`|GitHub docs contexts availability; actionlint
 
 ## §V INVARIANTS
 
@@ -47,6 +53,7 @@ V3: hardening ⊥ optional, ∀ kind: top `permissions: contents: read` (job wid
 V9: job names stable across versions (`pklith protect` reads them); rename = breaking change + CHANGELOG entry
 V14: ∀ kind declares ∀ secret it reads; `report` lists them per workflow. fork PR needs ⊥ secret (cachix push skipped, read-only cache works)
 V49: kind ∈ pipelith catalogue only if it renders on both forges, else forge-only & named by portability check. refines `.:V24`
+V54: job on `Host::Own` → `runs-on: [labels]` & `if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository` (`&&` job's own `if`); hosted job ⊥ guard; ⊥ opt-out (pipelith `runner` `trusted_only`). golden has both, passes actionlint & zizmor
 
 ## §T TASKS
 
@@ -56,6 +63,7 @@ T44|.|`.actlith` `## caches` section (columns name, public-key; `src/registry`) 
 T51|x|rows, args, contract → `pipelith` `kind`; mark forge-only arg keys|`tests:V48`,V49
 T53|.|split `docs/KINDS.md`: neutral → pipelith, GitHub syntax → `docs/KINDS-GITHUB.md`|`.:V25`,V49
 T65|x|rows, args, cache, catalogue → pipelith `kind`; `Kind` = spec + secrets + build; runner wording kept; empty `Extras`|V49,`tests:V48`,`src/core:V51`
+T74|.|`build` takes `Runners`; `hosts`, `own` + guard; ∀ kind renders own-runner jobs (R19)|V54,`src/system:V53`,`tests:V4`
 
 ## §B BUGS
 

@@ -36,7 +36,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- mods: `core::{registry, kind, system, yaml, files, detect}` = `pipelith` modules of same name.
+- mods: `core::{registry, kind, system, runner, yaml, files, detect}` = `pipelith` modules of same name.
 
 ## §V INVARIANTS
 

@@ -36,20 +36,21 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- types: `Registry { workflows, actions, hand_written, bots }`, `WorkflowRow { line, id, kind, systems, cache, args }`, `ActionPin { line, action, version, sha }`, `HandWritten { line, path, reason }`, `BotRow { line, bot, args }`, `Arg { key, value }`, `RegistryError` (line, what, fix). ∀ row carries its line ∴ later nodes name it. args & systems split on `,` ∴ ⊥ comma inside an arg value.
+- types: `Registry { workflows, actions, hand_written, bots, runners }` (`runners` = pipelith `Runners::from_document`, `RUNNERS` in schema), `WorkflowRow { line, id, kind, systems, cache, args }`, `ActionPin { line, action, version, sha }`, `HandWritten { line, path, reason }`, `BotRow { line, bot, args }`, `Arg { key, value }`, `RegistryError` (line, what, fix). ∀ row carries its line ∴ later nodes name it. args & systems split on `,` ∴ ⊥ comma inside an arg value.
 - fns: `parse(&str) -> Result<Registry, RegistryError>`.
 
 ## §V INVARIANTS
 
-V10: unknown kind | args key | system, missing required arg, `x86_64-darwin` in systems → exit 2 naming it. ⊥ silent default. registry checks row SHAPE; kind & system names validated against `src/kind` & `src/system` by `src/render`
+V10: unknown kind | args key | system, missing required arg, bad `## runners` row (pipelith `runner` checks) → exit 2 naming it. ⊥ silent default. registry checks row SHAPE; kind & system names validated against `src/kind` & `src/system` by `src/render`
 V11: `.actlith` ! carry `format` line; newer than supported → exit 2 naming both versions, ⊥ best-effort parse
-V12: missing `.actlith` → `gen`|`check` exit 2, ⊥ pass, ⊥ empty render. missing optional section (`## actions`, `## hand-written`) = empty
+V12: missing `.actlith` → `gen`|`check` exit 2, ⊥ pass, ⊥ empty render. missing optional section (`## actions`, `## hand-written`, `## runners`) = empty
 
 ## §T TASKS
 
 id|status|task|cites
 T13|x|parse `format`, `## workflows`, `## actions`, `## hand-written`; duplicate id, empty reason, bad cell count → error w/ line; fixtures 1-to-1|V10,V11,V12
 T64|x|grammar → pipelith `registry`, `WorkflowRow` = `kind::RawRow`, `Arg` pipelith; newer format in pipelith words (3a); fixtures unchanged|V10,V11,`tests:V48`,`src/core:V51`
+T73|.|`## runners` in schema, parsed by pipelith `Runners::from_document` → `Registry.runners`; fixtures for unknown system, empty labels, bad label, repeat|V10,V12
 
 ## §B BUGS
 

@@ -35,7 +35,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- kind name `build`; jobs `build` (matrix, `nix build .#packages.<system>.<package>`, push only from `main`), `check` (`nix flake check --all-systems`, eval-only for systems w/o runner), `verify-cache` (needs `build`, `main` push only); args `package` (required), `timeout`.
+- kind name `build`; jobs `build` (matrix, `nix build .#packages.<system>.<package>`, push only from `main`), `check` (`nix flake check --all-systems`; ∀ system has a runner ∴ ⊥ eval-only step), `verify-cache` (needs ∀ build job, `main` push only); `## runners` system → job `build-<system>` (1-entry `include` `system`), own labels + guard (`src/kind:V54`); `check`, `verify-cache` follow `x86_64-linux`'s host; args `package` (required), `timeout`.
 
 ## §R RESEARCH
 
@@ -51,6 +51,7 @@ V46: a `build` row ! name a cache (`verify-cache` has nothing to ask w/o one) & 
 
 id|status|task|cites
 T20|x|kind `build` (jobs `build` `check` `verify-cache`) + `verify-cache.sh` in `src/script`|V30,R4,`src/kind:V3`,`src/kind:V9`
+T76|.|`build` matrix gains `x86_64-darwin`, eval-only step dropped; own-runner build jobs; `verify-cache` needs them|`src/kind:V54`,V30
 
 ## §B BUGS
 
