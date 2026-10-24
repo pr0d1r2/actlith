@@ -8,6 +8,7 @@ mod badges;
 mod block;
 mod changelog;
 mod cli;
+mod doctest;
 mod facts;
 mod hooks;
 mod io;
