@@ -36,6 +36,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §I INTERFACES
 
 - kind `update-pins`: triggers `schedule` (arg `cron`, default `50 6 * * *`), `workflow_dispatch`; job perms `contents: write`, `pull-requests: write`; runs seeded `update-pins.sh` (also `actlith pin` & `actlith gen` in branch); args `cron` `build` `token`.
+- both: one job on the row's system host; `## runners` system → its labels + guard (`src/kind:V54`).
 - kind `upstream`: args `script` (required), `cron` (default `20 6 * * *`), `branch-prefix` (default `upstream/`), `token`; cachix read-only; seeded `open-pr.sh`.
 
 ## §R RESEARCH
@@ -53,6 +54,7 @@ V47: `update-pins` runs `nix develop --command bash scripts/actlith/update-pins.
 id|status|task|cites
 T22|x|kind `update-pins` (cron, per-job write perms, `actlith pin` + `gen` in branch, `token` arg; R5 limit in header comment)|V26,R5,`src/kind:V3`,`src/kind:V14`
 T23|x|kind `upstream` (`script` `cron` `branch-prefix` `token`)|V26,`src/kind:V3`,`src/kind:V14`
+T77|.|bump job on `## runners` labels + guard when its system has a row|`src/kind:V54`
 
 ## §B BUGS
 
