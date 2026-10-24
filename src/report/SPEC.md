@@ -49,7 +49,7 @@ id|status|task|cites
 T28|x|`report` text/json/md incl. secrets per workflow|V33,`src/kind:V14`
 T48|.|mark `GITHUB_TOKEN` "built-in, nothing to configure" apart from repo secrets; take kind & bot lists from `src/render` & `src/bots` exports ∴ drop the copies in `src/report`, `src/check`; text golden → fixture file once `.pklith` types `txt`|`src/kind:V14`,V33
 T70|x|`report` lists the pinned Xcode per workflow; rows w/o it unchanged|`src/gate:V52`,V33
-T78|.|`report` names `## runners` labels as the runner of their systems|V33,`src/system:V53`
+T78|x|`report` names `## runners` labels as the runner of their systems|V33,`src/system:V53`
 
 ## §B BUGS
 

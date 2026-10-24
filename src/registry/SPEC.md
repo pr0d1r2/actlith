@@ -50,7 +50,7 @@ V12: missing `.actlith` → `gen`|`check` exit 2, ⊥ pass, ⊥ empty render. mi
 id|status|task|cites
 T13|x|parse `format`, `## workflows`, `## actions`, `## hand-written`; duplicate id, empty reason, bad cell count → error w/ line; fixtures 1-to-1|V10,V11,V12
 T64|x|grammar → pipelith `registry`, `WorkflowRow` = `kind::RawRow`, `Arg` pipelith; newer format in pipelith words (3a); fixtures unchanged|V10,V11,`tests:V48`,`src/core:V51`
-T73|.|`## runners` in schema, parsed by pipelith `Runners::from_document` → `Registry.runners`; fixtures for unknown system, empty labels, bad label, repeat|V10,V12
+T73|x|`## runners` in schema, parsed by pipelith `Runners::from_document` → `Registry.runners`; fixtures for unknown system, empty labels, bad label, repeat|V10,V12
 
 ## §B BUGS
 

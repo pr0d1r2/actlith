@@ -54,7 +54,7 @@ V53: ∀ `System` ∈ table; `## runners` row → `Own` over label; `Own` ⇒ fo
 id|status|task|cites
 T14|x|`System` enum, parse, runner table; refuse `x86_64-darwin` naming hand verification on Intel Mac|V15,`src/registry:V10`
 T60|x|`System`, `parse_system`, `DEFAULT_SYSTEMS` → `src/core` (pipelith); keep `runner` & "GitHub-hosted runner" error; goldens unchanged|V15,`tests:V48`,`src/core:V51`
-T72|.|`x86_64-darwin` → `macos-15-intel`; `host` via `Runners::pick` (pipelith 0.2, T38)|V15,V53,R18
+T72|x|`x86_64-darwin` → `macos-15-intel`; `host` via `Runners::pick` (pipelith 0.2, T38)|V15,V53,R18
 
 ## §B BUGS
 

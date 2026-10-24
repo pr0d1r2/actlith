@@ -54,7 +54,7 @@ id|status|task|cites
 T19|x|kind `gate` + golden vs own `ci.yml`|V29,`src/kind:V3`,`src/kind:V9`
 T69|x|`gate` arg `xcode`: env + check step, refusals, golden through actionlint & zizmor (issue #18)|V52,`src/kind:V49`,`tests:V4`
 T71|.|`xcode` pin must reach the dev shell (B11), e.g. default `command` hands it over as `HOST_DEVELOPER_DIR`; test: ⊥ row loses the pin. open: how|B11,V52
-T75|.|`gate` default matrix gains `x86_64-darwin`; own-runner job per `## runners` system; golden: default row + `## runners` override, guard on own job only, actionlint & zizmor|V29,`src/kind:V54`,`tests:V4`
+T75|x|`gate` default matrix gains `x86_64-darwin`; own-runner job per `## runners` system; golden: default row + `## runners` override, guard on own job only, actionlint & zizmor|V29,`src/kind:V54`,`tests:V4`
 
 ## §B BUGS
 
