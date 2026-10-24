@@ -63,7 +63,7 @@ T44|.|`.actlith` `## caches` section (columns name, public-key; `src/registry`) 
 T51|x|rows, args, contract → `pipelith` `kind`; mark forge-only arg keys|`tests:V48`,V49
 T53|.|split `docs/KINDS.md`: neutral → pipelith, GitHub syntax → `docs/KINDS-GITHUB.md`|`.:V25`,V49
 T65|x|rows, args, cache, catalogue → pipelith `kind`; `Kind` = spec + secrets + build; runner wording kept; empty `Extras`|V49,`tests:V48`,`src/core:V51`
-T74|.|`build` takes `Runners`; `hosts`, `own` + guard; ∀ kind renders own-runner jobs (R19)|V54,`src/system:V53`,`tests:V4`
+T74|x|`build` takes `Runners`; `hosts`, `own` + guard; ∀ kind renders own-runner jobs (R19)|V54,`src/system:V53`,`tests:V4`
 
 ## §B BUGS
 

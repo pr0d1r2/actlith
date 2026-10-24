@@ -54,7 +54,7 @@ V47: `update-pins` runs `nix develop --command bash scripts/actlith/update-pins.
 id|status|task|cites
 T22|x|kind `update-pins` (cron, per-job write perms, `actlith pin` + `gen` in branch, `token` arg; R5 limit in header comment)|V26,R5,`src/kind:V3`,`src/kind:V14`
 T23|x|kind `upstream` (`script` `cron` `branch-prefix` `token`)|V26,`src/kind:V3`,`src/kind:V14`
-T77|.|bump job on `## runners` labels + guard when its system has a row|`src/kind:V54`
+T77|x|bump job on `## runners` labels + guard when its system has a row|`src/kind:V54`
 
 ## §B BUGS
 
