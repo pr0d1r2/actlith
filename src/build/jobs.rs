@@ -52,21 +52,27 @@ pub(crate) fn jobs(plan: &Plan) -> Result<BTreeMap<String, Job>, KindError> {
 
 /// `build`: one runner per system, cachix pushing only from `main`.
 pub(crate) fn build(plan: &Plan) -> Result<Job, KindError> {
-    let command = format!(
-        "nix build --print-build-logs \".#packages.$SYSTEM.{}\"",
-        plan.package
-    );
+    let command = build_command(plan);
     let env: Vec<_> = Expr::new(&GITHUB, "matrix.system")
         .into_iter()
         .map(|e| ("SYSTEM", e))
         .collect();
     let mut steps = setup(plan)?;
-    steps.push(cachix(plan.pins, plan.cache, CachixPush::MainOnly)?);
+    steps.push(cachix(plan.pins, plan.cache, CachixPush::ExplicitMain)?);
     steps.push(run(plan.row.line, &command, &env)?);
     let mut built = named("build", matrix_runner(), plan, steps);
     built.comments = vec![Comment::new(BUILD_WHY)];
     built.matrix = Some(matrix(plan)?);
     Ok(built)
+}
+
+fn build_command(plan: &Plan) -> String {
+    format!(
+        "if [ \"$GITHUB_EVENT_NAME\" = push ] && [ \"$GITHUB_REF\" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs \".#packages.$SYSTEM.{}\" | cachix push {}; else nix build --print-build-logs \".#packages.$SYSTEM.{}\"; fi",
+        plan.package,
+        plan.cache.name(),
+        plan.package
+    )
 }
 
 /// `check`: `nix flake check --all-systems`, then an eval of the package
