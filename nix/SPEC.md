@@ -61,7 +61,7 @@ T58|x|push step `schema-pin`: `pkl/Config.pkl` == pinned hk's schema; `pkl/VENDO
 T62|x|step `build` (`cargo build --workspace --bins`) ∀ hook set; ∀ `cargo run` step depends on it (pklith `build`)|V20,B9
 T68|x|push set: `test` waits for ∀ `cargo run` step (nextest relinks bins)|V20,B10
 T79|x|pklith → main rev w/ x86_64-darwin `lib.devShell` (pklith #103); x86_64-darwin shell = gate shell, source-built tools; own row back to `-`, `timeout=90`; `doctest` at push (pklith #91)|V19,V23
-T80|x|tags w/ x86_64-darwin package: microlith v0.7.5, itok v0.3.2, xenolith v0.2.0, rekall v1.0.0; their tool inputs follow root; source-built = characterminator|V23
+T80|x|tags w/ x86_64-darwin package: microlith v0.7.5, itok v0.3.2, xenolith v0.2.0, rekall v1.0.0; rekall & xenolith tool inputs follow root (itok keeps its microlith v0.6.1); source-built = characterminator|V23
 
 ## §B BUGS
 
