@@ -23,7 +23,7 @@
 
     # Spec form and spec operations (`mth`).
     microlith = {
-      url = "github:pr0d1r2/microlith/v0.7.4";
+      url = "github:pr0d1r2/microlith/v0.7.5";
       inputs.nixpkgs-lock.follows = "nixpkgs-lock";
       inputs.nix-hk.follows = "nix-hk";
     };
@@ -111,7 +111,6 @@
       # crate only.
       fromSource = {
         x86_64-darwin = [
-          "microlith"
           "itok"
           "characterminator"
           "rekall"
