@@ -45,9 +45,11 @@
       inputs.nixpkgs-lock.follows = "nixpkgs-lock";
       inputs.nix-hk.follows = "nix-hk";
     };
-    # Hook guardrails materialised from the repository's files.
+    # Hook guardrails materialised from the repository's files. Pinned to
+    # a main commit, not a tag: v0.1.0 has no x86_64-darwin `lib.devShell`
+    # and no release since does (pklith T74, #103).
     pklith = {
-      url = "github:pr0d1r2/pklith/v0.1.0";
+      url = "github:pr0d1r2/pklith/66e0eb93f605499c52ae767166ccaae64e93a559";
       inputs.nixpkgs-lock.follows = "nixpkgs-lock";
       inputs.nix-hk.follows = "nix-hk";
     };

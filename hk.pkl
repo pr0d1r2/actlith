@@ -33,6 +33,9 @@ local all = (fast) {
     depends = List("agents-table", "readme-badges", "notices", "actlith-gen-check", "actlith-check")
   }
   ["coverage"] = generated.push["coverage"]
+  // pklith routes test-category checks to push (pklith #91), so
+  // the doc examples run here with the suite, not on every commit.
+  ["doctest"] = generated.push["doctest"]
   ["tdd-order"] = generated.push["tdd-order"]
   // nix T55: the crate packages, and the packaged crate alone builds; a
   // file the build embeds but the package leaves out (src/script/*.sh)
