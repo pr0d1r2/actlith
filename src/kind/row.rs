@@ -43,7 +43,24 @@ pub(crate) fn check(
         kinds: &[],
         keys: kind.forge_args(),
     };
-    Ok(Row::check(kind.spec(), row, &extras)?)
+    let checked = Row::check(kind.spec(), row, &extras)?;
+    cache_push_value(&checked)?;
+    Ok(checked)
+}
+
+/// `cache-push`, when present, is a boolean forge argument.
+fn cache_push_value(row: &Row) -> Result<(), KindError> {
+    let Some(value) = row.args.get(CACHE_PUSH.key) else {
+        return Ok(());
+    };
+    if matches!(value, "true" | "false") {
+        return Ok(());
+    }
+    Err(KindError::row(
+        row.line,
+        format!("arg `cache-push` value `{value}` is not true or false"),
+        "write `cache-push=true` or `cache-push=false`",
+    ))
 }
 
 /// Each listed system up to the first repeat (pipelith names that one)
