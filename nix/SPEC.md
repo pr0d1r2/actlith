@@ -60,7 +60,7 @@ T57|x|commit step `links`: lychee `--offline` over tracked `*.md`; `.pklith` row
 T58|x|push step `schema-pin`: `pkl/Config.pkl` == pinned hk's schema; `pkl/VENDORED.md` names version & sha256|V20
 T62|x|step `build` (`cargo build --workspace --bins`) ∀ hook set; ∀ `cargo run` step depends on it (pklith `build`)|V20,B9
 T68|x|push set: `test` waits for ∀ `cargo run` step (nextest relinks bins)|V20,B10
-T79|.|pklith → main rev w/ x86_64-darwin `lib.devShell` (pklith #103); x86_64-darwin shell = gate shell, source-built tools; own row back to `-`, `timeout=90`; `doctest` at push (pklith #91)|V19,V23
+T79|x|pklith → main rev w/ x86_64-darwin `lib.devShell` (pklith #103); x86_64-darwin shell = gate shell, source-built tools; own row back to `-`, `timeout=90`; `doctest` at push (pklith #91)|V19,V23
 
 ## §B BUGS
 
