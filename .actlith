@@ -1,9 +1,11 @@
 format 1
 
 # actlith's own registry: the workflows this repository's CI runs,
-# rendered by `actlith gen`. The gate kind runs the hk gate on every
-# CI system with the pr0d1r2 cache (nix T31, V21).
+# rendered by `actlith gen`. The gate kind runs the hk gate with the
+# pr0d1r2 cache (nix T31, V21) on the three systems whose dev shell has
+# the gate's tools: pklith has no x86_64-darwin build, so that shell
+# lacks them and the gate cannot run there (nix C).
 
 ## workflows
 id|kind|systems|cache|args
-ci|gate|-|pr0d1r2|-
+ci|gate|x86_64-linux, aarch64-linux, aarch64-darwin|pr0d1r2|-

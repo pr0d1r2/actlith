@@ -19,7 +19,7 @@ sib|dev|`actlith-dev`, `publish = false`: commit rules, README badges, notices, 
 - gate = hk via pklith-materialized `hk.pklith.pkl` from `.pklith`; `fast` pre-commit, `all` pre-push. guard scripts in `nix/guard/`.
 - clippy: fleet deny list + all + pedantic, rustc `unreachable_pub`, fleet `clippy.toml`; `rustfmt.toml` `max_width = 80`.
 - commit subject `type(scope): claim` ≤72 chars, lower-case scope, body = WHY; changelog-touched. after `no-commit-to-branch`: branch + PR, merge ⊥ squash.
-- CI 3 runners (`x86_64-linux` `aarch64-linux` `aarch64-darwin`); `x86_64-darwin` hand-verified on Intel Mac.
+- CI 3 runners (`x86_64-linux` `aarch64-linux` `aarch64-darwin`), listed in own `.actlith` row (`-` = 4 since pipelith 0.2); `x86_64-darwin` hand-verified on Intel Mac: pklith ⊥ x86_64-darwin build ∴ dev shell ⊥ gate tools (PR #41 run: tools missing after 26 min).
 - release: `cargo-release`, Keep a Changelog, even minor = stable. publish ! explicit approval.
 - seeding gaps in pklith → anonymous upstream issue after duplicate search.
 
