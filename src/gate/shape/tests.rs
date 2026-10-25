@@ -95,6 +95,18 @@ fn a_cache_needs_the_cachix_secret() -> Result<(), String> {
 }
 
 #[test]
+fn cache_push_false_reads_the_cache_without_declaring_a_secret()
+-> Result<(), String> {
+    let row = row("ci|gate|-|pr0d1r2|cache-push=false")?;
+    assert!(Gate.secrets(&row).is_empty());
+    let text = write(&built(&row)?);
+    assert!(text.contains("cachix/cachix-action"), "{text}");
+    assert!(text.contains("skipPush: true"), "{text}");
+    assert!(!text.contains("CACHIX_AUTH_TOKEN"), "{text}");
+    Ok(())
+}
+
+#[test]
 fn no_cache_means_no_cachix_step() -> Result<(), String> {
     let text = write(&built(&row("ci|gate|-|-|-")?)?);
     assert!(!text.contains("cachix/cachix-action"), "{text}");
