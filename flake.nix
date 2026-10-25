@@ -61,8 +61,14 @@
     };
     # One language per file, 1:1 test mirror, TDD order (`xnl`).
     xenolith = {
-      url = "github:pr0d1r2/xenolith/v0.1.0";
-      inputs.nixpkgs-lock.follows = "nixpkgs-lock";
+      url = "github:pr0d1r2/xenolith/v0.2.0";
+      # Its dev shell's spec tools and hk, each locked behind ours.
+      inputs = {
+        nixpkgs-lock.follows = "nixpkgs-lock";
+        nix-hk.follows = "nix-hk";
+        itok.follows = "itok";
+        microlith.follows = "microlith";
+      };
     };
   };
 
@@ -113,20 +119,16 @@
         x86_64-darwin = [
           "characterminator"
           "rekall"
-          "xenolith"
         ];
       };
       source =
         pkgs: input:
         let
-          manifest = builtins.fromTOML (builtins.readFile (input + "/Cargo.toml"));
-          crate = manifest.package;
+          crate = (builtins.fromTOML (builtins.readFile (input + "/Cargo.toml"))).package;
         in
         pkgs.rustPlatform.buildRustPackage {
           pname = crate.name;
-          # xenolith takes its version from `[workspace.package]`.
-          version =
-            if builtins.isString crate.version then crate.version else manifest.workspace.package.version;
+          inherit (crate) version;
           src = input;
           cargoLock.lockFile = input + "/Cargo.lock";
           cargoBuildFlags = [

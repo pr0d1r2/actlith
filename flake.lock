@@ -258,38 +258,6 @@
         "type": "github"
       }
     },
-    "itok_7": {
-      "inputs": {
-        "hk": [
-          "xenolith",
-          "nix-hk"
-        ],
-        "microlith": "microlith_11",
-        "nixpkgs": [
-          "xenolith",
-          "itok",
-          "nixpkgs-lock",
-          "nixpkgs"
-        ],
-        "nixpkgs-lock": [
-          "xenolith",
-          "nixpkgs-lock"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789819877,
-        "narHash": "sha256-o9nrb4qcZvHUp1Kjrx9L6Z6r/EdUImEpF+v1VP38gfw=",
-        "owner": "pr0d1r2",
-        "repo": "itok",
-        "rev": "fee1e542bf4e19352b0de3704cf999e6986a652b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pr0d1r2",
-        "repo": "itok",
-        "type": "github"
-      }
-    },
     "microlith": {
       "inputs": {
         "nix-hk": [
@@ -359,76 +327,6 @@
       "original": {
         "owner": "pr0d1r2",
         "ref": "v0.6.1",
-        "repo": "microlith",
-        "type": "github"
-      }
-    },
-    "microlith_11": {
-      "inputs": {
-        "nix-hk": [
-          "xenolith",
-          "itok",
-          "hk"
-        ],
-        "nixpkgs": [
-          "xenolith",
-          "itok",
-          "microlith",
-          "nixpkgs-lock",
-          "nixpkgs"
-        ],
-        "nixpkgs-lock": [
-          "xenolith",
-          "itok",
-          "nixpkgs-lock"
-        ]
-      },
-      "locked": {
-        "lastModified": 1786709569,
-        "narHash": "sha256-KLxL48Qug7X0R9F/bG0MpJTsn/kmQz17CXQN4saLsks=",
-        "owner": "pr0d1r2",
-        "repo": "microlith",
-        "rev": "aa0380ac3b51b8d46bd536de28ea83452f01be90",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pr0d1r2",
-        "ref": "v0.6.1",
-        "repo": "microlith",
-        "type": "github"
-      }
-    },
-    "microlith_12": {
-      "inputs": {
-        "itok": [
-          "xenolith",
-          "itok"
-        ],
-        "nix-hk": [
-          "xenolith",
-          "nix-hk"
-        ],
-        "nixpkgs": [
-          "xenolith",
-          "microlith",
-          "nixpkgs-lock",
-          "nixpkgs"
-        ],
-        "nixpkgs-lock": [
-          "xenolith",
-          "nixpkgs-lock"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789925744,
-        "narHash": "sha256-uNVVUqzh7Od5UzDhKu5X7R3Xeje/8vmk0zOGbu5SsQE=",
-        "owner": "pr0d1r2",
-        "repo": "microlith",
-        "rev": "58a36c3bc90b76e1f561996b14cf3beaf9a40ed2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pr0d1r2",
         "repo": "microlith",
         "type": "github"
       }
@@ -783,33 +681,6 @@
         "type": "github"
       }
     },
-    "nix-hk_4": {
-      "inputs": {
-        "nixpkgs": [
-          "xenolith",
-          "nix-hk",
-          "nixpkgs-lock",
-          "nixpkgs"
-        ],
-        "nixpkgs-lock": [
-          "xenolith",
-          "nixpkgs-lock"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789817970,
-        "narHash": "sha256-q/pSSRnGdouzdH8dtQUV2ZhMeNB/B9dNXlwS7U8HEts=",
-        "owner": "pr0d1r2",
-        "repo": "nix-hk",
-        "rev": "a063d34d951e733086a63b6704dad12ac9934d3f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pr0d1r2",
-        "repo": "nix-hk",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1792898606,
@@ -1050,63 +921,37 @@
         "type": "github"
       }
     },
-    "sherd_5": {
+    "xenolith": {
       "inputs": {
+        "itok": [
+          "itok"
+        ],
+        "microlith": [
+          "microlith"
+        ],
         "nix-hk": [
-          "xenolith",
           "nix-hk"
         ],
         "nixpkgs": [
           "xenolith",
-          "sherd",
           "nixpkgs-lock",
           "nixpkgs"
         ],
         "nixpkgs-lock": [
-          "xenolith",
           "nixpkgs-lock"
         ]
       },
       "locked": {
-        "lastModified": 1789926558,
-        "narHash": "sha256-icosnIACokCQ5kwn8TWMCn73SIVpyR1IalmLaOVMrp8=",
-        "owner": "pr0d1r2",
-        "repo": "sherd",
-        "rev": "38f08e8983242bd67e5174262eb60720463f4dc2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pr0d1r2",
-        "repo": "sherd",
-        "type": "github"
-      }
-    },
-    "xenolith": {
-      "inputs": {
-        "itok": "itok_7",
-        "microlith": "microlith_12",
-        "nix-hk": "nix-hk_4",
-        "nixpkgs": [
-          "xenolith",
-          "nixpkgs-lock",
-          "nixpkgs"
-        ],
-        "nixpkgs-lock": [
-          "nixpkgs-lock"
-        ],
-        "sherd": "sherd_5"
-      },
-      "locked": {
-        "lastModified": 1790538458,
-        "narHash": "sha256-pbHh3rQw58FjyLPilV87hIpmoIOTNlkn8A0emoOa0xw=",
+        "lastModified": 1792963826,
+        "narHash": "sha256-GAJPFGLxysz03CkddOEyEP79FCqjAnEIJrR+auiraCk=",
         "owner": "pr0d1r2",
         "repo": "xenolith",
-        "rev": "56c3e2993666963813f1281612b5cda3164a7f2f",
+        "rev": "1276b1022cf9c44fd2ee083c0a9ff9e4e6f2fad1",
         "type": "github"
       },
       "original": {
         "owner": "pr0d1r2",
-        "ref": "v0.1.0",
+        "ref": "v0.2.0",
         "repo": "xenolith",
         "type": "github"
       }
