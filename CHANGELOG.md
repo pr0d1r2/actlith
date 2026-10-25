@@ -73,9 +73,10 @@ the bytes actlith emits for the same inputs is at least a minor version
     without a runner are evaluated: every system has one now.
   - this repository's own `ci.yml` gains the Intel job, and the README
     badges list Intel macOS. Its dev shell is pklith's on x86_64-darwin
-    too (pklith #103), with the fleet tools whose tags ship no Intel
-    macOS package built from source, and its row sets `timeout=90`
-    until the cache holds those builds.
+    too (pklith #103), with microlith 0.7.5, itok 0.3.2, xenolith 0.2.0
+    and rekall 1.0.0, whose tags ship an Intel macOS package, and
+    characterminator 0.1.1, whose tag does not, built from source. Its
+    row sets `timeout=90` until the cache holds those builds.
 
   A row that lists its systems is unchanged. pipelith 0.2.0 comes from
   crates.io.
