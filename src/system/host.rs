@@ -4,6 +4,7 @@
 //! told whether the table has a label for the system.
 
 use super::table::{System, runner};
+use crate::core::runner::Runner;
 pub(crate) use crate::core::runner::Runners;
 
 #[cfg(test)]
@@ -17,10 +18,6 @@ pub(crate) enum Host<'a> {
     /// The repository's own runner: one carrying every one of these
     /// labels (`## runners`). Its jobs run only for trusted events
     /// (`src/kind` V54).
-    #[cfg_attr(
-        not(test),
-        allow(dead_code, reason = "made once host reads `## runners` (T72)")
-    )]
     Own(&'a [String]),
 }
 
@@ -28,6 +25,9 @@ pub(crate) enum Host<'a> {
 /// row for it, otherwise its hosted label. Every system has a hosted
 /// label (V53), so pipelith's `Runners::pick` is asked with a default
 /// and never refuses: a checked row cannot fail at render.
-pub(crate) fn host(_runners: &Runners, system: System) -> Host<'_> {
-    Host::Hosted(runner(system))
+pub(crate) fn host(runners: &Runners, system: System) -> Host<'_> {
+    match runners.pick(system, true) {
+        Ok(Runner::Labels(labels)) => Host::Own(labels),
+        Ok(Runner::Default) | Err(_) => Host::Hosted(runner(system)),
+    }
 }

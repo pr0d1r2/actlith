@@ -7,7 +7,7 @@ use super::model::Registry;
 use super::rows::{action, bot, hand};
 use crate::core::kind::{self, RawRow};
 use crate::core::registry::{self, Schema, SectionSpec};
-use crate::core::runner::Runners;
+use crate::core::runner::{self, Runners};
 
 /// The file name every error and every message names.
 pub(crate) const FILE: &str = ".actlith";
@@ -35,6 +35,7 @@ const SCHEMA: Schema<'static> = Schema {
             required: false,
             key: Some(0),
         },
+        runner::RUNNERS,
     ],
 };
 
@@ -55,7 +56,7 @@ pub(crate) fn parse(text: &str) -> Result<Registry, RegistryError> {
             .map(hand)
             .collect::<Result<_, _>>()?,
         bots: rows("bots").map(bot).collect::<Result<_, _>>()?,
-        runners: Runners::default(),
+        runners: Runners::from_document(FILE, &doc)?,
     })
 }
 

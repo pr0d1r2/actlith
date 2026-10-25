@@ -97,8 +97,16 @@ pub(crate) fn place(job: Job, host: Host<'_>) -> Job {
 /// `job` on the repository's own runner (V54): `runs-on` every one of
 /// its labels, and only for trusted events: its `if:` is [`TRUSTED`],
 /// joined to the `if:` the job already has.
-pub(crate) fn own(job: Job, _labels: &[String]) -> Job {
-    job
+pub(crate) fn own(job: Job, labels: &[String]) -> Job {
+    let guard = match &job.condition {
+        None => TRUSTED.to_owned(),
+        Some(own) => format!("({TRUSTED}) && ({})", own.inner()),
+    };
+    Job {
+        runs_on: RunsOn::Labels(labels.to_vec()),
+        condition: Expr::new(&GITHUB, &guard),
+        ..job
+    }
 }
 
 /// `${{ matrix.os }}`, the `runs-on` of a [`runner_matrix`] job.

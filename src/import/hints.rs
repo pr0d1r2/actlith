@@ -71,8 +71,10 @@ fn whole(value: &str) -> Option<String> {
 /// `<package>` of `.#packages.<system>.<package>` in a command.
 fn package(command: &str) -> Option<String> {
     let (_, attr) = command.split_once(".#packages.")?;
-    let name = attr.split('.').nth(1)?;
-    Some(name.trim_end_matches(['"', '\'']).to_owned())
+    let after = attr.split_once('.')?.1;
+    let word = |c: char| c.is_ascii_alphanumeric() || matches!(c, '_' | '-');
+    let name: String = after.chars().take_while(|&c| word(c)).collect();
+    (!name.is_empty()).then_some(name)
 }
 
 /// `NAME` of `${{ secrets.NAME }}`.

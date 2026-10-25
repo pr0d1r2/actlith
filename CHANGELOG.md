@@ -10,6 +10,24 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Added
 
+- `## runners` in `.actlith`, header `system|labels` (pipelith 0.2's
+  neutral section, read with `Runners::from_document`): a row such as
+  `x86_64-darwin|self-hosted, macOS, X64` moves that system's jobs, in
+  every row, onto the repository's own runner. Each such job is a job of
+  its own, `runs-on: [self-hosted, macOS, X64]`: `gate-<system>` named
+  `gate (<system>)`, `build-<system>` named `build` over a one-entry
+  `include`, and the single job of `update-pins` and `upstream`, or
+  `check` and `verify-cache` when the row names `x86_64-linux`. Every
+  such job carries `if: github.event_name != 'pull_request' ||
+  github.event.pull_request.head.repo.full_name == github.repository`,
+  so a fork's pull request never runs on the owner's machine; there is
+  no opt-out, and hosted jobs never carry it (src/kind V54, pipelith
+  V81). `verify-cache` needs every build job. An unknown system, an
+  empty `labels` cell, a label other than letters, digits and `._-` or
+  a system named twice is refused with its line. `actlith report` names
+  the labels, joined by `,`, as the runner (`schema_version` stays 1).
+  Files from `.actlith` files without the section are unchanged by it.
+
 - `gate`: the `xcode=<version>` arg pins the Xcode a macOS row builds
   with, for a repository whose toolchain nix cannot supply (T69, issue
   #18). Its workflow sets `DEVELOPER_DIR` to
@@ -37,6 +55,30 @@ the bytes actlith emits for the same inputs is at least a minor version
 - `gate`: `cache-push=false` makes a configured Cachix cache
   substituter-only, so the gate pushes nothing and requires no Cachix
   write token while the existing default remains unchanged (issue #33).
+- BREAKING: depends on pipelith 0.2 (its PR #16, T38; paradigm T19,
+  V28), where `x86_64-darwin` is a CI system and `-` in `systems` means
+  all four. actlith maps it to `macos-15-intel`, GitHub's last Intel
+  image, available until August 2027 (src/system R18). After a consumer
+  takes this release, every `gate` or `build` row written with `-`
+  gains an Intel macOS job, and a row listing `x86_64-darwin`, refused
+  before, renders. Files consumers see change:
+  - `gate` with `-`: the matrix comment and `os` list gain
+    `x86_64-darwin` and `macos-15-intel`, so a new check
+    `gate (macos-15-intel)` appears. It is not required until you add it
+    to branch protection.
+  - `build` with `-`: the `include` list gains
+    `{os: macos-15-intel, system: x86_64-darwin}`, `verify-cache.sh`
+    is given `x86_64-darwin` too, and `check` no longer runs `nix eval
+    --raw .#packages.x86_64-darwin.<package>.drvPath` or says systems
+    without a runner are evaluated: every system has one now.
+  - this repository's own `ci.yml` gains the Intel job, and the README
+    badges list Intel macOS.
+
+  A row that lists its systems is unchanged. pipelith 0.2.0 comes from
+  crates.io.
+- `import`: a `build` file's `package` is read up to the end of its
+  attribute name, so the one-line build command (`| cachix push`) still
+  names it now that the eval-only step that also named it is gone.
 - `update-pins.sh` resolves nixpkgs through the root's `nixpkgs-lock`
   input, so renamed lock nodes no longer hide available bumps (issue #22).
 - Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.1.0 from

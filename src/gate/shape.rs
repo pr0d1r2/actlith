@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 use crate::kind::{
     ArgSpec, CACHE_PUSH, CachixPush, Checkout, GATE, Kind, KindError, KindSpec,
     Row, Secret, XCODE, cachix, checkout, hosts, install_nix, job,
-    matrix_runner, on_push_and_pr, run, runner_matrix, workflow,
+    matrix_runner, on_push_and_pr, own, run, runner_matrix, workflow,
 };
 use crate::pin::PinTable;
 use crate::system::{Runners, System};
@@ -53,9 +53,15 @@ impl Kind for Gate {
         pins: &PinTable,
         runners: &Runners,
     ) -> Result<Workflow, KindError> {
+        let one = gate(row, pins)?;
         let hosts = hosts(row, runners);
-        let gate = on_matrix(gate(row, pins)?, &hosts.hosted);
-        let jobs = BTreeMap::from([(JOB.to_owned(), gate)]);
+        let mut jobs = BTreeMap::new();
+        if !hosts.hosted.is_empty() {
+            jobs.insert(JOB.to_owned(), on_matrix(one.clone(), &hosts.hosted));
+        }
+        for (system, labels) in hosts.own {
+            jobs.insert(format!("{JOB}-{system}"), mine(&one, system, labels));
+        }
         Ok(workflow(&row.id, on_push_and_pr(), jobs))
     }
 }
@@ -82,6 +88,16 @@ fn on_matrix(one: Job, hosted: &[(System, &str)]) -> Job {
         matrix: Some(runner_matrix(hosted)),
         ..one
     }
+}
+
+/// Job `gate-<system>`, named `gate (<system>)` as the matrix names its
+/// checks: `one` on the repository's own runner, guarded (`src/kind`
+/// V54). A job of its own, since a job's `if:` cannot see the matrix
+/// (`src/kind` R19).
+fn mine(one: &Job, system: System, labels: &[String]) -> Job {
+    let mut mine = own(one.clone(), labels);
+    mine.name = Some(format!("{JOB} ({system})"));
+    mine
 }
 
 /// The row's `xcode` version: digits and dots, on darwin systems only.

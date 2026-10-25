@@ -175,7 +175,9 @@ fn runner(os: &str) -> Option<Vec<Platform>> {
         o if o.starts_with("ubuntu") => {
             Some(vec![("intel", "linux"), ("amd", "linux")])
         }
-        "macos-13" => Some(vec![("intel", "macos")]),
+        o if o == "macos-13" || o.ends_with("-intel") => {
+            Some(vec![("intel", "macos")])
+        }
         o if o.starts_with("macos") => Some(vec![("arm", "macos")]),
         _ => None,
     }
