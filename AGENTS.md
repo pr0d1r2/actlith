@@ -28,7 +28,7 @@ Instructions for coding agents working in this repository.
 Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 
 <!-- BEGIN steps: generated from hk.pkl by `cargo run -p actlith-dev -- agents`; do not edit -->
-49 steps run on every commit and 55 on push and `hk check`; the commit-msg hook checks the message.
+48 steps run on every commit and 55 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 | --- | --- | --- | --- |
@@ -73,7 +73,6 @@ Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 | `agents-table` | commit | `hk.pkl` `hk.pklith.pkl` `AGENTS.md` `dev/**` | yes |
 | `readme-badges` | commit | `README.md` `Cargo.toml` `.coverage` `hk.pkl` `hk.pklith.pkl` `flake.lock` `**/SPEC.md` `docs/LLM-DISCLAIMER.md` `.github/workflows/ci.yml` `dev/**` | yes |
 | `notices` | commit | `Cargo.toml` `Cargo.lock` `docs/THIRD-PARTY-NOTICES.md` `dev/**` | yes |
-| `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
 | `gen-check` | commit | `.pklith` `hk.pklith.pkl` `nix/pklith.nix` | yes |
 | `pklith-check` | commit | whole tree | - |
@@ -82,6 +81,7 @@ Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 | `build` | commit | whole tree | - |
 | `test` | push | `**/*.rs` `Cargo.toml` `Cargo.lock` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
+| `doctest` | push | `**/*.rs` `Cargo.toml` | - |
 | `tdd-order` | push | `**/*.rs` `nix/guard/tdd-order.sh` `nix/guard/tdd-order.exempt` | - |
 | `package` | push | `Cargo.toml` `Cargo.lock` `src/**` | - |
 | `deny-advisories` | push | `Cargo.toml` `Cargo.lock` `deny.toml` | - |

@@ -866,17 +866,17 @@
         "sherd": "sherd_2"
       },
       "locked": {
-        "lastModified": 1790540530,
-        "narHash": "sha256-bHfOoQn21NodhsgS1BPxMgaw0DkrItFiRf1J4XG00Uo=",
+        "lastModified": 1792823894,
+        "narHash": "sha256-ud/BIji9tH36ZEdV6Kxx/Crr8+a33g2uIUof5RDE/2k=",
         "owner": "pr0d1r2",
         "repo": "pklith",
-        "rev": "7640648bef909e226c2183368180d305d3858479",
+        "rev": "66e0eb93f605499c52ae767166ccaae64e93a559",
         "type": "github"
       },
       "original": {
         "owner": "pr0d1r2",
-        "ref": "v0.1.0",
         "repo": "pklith",
+        "rev": "66e0eb93f605499c52ae767166ccaae64e93a559",
         "type": "github"
       }
     },
