@@ -55,6 +55,14 @@ fn the_package_ends_with_its_attribute_name() {
     assert_eq!(values("package", text), ["hk"]);
 }
 
+/// A foreign file may name the system by an expression, which has a dot
+/// of its own: the package is the attribute after the whole expression.
+#[test]
+fn the_package_follows_a_system_expression() {
+    let text = "      - run: nix build .#packages.${{ matrix.system }}.hk\n";
+    assert_eq!(values("package", text), ["hk"]);
+}
+
 #[test]
 fn bump_args_are_read_from_their_env() {
     let text = "    - cron: '0  5 * * 1'
