@@ -53,8 +53,7 @@ jobs:
         env:
           SYSTEM: ${{ matrix.system }}
   # --all-systems is the point: a bare `nix flake check` skips every system
-  # the runner cannot build. Systems without a runner are evaluated, so
-  # they cannot rot silently.
+  # the runner cannot build.
   check:
     name: check
     runs-on: ubuntu-latest
@@ -69,7 +68,6 @@ jobs:
             extra-substituters = https://pr0d1r2.cachix.org
             extra-trusted-public-keys = pr0d1r2.cachix.org-1:NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=
       - run: nix flake check --all-systems --print-build-logs
-      - run: 'nix eval --raw .#packages.x86_64-darwin.actlith.drvPath'
   # A failed cachix push does not fail its job, so this asks the cache
   # itself for every built path, after the builds' post-job pushes.
   verify-cache:

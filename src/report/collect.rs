@@ -12,7 +12,7 @@ use super::model::{App, Hosted, Manual, Need, Report, Workflow};
 use crate::kind::{Kind, KindError, Row, check};
 use crate::pin::{PinTable, Uses};
 use crate::registry::{BotRow, Registry, RegistryError, WorkflowRow};
-use crate::system::runner;
+use crate::system::{Host, Runners, host};
 use crate::yaml::{self, Action};
 
 /// The report of `registry`, its actions pinned from `pins`.
@@ -25,8 +25,9 @@ pub(crate) fn collect(
     pins: &PinTable,
 ) -> Result<Report, ReportError> {
     let rows = registry.workflows.iter();
-    let mut workflows: Vec<Workflow> =
-        rows.map(|r| workflow(r, pins)).collect::<Result<_, _>>()?;
+    let mut workflows: Vec<Workflow> = rows
+        .map(|r| workflow(r, pins, &registry.runners))
+        .collect::<Result<_, _>>()?;
     workflows.sort_by(|a, b| a.id.cmp(&b.id));
     let mut bots: Vec<App> =
         registry.bots.iter().map(bot).collect::<Result<_, _>>()?;
@@ -42,14 +43,15 @@ pub(crate) fn collect(
 fn workflow(
     row: &WorkflowRow,
     pins: &PinTable,
+    runners: &Runners,
 ) -> Result<Workflow, ReportError> {
     let kind = lookup(&row.kind).ok_or_else(|| unknown_kind(row))?;
     let checked = check(kind, row)?;
-    let built = kind.build(&checked, pins)?;
+    let built = kind.build(&checked, pins, runners)?;
     Ok(Workflow {
         id: checked.id.clone(),
         kind: kind.name(),
-        systems: hosted(&checked),
+        systems: hosted(&checked, runners),
         cache: checked.cache.as_ref().map(|c| c.name().to_owned()),
         actions: actions(&built, pins)?,
         secrets: secrets(kind, &checked),
@@ -65,15 +67,17 @@ fn unknown_kind(row: &WorkflowRow) -> ReportError {
     ))
 }
 
-/// The row's systems with their runner labels; a checked row has one
-/// for each.
-fn hosted(row: &Row) -> Vec<Hosted> {
-    let label = |&s| runner(s).ok().map(|r| (s, r));
-    let pairs = row.systems.iter().filter_map(label);
+/// The row's systems with their runner: the hosted label, or the
+/// `## runners` labels joined by `, `.
+fn hosted(row: &Row, runners: &Runners) -> Vec<Hosted> {
+    let pairs = row.systems.iter().map(|&s| (s, host(runners, s)));
     pairs
-        .map(|(system, runner)| Hosted {
+        .map(|(system, host)| Hosted {
             system: system.to_string(),
-            runner,
+            runner: match host {
+                Host::Hosted(label) => label.to_owned(),
+                Host::Own(labels) => labels.join(", "),
+            },
         })
         .collect()
 }

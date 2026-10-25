@@ -19,7 +19,7 @@ mod workflow;
 
 pub(crate) use crate::core::yaml::{Comment, Expr, Text, Value};
 pub(crate) use dialect::GITHUB;
-pub(crate) use job::{Axis, AxisName, Job, Matrix};
+pub(crate) use job::{Axis, AxisName, Job, Matrix, RunsOn};
 pub(crate) use render::{HEADER, render, write};
 pub(crate) use step::{Action, Input, Step, Uses, With};
 pub(crate) use workflow::{

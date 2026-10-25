@@ -16,6 +16,10 @@
         {
           "system": "aarch64-darwin",
           "runner": "macos-latest"
+        },
+        {
+          "system": "x86_64-darwin",
+          "runner": "macos-15-intel"
         }
       ],
       "cache": "pr0d1r2",
@@ -58,6 +62,10 @@
         {
           "system": "aarch64-darwin",
           "runner": "macos-latest"
+        },
+        {
+          "system": "x86_64-darwin",
+          "runner": "macos-15-intel"
         }
       ],
       "cache": "pr0d1r2",

@@ -6,6 +6,7 @@ use crate::build::Build;
 use crate::kind::{BUILD, EXTRAS, KindError, Row, parse_args};
 use crate::pin::PinTable;
 use crate::registry::parse;
+use crate::system::Runners;
 
 const ROWS: &str = include_str!("../../../tests/fixtures/build/rows.actlith");
 
@@ -28,7 +29,9 @@ fn unchecked(id: &str) -> Result<crate::kind::Args, String> {
 fn refused(id: &str) -> String {
     let pins = PinTable::builtin();
     match row(id) {
-        Ok(row) => Plan::new(&row, &pins).err().map(|e| e.to_string()),
+        Ok(row) => Plan::new(&row, &pins, &Runners::default())
+            .err()
+            .map(|e| e.to_string()),
         Err(e) => Some(e),
     }
     .unwrap_or_default()
@@ -37,7 +40,8 @@ fn refused(id: &str) -> String {
 #[test]
 fn a_good_row_plans_its_cache_package_and_timeout() -> Result<(), String> {
     let (row, pins) = (row("fine")?, PinTable::builtin());
-    let plan = Plan::new(&row, &pins).map_err(|e| e.to_string())?;
+    let runners = Runners::default();
+    let plan = Plan::new(&row, &pins, &runners).map_err(|e| e.to_string())?;
     assert_eq!(plan.cache.name(), "pr0d1r2");
     assert_eq!((plan.package, plan.minutes), ("nix-hk_2", 30));
     assert_eq!(plan.row.id, "fine");

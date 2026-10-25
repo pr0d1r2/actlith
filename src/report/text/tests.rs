@@ -18,7 +18,7 @@ fn bare() -> Workflow {
         kind: "gate",
         systems: vec![Hosted {
             system: "x86_64-linux".to_owned(),
-            runner: "ubuntu-latest",
+            runner: "ubuntu-latest".to_owned(),
         }],
         cache: None,
         actions: Vec::new(),
@@ -44,7 +44,7 @@ fn pinned() -> Report {
     let system = "aarch64-darwin".to_owned();
     let systems = vec![Hosted {
         system,
-        runner: "macos-latest",
+        runner: "macos-latest".to_owned(),
     }];
     let xcode = Some("26.4".to_owned());
     let workflows = vec![Workflow {

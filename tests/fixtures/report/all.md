@@ -4,8 +4,8 @@
 
 | id | kind | systems | cache |
 | --- | --- | --- | --- |
-| `build` | `build` | `x86_64-linux` on `ubuntu-latest`, `aarch64-linux` on `ubuntu-24.04-arm`, `aarch64-darwin` on `macos-latest` | `pr0d1r2` |
-| `ci` | `gate` | `x86_64-linux` on `ubuntu-latest`, `aarch64-linux` on `ubuntu-24.04-arm`, `aarch64-darwin` on `macos-latest` | `pr0d1r2` |
+| `build` | `build` | `x86_64-linux` on `ubuntu-latest`, `aarch64-linux` on `ubuntu-24.04-arm`, `aarch64-darwin` on `macos-latest`, `x86_64-darwin` on `macos-15-intel` | `pr0d1r2` |
+| `ci` | `gate` | `x86_64-linux` on `ubuntu-latest`, `aarch64-linux` on `ubuntu-24.04-arm`, `aarch64-darwin` on `macos-latest`, `x86_64-darwin` on `macos-15-intel` | `pr0d1r2` |
 | `update-pins` | `update-pins` | `x86_64-linux` on `ubuntu-latest` | - |
 | `upstream` | `upstream` | `x86_64-linux` on `ubuntu-latest` | - |
 

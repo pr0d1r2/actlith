@@ -10,6 +10,7 @@ use super::Build;
 use crate::kind::{Kind, Row};
 use crate::pin::PinTable;
 use crate::registry::parse;
+use crate::system::Runners;
 use crate::yaml::render;
 
 /// `(row file, golden file)` under `tests/fixtures/build/`.
@@ -43,7 +44,8 @@ fn row(text: &str) -> Result<Row, String> {
 }
 
 fn rendered(text: &str) -> Result<String, String> {
-    let built = Build.build(&row(text)?, &PinTable::builtin());
+    let built =
+        Build.build(&row(text)?, &PinTable::builtin(), &Runners::default());
     built.map(|w| render(&w)).map_err(|e| e.to_string())
 }
 
@@ -126,7 +128,11 @@ fn every_script_it_runs_is_seeded_by_src_script() {
 fn a_refused_row_builds_nothing() -> Result<(), String> {
     let mut row = row(GOLDEN.first().ok_or("no fixture")?.0)?;
     row.cache = None;
-    assert!(Build.build(&row, &PinTable::builtin()).is_err());
+    assert!(
+        Build
+            .build(&row, &PinTable::builtin(), &Runners::default())
+            .is_err()
+    );
     assert!(Build.secrets(&row).is_empty());
     Ok(())
 }

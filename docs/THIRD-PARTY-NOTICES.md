@@ -42,7 +42,7 @@ of `actlith`:
 | clap_lex | 1.1.1 | MIT OR Apache-2.0 |
 | clap_mangen | 0.3.3 | MIT OR Apache-2.0 |
 | heck | 0.5.0 | MIT OR Apache-2.0 |
-| pipelith | 0.1.1 | MIT |
+| pipelith | 0.2.0 | MIT |
 | proc-macro2 | 1.0.107 | MIT OR Apache-2.0 |
 | quote | 1.0.47 | MIT OR Apache-2.0 |
 | roff | 1.1.1 | MIT OR Apache-2.0 |

@@ -102,6 +102,14 @@ fn platforms_follow_the_ci_matrix() {
     assert_eq!(platforms(ci), Ok(want));
 }
 
+/// `macos-15-intel`, GitHub's last Intel image, badges an Intel Mac.
+#[test]
+fn the_intel_image_is_an_intel_mac() {
+    let ci = "os: [ubuntu-latest, macos-15-intel]\n";
+    let want = vec![("intel", "linux"), ("amd", "linux"), ("intel", "macos")];
+    assert_eq!(platforms(ci), Ok(want));
+}
+
 /// No matrix, or a runner of unknown platform, is an error naming it.
 #[test]
 fn an_unknown_matrix_is_refused() {

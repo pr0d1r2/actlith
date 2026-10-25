@@ -83,7 +83,7 @@ fn job(runs_on: Text, steps: Vec<Step>) -> Job {
         name: None,
         needs: Vec::new(),
         condition: None,
-        runs_on,
+        runs_on: runs_on.into(),
         permissions: None,
         matrix: None,
         timeout_minutes: 30,
@@ -141,12 +141,21 @@ fn cachix() -> Built<Step> {
     Ok(s)
 }
 
+/// The runners of `ci.yml`'s matrix, in the order its comment names
+/// their systems.
+const OS: [&str; 4] = [
+    "ubuntu-latest",
+    "ubuntu-24.04-arm",
+    "macos-latest",
+    "macos-15-intel",
+];
+
 fn os_matrix() -> Built<Matrix> {
     let axis = Axis {
-        comments: comments("x86_64-linux, aarch64-linux, aarch64-darwin"),
-        values: ["ubuntu-latest", "ubuntu-24.04-arm", "macos-latest"]
-            .map(String::from)
-            .to_vec(),
+        comments: comments(
+            "x86_64-linux, aarch64-linux, aarch64-darwin, x86_64-darwin",
+        ),
+        values: OS.map(String::from).to_vec(),
     };
     Ok(Matrix {
         fail_fast: false,

@@ -1,0 +1,11 @@
+format 1
+
+# A repository naming its own Intel Mac (src/registry T73).
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|-|-|-
+
+## runners
+system|labels
+x86_64-darwin|self-hosted, macOS, X64

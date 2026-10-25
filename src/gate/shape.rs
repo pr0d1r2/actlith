@@ -1,17 +1,19 @@
 //! Kind `gate` (T19): the hk gate on every system, the shape of pklith's
-//! `ci.yml` (C). One job `gate` (stable, `src/kind` V9) per system;
-//! checkout keeps full history, cachix pushes except from fork PRs, then
-//! the one gate command runs. A macOS row may pin its Xcode (T69, V52).
+//! `ci.yml` (C). One job `gate` (stable, `src/kind` V9) over the hosted
+//! systems, and one `gate-<system>` per system on the repository's own
+//! runner (T75). Checkout keeps full history, cachix pushes except from
+//! fork PRs, then the one gate command runs. A macOS row may pin its Xcode (T69, V52).
 
 use std::collections::BTreeMap;
 
 use crate::kind::{
     ArgSpec, CACHE_PUSH, CachixPush, Checkout, GATE, Kind, KindError, KindSpec,
-    Row, Secret, XCODE, cachix, checkout, install_nix, job, matrix_runner,
-    on_push_and_pr, run, runner_matrix, workflow,
+    Row, Secret, XCODE, cachix, checkout, hosts, install_nix, job,
+    matrix_runner, on_push_and_pr, run, runner_matrix, workflow,
 };
 use crate::pin::PinTable;
-use crate::yaml::{Comment, Step, Text, Workflow};
+use crate::system::{Runners, System};
+use crate::yaml::{Comment, Job, Step, Text, Workflow};
 
 /// The job id and name; `pklith protect` reads it (`src/kind` V9).
 const JOB: &str = "gate";
@@ -45,19 +47,40 @@ impl Kind for Gate {
         push.into_iter().collect()
     }
 
-    fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
-        let xcode = xcode(row)?;
-        let steps = steps(row, pins, xcode)?;
-        let mut gate = job(matrix_runner(), row.args.timeout()?, steps);
-        if let Some(version) = xcode {
-            let dir =
-                format!("/Applications/Xcode_{version}.app/Contents/Developer");
-            gate.env.insert("DEVELOPER_DIR".to_owned(), Text::lit(&dir));
-        }
-        gate.name = Some(JOB.to_owned());
-        gate.matrix = Some(runner_matrix(row)?);
+    fn build(
+        &self,
+        row: &Row,
+        pins: &PinTable,
+        runners: &Runners,
+    ) -> Result<Workflow, KindError> {
+        let hosts = hosts(row, runners);
+        let gate = on_matrix(gate(row, pins)?, &hosts.hosted);
         let jobs = BTreeMap::from([(JOB.to_owned(), gate)]);
         Ok(workflow(&row.id, on_push_and_pr(), jobs))
+    }
+}
+
+/// The gate job before it is given a runner: the row's steps, its
+/// timeout, and `DEVELOPER_DIR` when it pins an Xcode.
+fn gate(row: &Row, pins: &PinTable) -> Result<Job, KindError> {
+    let xcode = xcode(row)?;
+    let steps = steps(row, pins, xcode)?;
+    let mut gate = job(Text::default(), row.args.timeout()?, steps);
+    if let Some(version) = xcode {
+        let dir =
+            format!("/Applications/Xcode_{version}.app/Contents/Developer");
+        gate.env.insert("DEVELOPER_DIR".to_owned(), Text::lit(&dir));
+    }
+    Ok(gate)
+}
+
+/// Job `gate` (`src/kind` V9): `one` over a matrix of the hosted runners.
+fn on_matrix(one: Job, hosted: &[(System, &str)]) -> Job {
+    Job {
+        name: Some(JOB.to_owned()),
+        runs_on: matrix_runner().into(),
+        matrix: Some(runner_matrix(hosted)),
+        ..one
     }
 }
 

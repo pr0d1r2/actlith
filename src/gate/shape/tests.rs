@@ -10,6 +10,7 @@ use crate::gate::Gate;
 use crate::kind::{Kind, Row};
 use crate::pin::PinTable;
 use crate::registry::parse;
+use crate::system::Runners;
 use crate::yaml::{Comment, Workflow, render, write};
 
 /// The hand-written ci.yml this repository had before actlith generated
@@ -19,6 +20,10 @@ const ROW: &str = include_str!("../../../tests/fixtures/gate/ci.actlith");
 const XCODE_ROW: &str =
     include_str!("../../../tests/fixtures/gate/xcode.actlith");
 const XCODE_YML: &str = include_str!("../../../tests/fixtures/gate/xcode.yml");
+const RUNNERS_ROW: &str =
+    include_str!("../../../tests/fixtures/gate/runners.actlith");
+const RUNNERS_YML: &str =
+    include_str!("../../../tests/fixtures/gate/runners.yml");
 
 const HEAD: &str = "format 1\n\n## workflows\nid|kind|systems|cache|args\n";
 
@@ -33,7 +38,7 @@ fn row(cells: &str) -> Result<Row, String> {
 }
 
 fn built(row: &Row) -> Result<Workflow, String> {
-    Gate.build(row, &PinTable::builtin())
+    Gate.build(row, &PinTable::builtin(), &Runners::default())
         .map_err(|e| e.to_string())
 }
 
@@ -274,5 +279,86 @@ fn xcode_must_be_a_version_number() -> Result<(), String> {
         row(&format!("ci|gate|aarch64-darwin|-|xcode={good}"))
             .and_then(|r| built(&r))?;
     }
+    Ok(())
+}
+
+/// The first row of `text`, checked and built with its `## runners`.
+fn built_with_runners(text: &str) -> Result<Workflow, String> {
+    let registry = parse(text).map_err(|e| e.to_string())?;
+    let row = registry.workflows.first().ok_or("no row")?;
+    let runners = &registry.runners;
+    let checked = crate::kind::check(&Gate, row).map_err(|e| e.to_string())?;
+    Gate.build(&checked, &PinTable::builtin(), runners)
+        .map_err(|e| e.to_string())
+}
+
+#[test]
+fn the_default_matrix_runs_every_system() -> Result<(), String> {
+    let text = write(&built(&row("ci|gate|-|-|-")?)?);
+    let os = "os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, \
+              macos-15-intel]";
+    assert!(text.contains(os), "{text}");
+    assert!(!text.contains("    if:"), "a hosted job is not guarded");
+    Ok(())
+}
+
+#[test]
+fn the_runners_row_renders_its_golden_file() -> Result<(), String> {
+    assert_eq!(render(&built_with_runners(RUNNERS_ROW)?), RUNNERS_YML);
+    Ok(())
+}
+
+#[test]
+fn the_runners_golden_passes_actionlint() -> Result<(), String> {
+    lint("actionlint", &["-no-color"], &fixture("runners.yml"))
+}
+
+#[test]
+fn the_runners_golden_passes_zizmor_offline() -> Result<(), String> {
+    lint(
+        "zizmor",
+        &["--offline", "--no-progress"],
+        &fixture("runners.yml"),
+    )
+}
+
+#[test]
+fn an_own_runner_system_gets_a_guarded_job_of_its_own() -> Result<(), String> {
+    let gate = built_with_runners(RUNNERS_ROW)?;
+    let ids: Vec<&String> = gate.jobs.keys().collect();
+    assert_eq!(ids, ["gate", "gate-x86_64-darwin"]);
+    let mine = gate.jobs.get("gate-x86_64-darwin").ok_or("no own job")?;
+    assert_eq!(mine.name.as_deref(), Some("gate (x86_64-darwin)"));
+    let guard = mine.condition.as_ref().map(crate::yaml::Expr::inner);
+    assert_eq!(guard, Some(crate::kind::TRUSTED));
+    assert_eq!(mine.matrix, None);
+    let hosted = gate.jobs.get("gate").ok_or("no gate")?;
+    assert_eq!(hosted.condition, None, "a hosted job is not guarded");
+    assert_eq!(mine.steps, hosted.steps);
+    Ok(())
+}
+
+#[test]
+fn the_guard_is_only_on_the_own_runner_job() -> Result<(), String> {
+    let text = render(&built_with_runners(RUNNERS_ROW)?);
+    let guard = "    if: ${{ github.event_name != 'pull_request' || \
+                 github.event.pull_request.head.repo.full_name == \
+                 github.repository }}\n";
+    assert_eq!(text.matches(guard).count(), 1, "{text}");
+    let own = text.find("  gate-x86_64-darwin:\n").ok_or("no own job")?;
+    assert!(text.find(guard).is_some_and(|at| at > own), "{text}");
+    Ok(())
+}
+
+#[test]
+fn only_own_runner_systems_leave_no_matrix_job() -> Result<(), String> {
+    let text = "format 1\n\n## workflows\nid|kind|systems|cache|args\n\
+                ci|gate|x86_64-darwin|-|xcode=16.4\n\n## runners\n\
+                system|labels\nx86_64-darwin|self-hosted, macOS, X64\n";
+    let gate = built_with_runners(text)?;
+    let ids: Vec<&String> = gate.jobs.keys().collect();
+    assert_eq!(ids, ["gate-x86_64-darwin"]);
+    let mine = gate.jobs.get("gate-x86_64-darwin").ok_or("no own job")?;
+    assert!(mine.env.contains_key("DEVELOPER_DIR"), "xcode still pins");
     Ok(())
 }

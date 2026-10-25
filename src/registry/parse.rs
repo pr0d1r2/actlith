@@ -7,12 +7,13 @@ use super::model::Registry;
 use super::rows::{action, bot, hand};
 use crate::core::kind::{self, RawRow};
 use crate::core::registry::{self, Schema, SectionSpec};
+use crate::core::runner::Runners;
 
 /// The file name every error and every message names.
 pub(crate) const FILE: &str = ".actlith";
 
 /// actlith's sections: pipelith's neutral `## workflows`, then GitHub's,
-/// each keyed by its first column.
+/// then pipelith's neutral `## runners`, each keyed by its first column.
 const SCHEMA: Schema<'static> = Schema {
     sections: &[
         kind::WORKFLOWS,
@@ -54,6 +55,7 @@ pub(crate) fn parse(text: &str) -> Result<Registry, RegistryError> {
             .map(hand)
             .collect::<Result<_, _>>()?,
         bots: rows("bots").map(bot).collect::<Result<_, _>>()?,
+        runners: Runners::default(),
     })
 }
 

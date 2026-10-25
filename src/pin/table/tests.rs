@@ -48,7 +48,7 @@ fn job(steps: Vec<Step>) -> Job {
         name: None,
         needs: Vec::new(),
         condition: None,
-        runs_on: Text::lit("ubuntu-latest"),
+        runs_on: Text::lit("ubuntu-latest").into(),
         permissions: None,
         matrix: None,
         timeout_minutes: 5,

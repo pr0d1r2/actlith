@@ -4,10 +4,10 @@
 //! (`src/kind:V3`), and the job's `contents` and `pull-requests` writes.
 
 use crate::kind::{
-    Args, Checkout, KindError, Row, Secret, checkout, job, widen,
+    Args, Checkout, KindError, Row, Secret, checkout, job, place, widen,
 };
 use crate::pin::PinTable;
-use crate::system::runner;
+use crate::system::{Host, Runners, host};
 use crate::yaml::{
     Action, Comment, Input, Job, Level, Scope, Step, Text, Value,
 };
@@ -47,8 +47,11 @@ pub(crate) fn token(args: &Args) -> Result<Secret, KindError> {
     })
 }
 
-/// The runner label of the row's one system.
-pub(crate) fn runs_on(row: &Row) -> Result<Text, KindError> {
+/// The host of the row's one system (`src/system` V53).
+pub(crate) fn runs_on<'a>(
+    row: &Row,
+    runners: &'a Runners,
+) -> Result<Host<'a>, KindError> {
     let [system] = row.systems.as_slice() else {
         let count = row.systems.len();
         return Err(KindError::row(
@@ -57,9 +60,7 @@ pub(crate) fn runs_on(row: &Row) -> Result<Text, KindError> {
             "list one system, or `-` for x86_64-linux",
         ));
     };
-    runner(*system).map(Text::lit).map_err(|e| {
-        KindError::row(row.line, e.to_string(), "write `-` in systems")
-    })
+    Ok(host(runners, *system))
 }
 
 /// The checkout of a job that pushes: credentials kept, and checked out
@@ -85,10 +86,16 @@ pub(crate) fn pushing_checkout(
     Ok(step)
 }
 
-/// The one bump job: on the row's runner, timed out, writing contents
-/// (the branch) and pull requests (the PR) only.
-pub(crate) fn bump_job(row: &Row, steps: Vec<Step>) -> Result<Job, KindError> {
-    let mut bump = job(runs_on(row)?, row.args.timeout()?, steps);
+/// The one bump job: on the row's host (guarded on the repository's own
+/// runner, `src/kind` V54), timed out, writing contents (the branch) and
+/// pull requests (the PR) only.
+pub(crate) fn bump_job(
+    row: &Row,
+    runners: &Runners,
+    steps: Vec<Step>,
+) -> Result<Job, KindError> {
+    let unplaced = job(Text::default(), row.args.timeout()?, steps);
+    let mut bump = place(unplaced, runs_on(row, runners)?);
     bump.permissions = Some(widen(&[
         (Scope::Contents, Level::Write),
         (Scope::PullRequests, Level::Write),

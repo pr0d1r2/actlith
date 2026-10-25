@@ -4,12 +4,15 @@
 
 use crate::kind::{Args, Cache, KindError, Row};
 use crate::pin::PinTable;
+use crate::system::Runners;
 
 /// What every `build` job is made from.
 #[derive(Clone, Debug)]
 pub(crate) struct Plan<'a> {
     pub(crate) row: &'a Row,
     pub(crate) pins: &'a PinTable,
+    /// Where each system's jobs run (`src/system` V53).
+    pub(crate) runners: &'a Runners,
     /// The cache `build` pushes to and `verify-cache` asks.
     pub(crate) cache: &'a Cache,
     /// The flake package, `.#packages.<system>.<package>`.
@@ -24,10 +27,12 @@ impl<'a> Plan<'a> {
     pub(crate) fn new(
         row: &'a Row,
         pins: &'a PinTable,
+        runners: &'a Runners,
     ) -> Result<Self, KindError> {
         Ok(Self {
             row,
             pins,
+            runners,
             cache: cache(row)?,
             package: package(&row.args)?,
             minutes: row.args.timeout()?,

@@ -31,6 +31,8 @@ jobs:
             system: aarch64-linux
           - os: macos-latest
             system: aarch64-darwin
+          - os: macos-15-intel
+            system: x86_64-darwin
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -54,8 +56,7 @@ jobs:
         env:
           SYSTEM: ${{ matrix.system }}
   # --all-systems is the point: a bare `nix flake check` skips every system
-  # the runner cannot build. Systems without a runner are evaluated, so
-  # they cannot rot silently.
+  # the runner cannot build.
   check:
     name: check
     runs-on: ubuntu-latest
@@ -70,7 +71,6 @@ jobs:
             extra-substituters = https://pr0d1r2.cachix.org
             extra-trusted-public-keys = pr0d1r2.cachix.org-1:NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=
       - run: nix flake check --all-systems --print-build-logs
-      - run: 'nix eval --raw .#packages.x86_64-darwin.hk.drvPath'
   # A failed cachix push does not fail its job, so this asks the cache
   # itself for every built path, after the builds' post-job pushes.
   verify-cache:
@@ -88,4 +88,4 @@ jobs:
           extra_nix_config: |
             extra-substituters = https://pr0d1r2.cachix.org
             extra-trusted-public-keys = pr0d1r2.cachix.org-1:NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=
-      - run: bash scripts/actlith/verify-cache.sh pr0d1r2 hk x86_64-linux aarch64-linux aarch64-darwin
+      - run: bash scripts/actlith/verify-cache.sh pr0d1r2 hk x86_64-linux aarch64-linux aarch64-darwin x86_64-darwin

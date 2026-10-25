@@ -12,6 +12,7 @@ use crate::kind::{
     on_schedule, run, workflow,
 };
 use crate::pin::PinTable;
+use crate::system::Runners;
 use crate::yaml::{Comment, Step, Text, Workflow};
 
 const WHY: &str = "Follow nixpkgs-lock and propose the bump as a PR. Pull \
@@ -35,8 +36,13 @@ impl Kind for UpdatePins {
         token(&row.args).into_iter().collect()
     }
 
-    fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
-        let update = bump_job(row, steps(row, pins)?)?;
+    fn build(
+        &self,
+        row: &Row,
+        pins: &PinTable,
+        runners: &Runners,
+    ) -> Result<Workflow, KindError> {
+        let update = bump_job(row, runners, steps(row, pins)?)?;
         let jobs = BTreeMap::from([("update".to_owned(), update)]);
         let mut built = workflow(&row.id, on_schedule(&cron(&row.args)?), jobs);
         built.comments = vec![Comment::new(&format!("{WHY}\n\n{LIMITS}"))];

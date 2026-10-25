@@ -39,9 +39,9 @@ fn workflows_sort_by_id() -> Result<(), String> {
 fn a_row_lists_kind_systems_runners_cache() -> Result<(), String> {
     let got = one("ci|gate|aarch64-darwin, x86_64-linux|pr0d1r2|-")?;
     assert_eq!(got.kind, "gate");
-    let hosted = |system: &str, runner| Hosted {
+    let hosted = |system: &str, runner: &str| Hosted {
         system: system.to_owned(),
-        runner,
+        runner: runner.to_owned(),
     };
     assert_eq!(
         got.systems,
@@ -59,7 +59,13 @@ fn a_dash_lists_default_systems_no_cache() -> Result<(), String> {
     let got = one("ci|gate|-|-|-")?;
     let names: Vec<&str> =
         got.systems.iter().map(|h| h.system.as_str()).collect();
-    assert_eq!(names, ["x86_64-linux", "aarch64-linux", "aarch64-darwin"]);
+    let all = [
+        "x86_64-linux",
+        "aarch64-linux",
+        "aarch64-darwin",
+        "x86_64-darwin",
+    ];
+    assert_eq!(names, all);
     assert_eq!(got.cache, None);
     Ok(())
 }
@@ -156,8 +162,21 @@ fn an_unknown_kind_names_its_line() {
 
 #[test]
 fn a_row_its_kind_refuses_is_the_kind_error() {
-    let got = report(&rows("ci|gate|x86_64-darwin|-|-"));
-    assert!(got.is_err_and(|e| e.starts_with(".actlith:5: system")));
+    let got = report(&rows("ci|gate|aarch64-linux|-|xcode=26.4"));
+    assert!(got.is_err_and(|e| e.starts_with(".actlith:5: arg `xcode`")));
+}
+
+#[test]
+fn an_own_runner_is_reported_by_its_labels() -> Result<(), String> {
+    let text = format!(
+        "{}\n## runners\nsystem|labels\nx86_64-darwin|self-hosted, macOS, X64\n",
+        rows("ci|gate|x86_64-linux, x86_64-darwin|-|-")
+    );
+    let got = report(&text)?.workflows.pop().ok_or("no workflow")?;
+    let runners: Vec<&str> =
+        got.systems.iter().map(|h| h.runner.as_str()).collect();
+    assert_eq!(runners, ["ubuntu-latest", "self-hosted, macOS, X64"]);
+    Ok(())
 }
 
 #[test]

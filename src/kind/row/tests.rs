@@ -6,6 +6,7 @@ use crate::kind::{
 };
 use crate::pin::PinTable;
 use crate::registry::{WorkflowRow, parse};
+use crate::system::Runners;
 use crate::system::System;
 use crate::yaml::Workflow;
 
@@ -33,7 +34,12 @@ impl Kind for Probe {
         Vec::new()
     }
 
-    fn build(&self, row: &Row, _: &PinTable) -> Result<Workflow, KindError> {
+    fn build(
+        &self,
+        row: &Row,
+        _: &PinTable,
+        _: &Runners,
+    ) -> Result<Workflow, KindError> {
         Err(KindError::row(row.line, "probe", "none"))
     }
 }
@@ -88,13 +94,10 @@ fn listed_systems_keep_their_order() -> Result<(), String> {
 }
 
 #[test]
-fn a_system_without_a_runner_is_refused() {
-    assert_eq!(
-        refused("intel"),
-        ".actlith:9: system `x86_64-darwin` has no GitHub-hosted runner; \
-         build and verify it by hand on an Intel Mac\n  fix: write systems \
-         with a hosted runner, or `-`"
-    );
+fn x86_64_darwin_is_a_ci_system() -> Result<(), String> {
+    let row = checked("intel")?;
+    assert_eq!(row.systems, [System::X86_64Darwin]);
+    Ok(())
 }
 
 #[test]
@@ -186,7 +189,9 @@ fn the_probe_kind_answers_its_contract() -> Result<(), String> {
     assert_eq!(Probe.spec().default_systems, [System::Aarch64Linux]);
     assert!(Probe.secrets(&row).is_empty());
     assert!(Probe.forge_args().is_empty(), "no forge key by default");
-    let built = Probe.build(&row, &PinTable::builtin()).err();
+    let built = Probe
+        .build(&row, &PinTable::builtin(), &Runners::default())
+        .err();
     assert_eq!(built, Some(KindError::row(7, "probe", "none")));
     Ok(())
 }

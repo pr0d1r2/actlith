@@ -7,11 +7,12 @@ use std::collections::BTreeMap;
 
 use crate::kind::{
     CachixPush, Checkout, GATE, Kind, KindError, KindSpec, Row, Secret, cachix,
-    checkout, concurrency, install_nix, job, matrix_runner, on_push_and_pr,
-    on_schedule, read_only, run, runner_matrix, workflow,
+    checkout, concurrency, hosts, install_nix, job, matrix_runner,
+    on_push_and_pr, on_schedule, read_only, run, runner_matrix, workflow,
 };
 use crate::pin::PinTable;
 use crate::registry::parse;
+use crate::system::Runners;
 use crate::yaml::{Comment, Level, Scope, Step, Workflow, write};
 
 /// The hand-written ci.yml this repository had before actlith generated
@@ -41,11 +42,16 @@ impl Kind for Gate {
         push.into_iter().collect()
     }
 
-    fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
+    fn build(
+        &self,
+        row: &Row,
+        pins: &PinTable,
+        runners: &Runners,
+    ) -> Result<Workflow, KindError> {
         let mut gate =
             job(matrix_runner(), row.args.timeout()?, steps(row, pins)?);
         gate.name = Some("gate".to_owned());
-        gate.matrix = Some(runner_matrix(row)?);
+        gate.matrix = Some(runner_matrix(&hosts(row, runners).hosted));
         let jobs = BTreeMap::from([("gate".to_owned(), gate)]);
         let mut built = workflow(&row.id, on_push_and_pr(), jobs);
         built.comments = vec![Comment::new(CI_WHY)];
@@ -80,7 +86,7 @@ fn ci_row() -> Result<Row, String> {
 #[test]
 fn the_builders_reproduce_ci_yml_byte_for_byte() -> Result<(), String> {
     let row = ci_row()?;
-    let built = Gate.build(&row, &PinTable::builtin());
+    let built = Gate.build(&row, &PinTable::builtin(), &Runners::default());
     assert_eq!(built.map(|w| write(&w)), Ok(CI.to_owned()));
     Ok(())
 }

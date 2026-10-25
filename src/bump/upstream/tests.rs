@@ -5,6 +5,7 @@ use crate::bump::Upstream;
 use crate::kind::{Kind, Row};
 use crate::pin::PinTable;
 use crate::registry::parse;
+use crate::system::Runners;
 use crate::system::System;
 use crate::yaml::render;
 
@@ -21,7 +22,11 @@ fn checked(id: &str) -> Result<Row, String> {
 }
 
 fn built(id: &str) -> Result<String, String> {
-    let workflow = Upstream.build(&checked(id)?, &PinTable::builtin());
+    let workflow = Upstream.build(
+        &checked(id)?,
+        &PinTable::builtin(),
+        &Runners::default(),
+    );
     workflow.map(|w| render(&w)).map_err(|e| e.to_string())
 }
 

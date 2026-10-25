@@ -6,6 +6,7 @@ use super::error::KindError;
 use super::secret::Secret;
 use crate::core::kind::{ArgSpec, KindSpec, Row};
 use crate::pin::PinTable;
+use crate::system::Runners;
 use crate::yaml::Workflow;
 
 /// A workflow kind (`docs/KINDS.md`).
@@ -29,8 +30,14 @@ pub(crate) trait Kind {
     /// Every secret the workflow built from `row` reads (V14).
     fn secrets(&self, row: &Row) -> Vec<Secret>;
 
-    /// The workflow for `row`, its actions pinned from `pins`.
-    fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError>;
+    /// The workflow for `row`, its actions pinned from `pins`, each job
+    /// on the host `runners` gives its system (`src/system` V53).
+    fn build(
+        &self,
+        row: &Row,
+        pins: &PinTable,
+        runners: &Runners,
+    ) -> Result<Workflow, KindError>;
 }
 
 #[cfg(test)]

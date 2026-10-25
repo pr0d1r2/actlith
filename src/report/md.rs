@@ -64,7 +64,7 @@ fn workflow(w: &Workflow) -> Vec<String> {
     let systems: Vec<String> = w
         .systems
         .iter()
-        .map(|h| format!("{} on {}{xcode}", code(&h.system), code(h.runner)))
+        .map(|h| format!("{} on {}{xcode}", code(&h.system), code(&h.runner)))
         .collect();
     let cache = w.cache.as_deref().map_or_else(|| "-".to_owned(), code);
     vec![code(&w.id), code(w.kind), systems.join(", "), cache]

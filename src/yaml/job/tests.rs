@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use super::{Axis, AxisName, Job, Matrix};
+use super::{Axis, AxisName, Job, Matrix, RunsOn};
 use crate::core::yaml::document;
 use crate::yaml::Env;
 use crate::yaml::GITHUB;
@@ -11,7 +11,7 @@ fn job() -> Job {
         name: None,
         needs: vec!["a".to_owned(), "b".to_owned()],
         condition: None,
-        runs_on: "ubuntu-latest".into(),
+        runs_on: RunsOn::One("ubuntu-latest".into()),
         permissions: None,
         matrix: None,
         timeout_minutes: 5,
@@ -36,6 +36,19 @@ fn minimal_job_keys_in_order() {
     let want = "---\nj:\n  needs: [a, b]\n  runs-on: ubuntu-latest\n  \
                 timeout-minutes: 5\n  steps: []\n";
     assert_eq!(out(&job()), want);
+}
+
+#[test]
+fn own_labels_are_a_flow_list() {
+    let mut j = job();
+    j.runs_on = RunsOn::Labels(
+        ["self-hosted", "macOS", "X64"].map(str::to_owned).to_vec(),
+    );
+    let text = out(&j);
+    assert!(
+        text.contains("  runs-on: [self-hosted, macOS, X64]\n"),
+        "{text}"
+    );
 }
 
 fn axis(value: &str) -> Axis {

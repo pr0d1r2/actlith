@@ -16,7 +16,8 @@ fn uses() -> Uses {
 }
 
 fn workflow() -> Workflow {
-    let (system, runner) = ("x86_64-linux".to_owned(), "ubuntu-latest");
+    let (system, runner) =
+        ("x86_64-linux".to_owned(), "ubuntu-latest".to_owned());
     let (name, purpose) = ("S".to_owned(), "p");
     Workflow {
         id: "ci".to_owned(),
@@ -62,7 +63,8 @@ fn a_workflow_carries_every_field_and_null_for_no_cache() {
 
 /// [`workflow`] on `aarch64-darwin`, Xcode `xcode` pinned.
 fn darwin(xcode: Option<&str>) -> String {
-    let (system, runner) = ("aarch64-darwin".to_owned(), "macos-latest");
+    let (system, runner) =
+        ("aarch64-darwin".to_owned(), "macos-latest".to_owned());
     let workflows = vec![Workflow {
         systems: vec![Hosted { system, runner }],
         xcode: xcode.map(str::to_owned),

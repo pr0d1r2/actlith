@@ -44,7 +44,7 @@ fn workflow(w: &Workflow) -> Json {
 fn systems(w: &Workflow) -> Json {
     let hosted = |h: &Hosted| {
         let mut fields =
-            vec![("system", s(&h.system)), ("runner", s(h.runner))];
+            vec![("system", s(&h.system)), ("runner", s(&h.runner))];
         fields.extend(w.xcode.as_deref().map(|v| ("xcode", s(v))));
         Json::Object(fields)
     };

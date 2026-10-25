@@ -18,13 +18,38 @@ pub(crate) struct Job {
     pub(crate) needs: Vec<String>,
     /// The `if:` condition.
     pub(crate) condition: Option<Expr>,
-    pub(crate) runs_on: Text,
+    pub(crate) runs_on: RunsOn,
     /// Permissions widened for this job only.
     pub(crate) permissions: Option<Permissions>,
     pub(crate) matrix: Option<Matrix>,
     pub(crate) timeout_minutes: u32,
     pub(crate) env: Env,
     pub(crate) steps: Vec<Step>,
+}
+
+/// Where a job runs (`runs-on:`): one runner, by label or expression,
+/// or the repository's own runner, by every one of its labels.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) enum RunsOn {
+    /// `runs-on: <text>`.
+    One(Text),
+    /// `runs-on: [<label>, ...]`.
+    Labels(Vec<String>),
+}
+
+impl From<Text> for RunsOn {
+    fn from(text: Text) -> Self {
+        Self::One(text)
+    }
+}
+
+impl RunsOn {
+    fn node(&self) -> Node {
+        match self {
+            Self::One(one) => text(one.clone()),
+            Self::Labels(labels) => list(labels),
+        }
+    }
 }
 
 /// A matrix variable name: never `include` or `exclude`, which the
@@ -84,7 +109,7 @@ impl Job {
         let needs = (!self.needs.is_empty()).then(|| list(&self.needs));
         put(&mut e, "needs", needs);
         put(&mut e, "if", self.condition.clone().map(condition));
-        put(&mut e, "runs-on", Some(text(self.runs_on.clone())));
+        put(&mut e, "runs-on", Some(self.runs_on.node()));
         e
     }
 }

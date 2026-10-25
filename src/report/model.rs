@@ -33,11 +33,12 @@ pub(crate) struct Workflow {
     pub(crate) xcode: Option<String>,
 }
 
-/// A nix system and the hosted runner it runs on.
+/// A nix system and the runner it runs on: a hosted label, or the
+/// repository's own labels joined by `, ` (`src/system` V53).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Hosted {
     pub(crate) system: String,
-    pub(crate) runner: &'static str,
+    pub(crate) runner: String,
 }
 
 /// A secret and what the workflow reads it for.
