@@ -29,6 +29,7 @@
 [![intel linux](https://img.shields.io/badge/linux-5277C3?logo=intel&logoColor=white)](.github/workflows/ci.yml)
 [![amd linux](https://img.shields.io/badge/linux-5277C3?logo=amd&logoColor=white)](.github/workflows/ci.yml)
 [![arm linux](https://img.shields.io/badge/linux-5277C3?logo=arm&logoColor=white)](.github/workflows/ci.yml)
+[![intel macos](https://img.shields.io/badge/macos-5277C3?logo=intel&logoColor=white)](.github/workflows/ci.yml)
 [![arm macos](https://img.shields.io/badge/macos-5277C3?logo=arm&logoColor=white)](.github/workflows/ci.yml)
 
 [![built with Claude Code](https://img.shields.io/badge/built_with-Claude_Code-D97757)](https://claude.com/claude-code)

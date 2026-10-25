@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 use super::plan::Plan;
 use crate::kind::{
     CachixPush, Checkout, KindError, cachix, checkout, hosts, install_nix, job,
-    matrix_runner, place, run,
+    matrix_runner, own, place, run,
 };
 use crate::system::{Host, System, host};
 use crate::yaml::{Comment, Expr, Job, Matrix, Step, Text};
@@ -36,8 +36,14 @@ const VERIFY_WHY: &str = "A failed cachix push does not fail its job, so \
 /// per system on the repository's own runner (`src/kind:V54`), `check`
 /// and `verify-cache`.
 pub(crate) fn jobs(plan: &Plan) -> Result<BTreeMap<String, Job>, KindError> {
+    let hosts = hosts(plan.row, plan.runners);
     let mut all = BTreeMap::new();
-    all.insert("build".to_owned(), build(plan)?);
+    if !hosts.hosted.is_empty() {
+        all.insert("build".to_owned(), build(plan)?);
+    }
+    for &(system, labels) in &hosts.own {
+        all.insert(format!("build-{system}"), mine(plan, system, labels)?);
+    }
     all.insert("check".to_owned(), check(plan)?);
     all.insert("verify-cache".to_owned(), verify(plan)?);
     Ok(all)
@@ -51,6 +57,28 @@ pub(crate) fn build(plan: &Plan) -> Result<Job, KindError> {
         matrix: Some(matrix(plan)),
         ..unplaced(plan)?
     })
+}
+
+/// `build-<system>`, named `build` so its check reads `build (<system>)`
+/// as the matrix's do: the same steps over a one-entry `include`, on the
+/// repository's own runner, guarded. A job of its own, since a job's
+/// `if:` cannot see the matrix (`src/kind:R19`).
+fn mine(
+    plan: &Plan,
+    system: System,
+    labels: &[String],
+) -> Result<Job, KindError> {
+    let only = BTreeMap::from([("system".to_owned(), system.to_string())]);
+    let one = Matrix {
+        fail_fast: false,
+        axes: BTreeMap::new(),
+        include: vec![only],
+    };
+    let job = Job {
+        matrix: Some(one),
+        ..unplaced(plan)?
+    };
+    Ok(own(job, labels))
 }
 
 /// The build job before it is given a runner.
@@ -101,7 +129,7 @@ pub(crate) fn verify(plan: &Plan) -> Result<Job, KindError> {
     steps.push(run(plan.row.line, &command, &[])?);
     let mut verified = named("verify-cache", plan, steps);
     verified.comments = vec![Comment::new(VERIFY_WHY)];
-    verified.needs = vec!["build".to_owned()];
+    verified.needs = built(plan);
     verified.condition = Expr::new(&GITHUB, MAIN_PUSH);
     Ok(place(verified, linux(plan)))
 }
@@ -120,6 +148,18 @@ pub(crate) fn matrix(plan: &Plan) -> Matrix {
         axes: BTreeMap::new(),
         include: hosted.iter().map(pair).collect(),
     }
+}
+
+/// The ids of the build jobs, in id order: `build` when a system is
+/// hosted, then `build-<system>` per own-runner system.
+fn built(plan: &Plan) -> Vec<String> {
+    let hosts = hosts(plan.row, plan.runners);
+    let hosted = (!hosts.hosted.is_empty()).then(|| "build".to_owned());
+    let own = hosts
+        .own
+        .iter()
+        .map(|(system, _)| format!("build-{system}"));
+    hosted.into_iter().chain(own).collect()
 }
 
 /// Checkout without credentials, then install-nix trusting the cache.
