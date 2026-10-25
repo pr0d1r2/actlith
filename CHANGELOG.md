@@ -71,8 +71,10 @@ the bytes actlith emits for the same inputs is at least a minor version
     is given `x86_64-darwin` too, and `check` no longer runs `nix eval
     --raw .#packages.x86_64-darwin.<package>.drvPath` or says systems
     without a runner are evaluated: every system has one now.
-  - this repository's own `ci.yml` gains the Intel job, and the README
-    badges list Intel macOS.
+  - this repository's own `ci.yml` keeps its three runners: its row now
+    lists them, since its dev shell has no x86_64-darwin gate tools
+    (pklith has no build there). The README badges list Intel macOS
+    only where CI runs it.
 
   A row that lists its systems is unchanged. pipelith 0.2.0 comes from
   crates.io.
