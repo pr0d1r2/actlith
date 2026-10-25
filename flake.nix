@@ -29,7 +29,7 @@
     };
     # Context limits (`itok check`).
     itok = {
-      url = "github:pr0d1r2/itok/v0.3.1";
+      url = "github:pr0d1r2/itok/v0.3.2";
       inputs.nixpkgs-lock.follows = "nixpkgs-lock";
       inputs.hk.follows = "nix-hk";
     };
@@ -111,7 +111,6 @@
       # crate only.
       fromSource = {
         x86_64-darwin = [
-          "itok"
           "characterminator"
           "rekall"
           "xenolith"
