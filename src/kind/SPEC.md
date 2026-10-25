@@ -32,8 +32,8 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §C CONSTRAINTS
 
 - a kind = Rust type implementing `Kind`: `spec()` (pipelith catalogue entry), secrets, `build(&Row, &PinTable) -> Workflow`. ⊥ text templates.
-- row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (kinds ∅, keys `xcode`); `check` passes a kind only its `Kind::forge_args` (default ∅) ∴ other kinds refuse `xcode`.
-- common parts here, used by every kind: top permissions, concurrency, job timeout, checkout, install-nix w/ cache substituter, cachix (fork-PR skip, `pushFilter`).
+- row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (kinds ∅, keys `xcode`, `cache-push`); `check` passes a kind only its `Kind::forge_args` (default ∅) ∴ other kinds refuse these keys.
+- common parts here, used by every kind: top permissions, concurrency, job timeout, checkout, install-nix w/ cache substituter, cachix (fork-PR skip, `pushFilter`); gate `cache-push=false` selects read-only Cachix mode.
 
 ## §I INTERFACES
 

@@ -46,7 +46,8 @@ The hk gate on every supported system. Replaces the fleet `ci.yml`.
 - Default systems: `x86_64-linux`, `aarch64-linux`, `aarch64-darwin`.
 - args: `command` (default `nix develop --command hk check --all --check`),
   `timeout` (job minutes, default `30`), `xcode` (GitHub only, macOS rows
-  only: an Xcode version such as `26.4`).
+  only: an Xcode version such as `26.4`), `cache-push` (set to `false` for a
+  read-only cache).
 - `xcode=<version>`: for a repository whose toolchain nix cannot supply
   (Swift, XCTest). The job sets `DEVELOPER_DIR` to
   `/Applications/Xcode_<version>.app/Contents/Developer`, and its first

@@ -18,11 +18,18 @@ pub(crate) const XCODE: ArgSpec = ArgSpec {
     default: ArgDefault::None,
 };
 
+/// `cache-push=false`: a gate may use its cache only as a substituter.
+pub(crate) const CACHE_PUSH: ArgSpec = ArgSpec {
+    key: "cache-push",
+    required: false,
+    default: ArgDefault::None,
+};
+
 /// The kinds and arg keys only actlith knows (V49): no kind, and the
 /// `xcode` key, which the portability check names on any row giving it.
 pub(crate) const EXTRAS: Extras<'static> = Extras {
     kinds: &[],
-    keys: &[XCODE],
+    keys: &[XCODE, CACHE_PUSH],
 };
 
 /// `row` checked against `kind`, which takes only the forge keys it
