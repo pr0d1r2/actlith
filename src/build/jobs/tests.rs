@@ -105,7 +105,7 @@ fn a_system_without_a_runner_is_refused_in_the_matrix() -> Result<(), String> {
 #[test]
 fn build_passes_the_system_through_env() -> Result<(), String> {
     let job = made(&picked()?, build)?;
-    let want = "if [ \"$GITHUB_EVENT_NAME\" = push ] && [ \"$GITHUB_REF\" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs \".#packages.$SYSTEM.actlith\" | cachix push pr0d1r2; else nix build --print-build-logs \".#packages.$SYSTEM.actlith\"; fi";
+    let want = "set -o pipefail; if [ \"$GITHUB_EVENT_NAME\" = push ] && [ \"$GITHUB_REF\" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs \".#packages.$SYSTEM.actlith\" | cachix push pr0d1r2; else nix build --print-build-logs \".#packages.$SYSTEM.actlith\"; fi";
     assert_eq!(commands(&job), [want]);
     let run = job.steps.last().ok_or("no step")?;
     let system = run.env.get("SYSTEM").map(|t| t.render(&GITHUB));

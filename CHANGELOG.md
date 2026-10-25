@@ -27,6 +27,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Changed
 
+- `build`: generated main-branch builds now fail when `nix build` fails,
+  even if the Cachix push succeeds.
 - `build`: Cachix receives only the package output paths printed by `nix
   build`, so realised checks and fetched release archives are not pushed
   to the cache (issue #32).

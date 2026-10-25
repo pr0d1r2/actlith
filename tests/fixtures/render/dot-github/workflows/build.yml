@@ -48,7 +48,7 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           skipPush: true
       - run: >-
-          if [ "$GITHUB_EVENT_NAME" = push ] &&
+          set -o pipefail; if [ "$GITHUB_EVENT_NAME" = push ] &&
           [ "$GITHUB_REF" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs
           ".#packages.$SYSTEM.hk" | cachix push pr0d1r2; else nix build --print-build-logs ".#packages.$SYSTEM.hk"; fi
         env:
