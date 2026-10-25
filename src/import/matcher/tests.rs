@@ -43,8 +43,7 @@ fn refused(text: &str) -> Result<Mismatch, String> {
 
 #[test]
 fn the_own_ci_yml_imports_as_its_row() -> Result<(), String> {
-    let own = "ci|gate|x86_64-linux, aarch64-linux, aarch64-darwin|pr0d1r2|-";
-    assert_eq!(import(CI), Ok(row(own)?));
+    assert_eq!(import(CI), Ok(row("ci|gate|-|pr0d1r2|timeout=90")?));
     Ok(())
 }
 
@@ -64,8 +63,7 @@ fn layout_alone_does_not_stop_an_import() -> Result<(), String> {
         .replace(" &&\n            github", " && github")
         .replace("---\n", "");
     let spaced = flat.replace('\n', "  \n\n");
-    let own = "ci|gate|x86_64-linux, aarch64-linux, aarch64-darwin|pr0d1r2|-";
-    assert_eq!(import(&spaced), Ok(row(own)?));
+    assert_eq!(import(&spaced), Ok(row("ci|gate|-|pr0d1r2|timeout=90")?));
     Ok(())
 }
 

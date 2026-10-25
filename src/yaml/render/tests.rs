@@ -143,11 +143,18 @@ fn cachix() -> Built<Step> {
 
 /// The runners of `ci.yml`'s matrix, in the order its comment names
 /// their systems.
-const OS: [&str; 3] = ["ubuntu-latest", "ubuntu-24.04-arm", "macos-latest"];
+const OS: [&str; 4] = [
+    "ubuntu-latest",
+    "ubuntu-24.04-arm",
+    "macos-latest",
+    "macos-15-intel",
+];
 
 fn os_matrix() -> Built<Matrix> {
     let axis = Axis {
-        comments: comments("x86_64-linux, aarch64-linux, aarch64-darwin"),
+        comments: comments(
+            "x86_64-linux, aarch64-linux, aarch64-darwin, x86_64-darwin",
+        ),
         values: OS.map(String::from).to_vec(),
     };
     Ok(Matrix {
