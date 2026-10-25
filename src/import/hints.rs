@@ -68,10 +68,15 @@ fn whole(value: &str) -> Option<String> {
     (!value.is_empty()).then(|| value.to_owned())
 }
 
-/// `<package>` of `.#packages.<system>.<package>` in a command.
+/// `<package>` of `.#packages.<system>.<package>` in a command. The
+/// system may be an expression (`${{ matrix.system }}`), dots and all.
 fn package(command: &str) -> Option<String> {
     let (_, attr) = command.split_once(".#packages.")?;
-    let after = attr.split_once('.')?.1;
+    let system_end = attr
+        .strip_prefix("${{")
+        .and_then(|rest| rest.split_once("}}"))
+        .map_or(attr, |(_, tail)| tail);
+    let after = system_end.split_once('.')?.1;
     let word = |c: char| c.is_ascii_alphanumeric() || matches!(c, '_' | '-');
     let name: String = after.chars().take_while(|&c| word(c)).collect();
     (!name.is_empty()).then_some(name)

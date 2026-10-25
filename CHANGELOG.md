@@ -78,7 +78,9 @@ the bytes actlith emits for the same inputs is at least a minor version
   crates.io.
 - `import`: a `build` file's `package` is read up to the end of its
   attribute name, so the one-line build command (`| cachix push`) still
-  names it now that the eval-only step that also named it is gone.
+  names it now that the eval-only step that also named it is gone. A
+  system written as an expression (`.#packages.${{ matrix.system }}.hk`)
+  no longer hides the package behind its own dot.
 - `update-pins.sh` resolves nixpkgs through the root's `nixpkgs-lock`
   input, so renamed lock nodes no longer hide available bumps (issue #22).
 - Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.1.0 from
