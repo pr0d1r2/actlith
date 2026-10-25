@@ -44,10 +44,12 @@ jobs:
         with:
           name: pr0d1r2
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          skipPush: ${{ github.event_name != 'push' || github.ref != 'refs/heads/main' }}
-          # Only what was built here; sources and tarballs stay out of the cache.
-          pushFilter: '(-source$|nixpkgs\.tar\.gz$)'
-      - run: 'nix build --print-build-logs ".#packages.$SYSTEM.actlith"'
+          skipPush: true
+      - run: >-
+          if [ "$GITHUB_EVENT_NAME" = push ] &&
+          [ "$GITHUB_REF" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs
+          ".#packages.$SYSTEM.actlith" | cachix push pr0d1r2; else nix build --print-build-logs
+          ".#packages.$SYSTEM.actlith"; fi
         env:
           SYSTEM: ${{ matrix.system }}
   # --all-systems is the point: a bare `nix flake check` skips every system

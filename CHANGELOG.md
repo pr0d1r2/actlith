@@ -27,6 +27,9 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Changed
 
+- `build`: Cachix receives only the package output paths printed by `nix
+  build`, so realised checks and fetched release archives are not pushed
+  to the cache (issue #32).
 - `gate`: invalid `cache-push` values are refused instead of enabling
   Cachix writes; only `true` and `false` are accepted.
 - `gate`: `cache-push=false` makes a configured Cachix cache

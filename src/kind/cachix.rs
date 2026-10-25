@@ -40,6 +40,8 @@ pub(crate) enum CachixPush {
     SkipForkPr,
     /// Only a push to `main` (`build`).
     MainOnly,
+    /// Authentication only; the caller pushes selected paths explicitly.
+    ExplicitMain,
     /// Never: the job only reads the cache (`upstream`).
     ReadOnly,
 }
@@ -49,14 +51,18 @@ impl CachixPush {
     pub(crate) fn secret(self) -> Option<Secret> {
         match self {
             Self::ReadOnly => None,
-            Self::SkipForkPr | Self::MainOnly => Secret::cachix(),
+            Self::SkipForkPr | Self::MainOnly | Self::ExplicitMain => {
+                Secret::cachix()
+            }
         }
     }
 
     fn skip(self) -> Option<(&'static str, &'static str)> {
         match self {
             Self::SkipForkPr => Some((SKIP_FORK_PR, PUSH_WHY)),
-            Self::MainOnly => Some((SKIP_UNLESS_MAIN, MAIN_WHY)),
+            Self::MainOnly | Self::ExplicitMain => {
+                Some((SKIP_UNLESS_MAIN, MAIN_WHY))
+            }
             Self::ReadOnly => None,
         }
     }
@@ -74,20 +80,37 @@ pub(crate) fn cachix(
         let skip = Input::new(Value::Bool(true));
         return uses(pins, "cachix/cachix-action", with.set("skipPush", skip));
     };
-    let mut step =
-        uses(pins, "cachix/cachix-action", pushing(with, &secret, skip))?;
+    let mut step = uses(
+        pins,
+        "cachix/cachix-action",
+        pushing(with, &secret, skip, push == CachixPush::ExplicitMain),
+    )?;
     step.comments = vec![Comment::new(why)];
     Ok(step)
 }
 
-fn pushing(with: With, secret: &Secret, skip: &str) -> With {
+fn pushing(with: With, secret: &Secret, skip: &str, explicit: bool) -> With {
     let filter = Input {
         comments: vec![Comment::new(FILTER_WHY)],
         value: Value::Text(Text::lit(PUSH_FILTER)),
     };
-    with.set("authToken", Input::new(expr(Some(secret.expr()))))
-        .set("skipPush", Input::new(expr(Expr::new(&GITHUB, skip))))
-        .set("pushFilter", filter)
+    let skip_push = skip_input(skip, explicit);
+    let with = with
+        .set("authToken", Input::new(expr(Some(secret.expr()))))
+        .set("skipPush", skip_push);
+    if explicit {
+        with
+    } else {
+        with.set("pushFilter", filter)
+    }
+}
+
+fn skip_input(skip: &str, explicit: bool) -> Input {
+    if explicit {
+        Input::new(Value::Bool(true))
+    } else {
+        Input::new(expr(Expr::new(&GITHUB, skip)))
+    }
 }
 
 fn expr(e: Option<Expr>) -> Value {

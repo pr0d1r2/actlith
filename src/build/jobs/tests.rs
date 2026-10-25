@@ -105,7 +105,7 @@ fn a_system_without_a_runner_is_refused_in_the_matrix() -> Result<(), String> {
 #[test]
 fn build_passes_the_system_through_env() -> Result<(), String> {
     let job = made(&picked()?, build)?;
-    let want = "nix build --print-build-logs \".#packages.$SYSTEM.actlith\"";
+    let want = "if [ \"$GITHUB_EVENT_NAME\" = push ] && [ \"$GITHUB_REF\" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs \".#packages.$SYSTEM.actlith\" | cachix push pr0d1r2; else nix build --print-build-logs \".#packages.$SYSTEM.actlith\"; fi";
     assert_eq!(commands(&job), [want]);
     let run = job.steps.last().ok_or("no step")?;
     let system = run.env.get("SYSTEM").map(|t| t.render(&GITHUB));
@@ -124,11 +124,19 @@ fn build_pushes_to_the_cache_only_from_main() -> Result<(), String> {
     ];
     assert_eq!(actions(&job), want);
     let step = job.steps.get(2).ok_or("no cachix")?;
+    assert_explicit_push(step)
+}
+
+fn assert_explicit_push(step: &Step) -> Result<(), String> {
     let Action::Uses(uses) = &step.action else {
         return Err("cachix is not a uses step".into());
     };
     let text = format!("{:?}", uses.with);
-    assert!(text.contains(SKIP_UNLESS_MAIN), "{text}");
+    assert!(text.contains("skipPush"), "{text}");
+    assert!(
+        !text.contains(SKIP_UNLESS_MAIN) && !text.contains("pushFilter"),
+        "{text}"
+    );
     Ok(())
 }
 
