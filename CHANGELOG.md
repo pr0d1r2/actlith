@@ -27,6 +27,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Changed
 
+- `gate`: invalid `cache-push` values are refused instead of enabling
+  Cachix writes; only `true` and `false` are accepted.
 - `gate`: `cache-push=false` makes a configured Cachix cache
   substituter-only, so the gate pushes nothing and requires no Cachix
   write token while the existing default remains unchanged (issue #33).

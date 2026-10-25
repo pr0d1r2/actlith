@@ -107,6 +107,11 @@ fn cache_push_false_reads_the_cache_without_declaring_a_secret()
 }
 
 #[test]
+fn cache_push_rejects_values_other_than_true_or_false() {
+    assert!(row("ci|gate|-|pr0d1r2|cache-push=maybe").is_err());
+}
+
+#[test]
 fn no_cache_means_no_cachix_step() -> Result<(), String> {
     let text = write(&built(&row("ci|gate|-|-|-")?)?);
     assert!(!text.contains("cachix/cachix-action"), "{text}");
