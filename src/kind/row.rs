@@ -1,14 +1,15 @@
 //! A `## workflows` row checked for its kind by pipelith's
 //! `Row::check` (systems, cache, args, timeout and row rules;
-//! `src/registry` V10), after actlith names any system without a
-//! GitHub-hosted runner in its own words. A kind builds only from a
-//! checked row.
+//! `src/registry` V10), after actlith names any unknown system in its
+//! own words. Every known system has a runner (`src/system` V53), so a
+//! checked row is never refused for its systems at render. A kind builds
+//! only from a checked row.
 
 use super::contract::Kind;
 use super::error::KindError;
 use crate::core::kind::{ArgDefault, ArgSpec, Extras, Row};
 use crate::registry::WorkflowRow;
-use crate::system::{parse_system, runner};
+use crate::system::parse_system;
 
 /// `xcode`: the Xcode a macOS `gate` job builds with (`src/gate` V52).
 /// GitHub-only, since it names a GitHub runner image's install path.
@@ -38,7 +39,7 @@ pub(crate) fn check(
     kind: &dyn Kind,
     row: &WorkflowRow,
 ) -> Result<Row, KindError> {
-    hosted(row)?;
+    known(row)?;
     let extras = Extras {
         kinds: &[],
         keys: kind.forge_args(),
@@ -64,9 +65,9 @@ fn cache_push_value(row: &Row) -> Result<(), KindError> {
 }
 
 /// Each listed system up to the first repeat (pipelith names that one)
-/// is a nix system with a GitHub-hosted runner.
-fn hosted(row: &WorkflowRow) -> Result<(), KindError> {
-    let fix = "write systems with a hosted runner, or `-`";
+/// is a nix system.
+fn known(row: &WorkflowRow) -> Result<(), KindError> {
+    let fix = "write nix systems, or `-`";
     let refuse = |e: crate::system::SystemError| {
         KindError::row(row.line, e.to_string(), fix)
     };
@@ -74,7 +75,7 @@ fn hosted(row: &WorkflowRow) -> Result<(), KindError> {
         if row.systems.iter().take(n).any(|seen| seen == name) {
             return Ok(());
         }
-        runner(parse_system(name).map_err(refuse)?).map_err(refuse)?;
+        parse_system(name).map_err(refuse)?;
     }
     Ok(())
 }

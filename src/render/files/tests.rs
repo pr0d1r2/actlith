@@ -173,12 +173,36 @@ fn an_unknown_kind_names_its_row_and_the_kinds() -> Result<(), String> {
 }
 
 #[test]
-fn an_unknown_or_unhosted_system_names_its_row() -> Result<(), String> {
-    for systems in ["riscv64-linux", "x86_64-darwin"] {
-        let error = refused(&rows(&format!("ci|gate|{systems}|-|-")))?;
-        assert!(matches!(error, RenderError::Kind(_)), "{error}");
-        assert!(error.to_string().starts_with(".actlith:5: "), "{error}");
-    }
+fn an_unknown_system_names_its_row() -> Result<(), String> {
+    let error = refused(&rows("ci|gate|riscv64-linux|-|-"))?;
+    assert!(matches!(error, RenderError::Kind(_)), "{error}");
+    assert!(error.to_string().starts_with(".actlith:5: "), "{error}");
+    Ok(())
+}
+
+#[test]
+fn x86_64_darwin_renders_on_the_intel_image() -> Result<(), String> {
+    let files = rendered(&rows("ci|gate|x86_64-darwin|-|-"))?;
+    let ci = files.iter().find(|f| f.path == ".github/workflows/ci.yml");
+    let text = ci.map(|f| f.bytes.as_str()).unwrap_or_default();
+    assert!(text.contains("os: [macos-15-intel]"), "{text}");
+    Ok(())
+}
+
+#[test]
+fn a_runners_row_renders_a_guarded_job() -> Result<(), String> {
+    let text = format!(
+        "{}\n## runners\nsystem|labels\nx86_64-darwin|self-hosted, macOS, X64\n",
+        rows("ci|gate|-|-|-")
+    );
+    let files = rendered(&text)?;
+    let ci = files.iter().find(|f| f.path == ".github/workflows/ci.yml");
+    let text = ci.map(|f| f.bytes.as_str()).unwrap_or_default();
+    assert!(
+        text.contains("runs-on: [self-hosted, macOS, X64]"),
+        "{text}"
+    );
+    assert!(text.contains("  gate-x86_64-darwin:\n"), "{text}");
     Ok(())
 }
 

@@ -14,6 +14,9 @@ pub(crate) struct Registry {
     pub(crate) hand_written: Vec<HandWritten>,
     /// `## bots` rows (`src/bots` I).
     pub(crate) bots: Vec<BotRow>,
+    /// `## runners` rows: a system's own runner labels, checked by
+    /// pipelith (`src/system` V53).
+    pub(crate) runners: crate::core::runner::Runners,
 }
 
 /// A `key=value` arg: pipelith's (src/core).

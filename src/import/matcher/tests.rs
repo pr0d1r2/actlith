@@ -87,7 +87,8 @@ fn every_kind_imports_back_to_its_row() -> Result<(), String> {
 
 #[test]
 fn a_row_spelling_out_defaults_imports_as_the_shortest() -> Result<(), String> {
-    let long = "ci|gate|x86_64-linux, aarch64-linux, aarch64-darwin|pr0d1r2|\
+    let long = "ci|gate|x86_64-linux, aarch64-linux, aarch64-darwin, \
+                x86_64-darwin|pr0d1r2|\
                 command=nix develop --command hk check --all --check, \
                 timeout=30";
     assert_eq!(import(&rendered(long)?), Ok(row("ci|gate|-|pr0d1r2|-")?));

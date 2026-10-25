@@ -5,6 +5,7 @@ use crate::bump::UpdatePins;
 use crate::kind::{Kind, Row};
 use crate::pin::PinTable;
 use crate::registry::parse;
+use crate::system::Runners;
 use crate::system::System;
 use crate::yaml::render;
 
@@ -23,7 +24,8 @@ fn row(id: &str) -> Result<Row, String> {
 }
 
 fn built(id: &str) -> Result<String, String> {
-    let workflow = UpdatePins.build(&row(id)?, &PinTable::builtin());
+    let workflow =
+        UpdatePins.build(&row(id)?, &PinTable::builtin(), &Runners::default());
     workflow.map(|w| render(&w)).map_err(|e| e.to_string())
 }
 

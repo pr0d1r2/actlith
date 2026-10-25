@@ -48,7 +48,9 @@ pub(crate) use cachix::{
 pub(crate) use checkout::{Checkout, checkout};
 pub(crate) use contract::Kind;
 pub(crate) use error::KindError;
-pub(crate) use job::{job, matrix_runner, runner_matrix, widen};
+pub(crate) use job::{
+    Hosts, TRUSTED, hosts, job, matrix_runner, own, place, runner_matrix, widen,
+};
 pub(crate) use nix::install_nix;
 pub(crate) use row::{CACHE_PUSH, EXTRAS, XCODE, check};
 pub(crate) use run::run;

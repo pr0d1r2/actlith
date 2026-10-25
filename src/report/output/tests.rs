@@ -16,6 +16,7 @@ const TEXT: &str = concat!(
     "    system x86_64-linux on ubuntu-latest\n",
     "    system aarch64-linux on ubuntu-24.04-arm\n",
     "    system aarch64-darwin on macos-latest\n",
+    "    system x86_64-darwin on macos-15-intel\n",
     "    action actions/checkout@\
      3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1\n",
     "    action cachix/cachix-action@\
@@ -27,6 +28,7 @@ const TEXT: &str = concat!(
     "    system x86_64-linux on ubuntu-latest\n",
     "    system aarch64-linux on ubuntu-24.04-arm\n",
     "    system aarch64-darwin on macos-latest\n",
+    "    system x86_64-darwin on macos-15-intel\n",
     "    action actions/checkout@\
      3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1\n",
     "    action cachix/cachix-action@\

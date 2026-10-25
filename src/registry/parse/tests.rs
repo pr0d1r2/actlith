@@ -137,3 +137,50 @@ fn a_workflow_row_is_pipelith_raw_row() {
     let ours = TypeId::of::<crate::registry::WorkflowRow>();
     assert_eq!(ours, TypeId::of::<crate::core::kind::RawRow>());
 }
+
+#[test]
+fn runners_name_a_system_s_own_labels() {
+    use crate::core::runner::Runner;
+    use crate::core::system::System;
+    let reg = parse(fixture!("runners")).unwrap_or_default();
+    let own = ["self-hosted", "macOS", "X64"].map(str::to_owned);
+    let darwin = reg.runners.pick(System::X86_64Darwin, true);
+    assert_eq!(darwin, Ok(Runner::Labels(own.as_slice())));
+    let linux = reg.runners.pick(System::X86_64Linux, true);
+    assert_eq!(linux, Ok(Runner::Default));
+    assert_eq!(ids(&reg), ["ci"]);
+}
+
+#[test]
+fn a_file_without_runners_has_none() {
+    let reg = parse(fixture!("full")).unwrap_or_default();
+    assert_eq!(reg.runners, crate::core::runner::Runners::default());
+}
+
+#[test]
+fn a_runners_row_for_an_unknown_system_is_refused() {
+    let e = refused(fixture!("runners-unknown-system"));
+    assert_eq!(e.line, 5);
+    assert!(e.what.starts_with("unknown system `riscv64-linux`"), "{e}");
+}
+
+#[test]
+fn a_runners_label_must_be_a_plain_word() {
+    let e = refused(fixture!("runners-bad-label"));
+    assert_eq!(e.line, 5);
+    assert_eq!(e.what, "label `-macOS` is not a runner label");
+}
+
+#[test]
+fn a_runners_row_needs_labels() {
+    let e = refused(fixture!("runners-empty"));
+    assert_eq!(e.line, 5);
+    assert!(e.what.contains("labels"), "{e}");
+}
+
+#[test]
+fn a_system_named_twice_in_runners_is_refused() {
+    let e = refused(fixture!("runners-repeated"));
+    assert_eq!(e.line, 6);
+    assert!(e.what.contains("x86_64-darwin"), "{e}");
+}

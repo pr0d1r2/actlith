@@ -8,6 +8,7 @@ use crate::kind::{
     workflow,
 };
 use crate::pin::PinTable;
+use crate::system::Runners;
 use crate::yaml::Workflow;
 
 /// The seeded scripts a `build` workflow runs: `gen` writes them too.
@@ -36,8 +37,13 @@ impl Kind for Build {
         push.into_iter().collect()
     }
 
-    fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
-        let plan = Plan::new(row, pins)?;
+    fn build(
+        &self,
+        row: &Row,
+        pins: &PinTable,
+        runners: &Runners,
+    ) -> Result<Workflow, KindError> {
+        let plan = Plan::new(row, pins, runners)?;
         Ok(workflow(&row.id, on_push_and_pr(), jobs(&plan)?))
     }
 }

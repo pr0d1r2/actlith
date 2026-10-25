@@ -32,7 +32,8 @@ clap_mangen = "0.3.3"
 # The forge-neutral core actlith shares with lablith: registry, YAML
 # writer, drift check, kind catalogue (SPEC.md FORGES, tests:V48). std
 # only, no dependencies of its own. Wired in by tests:T50 and src/kind:T51.
-pipelith = "0.1.0"
+# pipelith 0.2 (its PR #16, T38): `## runners`, x86_64-darwin a CI system.
+pipelith = "0.2.0"
 
 [lints.rust]
 # No FFI anywhere, so no module needs to lift it (SPEC.md C).

@@ -45,53 +45,31 @@ fn unknown_message_names_it_and_the_known_ones() {
 }
 
 #[test]
-fn hosted_systems_map_to_their_runner() {
-    assert_eq!(runner(System::X86_64Linux), Ok("ubuntu-latest"));
-    assert_eq!(runner(System::Aarch64Linux), Ok("ubuntu-24.04-arm"));
-    assert_eq!(runner(System::Aarch64Darwin), Ok("macos-latest"));
+fn every_system_maps_to_its_runner() {
+    assert_eq!(runner(System::X86_64Linux), "ubuntu-latest");
+    assert_eq!(runner(System::Aarch64Linux), "ubuntu-24.04-arm");
+    assert_eq!(runner(System::Aarch64Darwin), "macos-latest");
+    assert_eq!(runner(System::X86_64Darwin), "macos-15-intel");
 }
 
 #[test]
-fn x86_64_darwin_is_refused() {
-    assert_eq!(
-        runner(System::X86_64Darwin),
-        Err(SystemError::NoRunner(System::X86_64Darwin))
-    );
+fn default_systems_are_all_four() {
+    let all: Vec<System> = ALL.iter().map(|&(_, s)| s).collect();
+    assert_eq!(DEFAULT_SYSTEMS.as_slice(), all.as_slice());
 }
 
 #[test]
-fn no_runner_message_names_hand_verification() {
-    let msg = SystemError::NoRunner(System::X86_64Darwin).to_string();
-    assert_eq!(
-        msg,
-        "system `x86_64-darwin` has no GitHub-hosted runner; build and \
-         verify it by hand on an Intel Mac"
-    );
-}
-
-#[test]
-fn default_systems_are_the_hosted_three() {
-    assert_eq!(
-        DEFAULT_SYSTEMS,
-        [
-            System::X86_64Linux,
-            System::Aarch64Linux,
-            System::Aarch64Darwin
-        ]
-    );
-}
-
-#[test]
-fn every_default_system_has_a_runner() {
-    for system in DEFAULT_SYSTEMS {
-        assert!(runner(system).is_ok(), "{system}");
-    }
+fn every_default_system_has_its_own_runner() {
+    let labels: Vec<&str> = DEFAULT_SYSTEMS.into_iter().map(runner).collect();
+    let mut unique = labels.clone();
+    unique.dedup();
+    assert_eq!(unique, labels, "one runner per system");
 }
 
 #[test]
 fn error_is_a_std_error() {
     let err: &dyn std::error::Error =
-        &SystemError::NoRunner(System::X86_64Darwin);
+        &SystemError::Unknown("riscv64-linux".to_owned());
     assert!(err.source().is_none());
 }
 

@@ -1,0 +1,12 @@
+format 1
+
+# The default systems, with x86_64-darwin moved off GitHub's Intel image
+# onto the repository's own Mac (T75, src/kind V54).
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|-|pr0d1r2|-
+
+## runners
+system|labels
+x86_64-darwin|self-hosted, macOS, X64

@@ -12,6 +12,7 @@ use crate::kind::check;
 use crate::pin::PinTable;
 use crate::registry::{Registry, RegistryError, WorkflowRow};
 use crate::script::scripts;
+use crate::system::Runners;
 
 /// Every file `.actlith` asks for, sorted bytewise by path.
 ///
@@ -25,7 +26,7 @@ pub(crate) fn render(registry: &Registry) -> Result<Vec<File>, RenderError> {
     let mut files = Vec::new();
     for row in &registry.workflows {
         let entry = kind(row)?;
-        files.push(workflow(entry, row, &pins)?);
+        files.push(workflow(entry, row, &pins, &registry.runners)?);
         needed.extend(entry.scripts.iter().copied());
     }
     files.extend(seeded(&needed));
@@ -49,9 +50,10 @@ fn workflow(
     entry: Entry,
     row: &WorkflowRow,
     pins: &PinTable,
+    runners: &Runners,
 ) -> Result<File, RenderError> {
     let checked = check(entry.kind, row)?;
-    let built = entry.kind.build(&checked, pins)?;
+    let built = entry.kind.build(&checked, pins, runners)?;
     Ok(File {
         path: format!(".github/workflows/{}.yml", row.id),
         bytes: crate::yaml::render(&built),

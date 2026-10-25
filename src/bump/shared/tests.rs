@@ -5,13 +5,13 @@ use crate::bump::shared::{
     GITHUB_TOKEN, bump_job, plain, pushing_checkout, runs_on, token,
 };
 use crate::kind::{
-    ArgDefault, ArgSpec, Args, EXTRAS, KindSpec, Row, Secret, TIMEOUT,
+    ArgDefault, ArgSpec, Args, EXTRAS, KindSpec, Row, Secret, TIMEOUT, TRUSTED,
     UPDATE_PINS, parse_args,
 };
 use crate::pin::PinTable;
 use crate::registry::parse;
-use crate::system::System;
-use crate::yaml::{Action, Level, Scope, Step, Text};
+use crate::system::{Host, Runners, System};
+use crate::yaml::{Action, Level, RunsOn, Scope, Step, Text};
 
 /// The systems a bump kind runs on.
 const SYSTEMS: &[System] = UPDATE_PINS.default_systems;
@@ -90,27 +90,50 @@ fn a_token_that_is_no_secret_name_is_refused() -> Result<(), String> {
 
 #[test]
 fn one_system_gives_its_runner() -> Result<(), String> {
-    let label = runs_on(&row(SYSTEMS)?).map_err(|e| e.to_string())?;
-    assert_eq!(label, Text::lit("ubuntu-latest"));
+    let none = Runners::default();
+    let host = runs_on(&row(SYSTEMS)?, &none).map_err(|e| e.to_string())?;
+    assert_eq!(host, Host::Hosted("ubuntu-latest"));
     Ok(())
 }
 
 #[test]
 fn none_or_two_systems_are_refused() -> Result<(), String> {
     let two = [System::X86_64Linux, System::Aarch64Linux];
+    let none = Runners::default();
     for (systems, count) in [(&two[..], 2), (&[][..], 0)] {
-        let error = runs_on(&row(systems)?).err().map(|e| e.to_string());
-        let error = error.unwrap_or_default();
+        let error = runs_on(&row(systems)?, &none).err();
+        let error = error.map(|e| e.to_string()).unwrap_or_default();
         assert!(error.contains(&format!("{count} systems given")), "{error}");
     }
     Ok(())
 }
 
+/// `## runners` putting `x86_64-linux` on the repository's own runner.
+fn own_linux() -> Result<Runners, String> {
+    let text = "format 1\n\n## runners\nsystem|labels\n\
+                x86_64-linux|self-hosted, linux, X64\n";
+    parse(text).map(|r| r.runners).map_err(|e| e.to_string())
+}
+
 #[test]
-fn a_system_without_a_runner_is_refused() -> Result<(), String> {
-    let error = runs_on(&row(&[System::X86_64Darwin])?).err();
-    let error = error.map(|e| e.to_string()).unwrap_or_default();
-    assert!(error.contains(".actlith:7"), "{error}");
+fn a_runners_row_puts_the_job_on_its_labels() -> Result<(), String> {
+    let own = own_linux()?;
+    let job = bump_job(&row(SYSTEMS)?, &own, Vec::new())
+        .map_err(|e| e.to_string())?;
+    let labels = ["self-hosted", "linux", "X64"].map(str::to_owned).to_vec();
+    assert_eq!(job.runs_on, RunsOn::Labels(labels));
+    let guard = job.condition.map(|c| c.inner().to_owned());
+    assert_eq!(guard.as_deref(), Some(TRUSTED));
+    Ok(())
+}
+
+#[test]
+fn a_hosted_bump_job_has_no_guard() -> Result<(), String> {
+    let none = Runners::default();
+    let job = bump_job(&row(SYSTEMS)?, &none, Vec::new())
+        .map_err(|e| e.to_string())?;
+    assert_eq!(job.runs_on, RunsOn::One(Text::lit("ubuntu-latest")));
+    assert_eq!(job.condition, None);
     Ok(())
 }
 
@@ -137,8 +160,9 @@ fn a_named_token_checks_out_with_it() -> Result<(), String> {
 
 #[test]
 fn the_job_writes_contents_and_pull_requests_only() -> Result<(), String> {
-    let job =
-        bump_job(&row(SYSTEMS)?, Vec::new()).map_err(|e| e.to_string())?;
+    let none = Runners::default();
+    let job = bump_job(&row(SYSTEMS)?, &none, Vec::new())
+        .map_err(|e| e.to_string())?;
     let scopes: Vec<_> = job.permissions.ok_or("none")?.0.into_iter().collect();
     let write = Level::Write;
     let want = [(Scope::Contents, write), (Scope::PullRequests, write)];

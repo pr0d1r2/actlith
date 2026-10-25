@@ -1,0 +1,6 @@
+format 1
+
+## runners
+system|labels
+x86_64-darwin|self-hosted
+x86_64-darwin|macOS

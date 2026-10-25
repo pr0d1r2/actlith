@@ -41,7 +41,7 @@ fn pinned() -> Workflow {
         kind: "gate",
         systems: vec![Hosted {
             system,
-            runner: "macos-latest",
+            runner: "macos-latest".to_owned(),
         }],
         cache: None,
         actions: Vec::new(),

@@ -13,6 +13,7 @@ use crate::kind::{
     install_nix, on_schedule, run, workflow,
 };
 use crate::pin::PinTable;
+use crate::system::Runners;
 use crate::yaml::{Comment, Expr, Step, Text, Workflow};
 
 const WHY: &str = "Poll upstream for a new release and propose the bump as \
@@ -48,8 +49,13 @@ impl Kind for Upstream {
         token(&row.args).into_iter().collect()
     }
 
-    fn build(&self, row: &Row, pins: &PinTable) -> Result<Workflow, KindError> {
-        let bump = bump_job(row, steps(row, pins)?)?;
+    fn build(
+        &self,
+        row: &Row,
+        pins: &PinTable,
+        runners: &Runners,
+    ) -> Result<Workflow, KindError> {
+        let bump = bump_job(row, runners, steps(row, pins)?)?;
         let jobs = BTreeMap::from([("bump".to_owned(), bump)]);
         let mut built = workflow(&row.id, on_schedule(&cron(&row.args)?), jobs);
         built.comments = vec![Comment::new(&format!("{WHY}\n\n{LIMITS}"))];

@@ -45,6 +45,16 @@ fn the_package_is_read_from_a_packages_attribute() {
     assert_eq!(values("package", text), ["hk"]);
 }
 
+/// The build step's one-line command, with the attribute followed by a
+/// pipe: the package ends where the attribute name does (T76: the
+/// eval-only step that once named it plainly is gone).
+#[test]
+fn the_package_ends_with_its_attribute_name() {
+    let text = "      - run: 'set -o pipefail; nix build \".#packages.$SYSTEM.hk\" \
+                | cachix push c; else nix build \".#packages.$SYSTEM.hk\"; fi'\n";
+    assert_eq!(values("package", text), ["hk"]);
+}
+
 #[test]
 fn bump_args_are_read_from_their_env() {
     let text = "    - cron: '0  5 * * 1'
