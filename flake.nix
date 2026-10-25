@@ -102,48 +102,57 @@
           ;
       };
 
-      # Tools with no working build on a system, MEASURED 2026-10-14 by
-      # evaluating each input's `packages.<system>.default`. rekall lists
-      # x86_64-darwin but its build needs inputs that do not, so an `or`
-      # fallback cannot catch it: the list is explicit. The shell still
-      # evaluates there; the missing tools are named on entry, and every
-      # gate that needs one FAILS rather than skips (V19).
-      unavailable = {
+      # Tools whose pinned tag ships no x86_64-darwin package, MEASURED
+      # 2026-10-25 by evaluating each input's `packages.<system>.default`.
+      # rekall lists x86_64-darwin but its build needs itok there, so an
+      # `or` fallback cannot catch it: the list is explicit. These are built
+      # from the input's locked source with the recipe pklith uses for the
+      # same gap (pklith T74): no tests, Cargo.lock vendored, the root
+      # crate only.
+      fromSource = {
         x86_64-darwin = [
           "microlith"
           "itok"
           "characterminator"
-          "pklith"
           "rekall"
           "xenolith"
         ];
       };
+      source =
+        pkgs: input:
+        let
+          manifest = builtins.fromTOML (builtins.readFile (input + "/Cargo.toml"));
+          crate = manifest.package;
+        in
+        pkgs.rustPlatform.buildRustPackage {
+          pname = crate.name;
+          # xenolith takes its version from `[workspace.package]`.
+          version =
+            if builtins.isString crate.version then crate.version else manifest.workspace.package.version;
+          src = input;
+          cargoLock.lockFile = input + "/Cargo.lock";
+          cargoBuildFlags = [
+            "-p"
+            crate.name
+          ];
+          doCheck = false;
+        };
       toolFor =
-        system: name:
-        if builtins.elem name (unavailable.${system} or [ ]) then
-          null
+        pkgs: name:
+        let
+          system = pkgs.stdenv.hostPlatform.system;
+        in
+        if builtins.elem name (fromSource.${system} or [ ]) then
+          source pkgs tools.${name}
         else
           tools.${name}.packages.${system}.default;
-      present = system: builtins.filter (p: p != null) (map (toolFor system) (builtins.attrNames tools));
-      missing = system: unavailable.${system} or [ ];
-      # Systems pklith's `lib.devShell` supports.
-      pklithSystems = [
-        "aarch64-darwin"
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
+      present = pkgs: map (toolFor pkgs) (builtins.attrNames tools);
     in
     {
       devShells = forAll (
         pkgs:
         let
-          system = pkgs.stdenv.hostPlatform.system;
-          absent = missing system;
           coverageLlvm = pkgs.llvmPackages_21.llvm;
-          coverageEnv = {
-            LLVM_COV = "${coverageLlvm}/bin/llvm-cov";
-            LLVM_PROFDATA = "${coverageLlvm}/bin/llvm-profdata";
-          };
           toolchain = [
             pkgs.rustc
             pkgs.cargo
@@ -162,44 +171,28 @@
             # `nixfmt --check` gates this file (T6).
             pkgs.nixfmt
           ]
-          ++ present system;
-          warn = pkgs.lib.optionalString (absent != [ ]) ''
-            echo "actlith(shell): no ${system} build of: ${builtins.concatStringsSep ", " absent} -- gates that need them FAIL here" >&2
-          '';
+          ++ present pkgs;
         in
         {
           # pklith's shell adds hk, pkl, git, pklith and every tool its
           # generated `nix/pklith.nix` names, and points git at the tracked
-          # `.githooks/` once `hk.pkl` exists (T2). pklith has no
-          # x86_64-darwin build, so that system gets a plain shell without
-          # the hook wiring, and the gate cannot run there (V19).
+          # `.githooks/` once `hk.pkl` exists (T2), on all four systems.
           default =
-            if builtins.elem system pklithSystems then
-              (pklith.lib.devShell {
-                inherit pkgs;
-                src = ./.;
-                packages = toolchain;
-              }).overrideAttrs
-                (old: {
-                  # Our pinned tools FIRST on PATH: pklith's catalog carries
-                  # its own (older) microlith, sherd and itok, and mkShell puts
-                  # `packages` after them.
-                  nativeBuildInputs = toolchain ++ old.nativeBuildInputs;
-                  # Deterministic tool output across machines.
-                  LANG = "C.UTF-8";
-                  inherit (coverageEnv) LLVM_COV LLVM_PROFDATA;
-                  shellHook = old.shellHook + warn;
-                })
-            else
-              pkgs.mkShell {
-                packages = toolchain ++ [
-                  pkgs.hk
-                  pkgs.git
-                ];
+            (pklith.lib.devShell {
+              inherit pkgs;
+              src = ./.;
+              packages = toolchain;
+            }).overrideAttrs
+              (old: {
+                # Our pinned tools FIRST on PATH: pklith's catalog carries
+                # its own (older) microlith, sherd and itok, and mkShell puts
+                # `packages` after them.
+                nativeBuildInputs = toolchain ++ old.nativeBuildInputs;
+                # Deterministic tool output across machines.
                 LANG = "C.UTF-8";
-                inherit (coverageEnv) LLVM_COV LLVM_PROFDATA;
-                shellHook = warn;
-              };
+                LLVM_COV = "${coverageLlvm}/bin/llvm-cov";
+                LLVM_PROFDATA = "${coverageLlvm}/bin/llvm-profdata";
+              });
         }
       );
 
