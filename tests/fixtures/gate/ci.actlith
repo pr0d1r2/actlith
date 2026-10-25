@@ -4,4 +4,4 @@ format 1
 
 ## workflows
 id|kind|systems|cache|args
-ci|gate|x86_64-linux, aarch64-linux, aarch64-darwin|pr0d1r2|-
+ci|gate|-|pr0d1r2|-
