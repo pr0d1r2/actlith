@@ -67,7 +67,7 @@ fn the_kind_is_named_gate_and_takes_command_and_timeout() {
     let keys: Vec<&str> = Gate.spec().schema.iter().map(|s| s.key).collect();
     assert_eq!(keys, ["command", "timeout"]);
     let forge: Vec<&str> = Gate.forge_args().iter().map(|s| s.key).collect();
-    assert_eq!(forge, ["xcode"]);
+    assert_eq!(forge, ["xcode", "cache-push"]);
 }
 
 #[test]

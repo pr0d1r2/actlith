@@ -161,9 +161,9 @@ fn every_rendered_row_renders_on_every_forge() -> Result<(), String> {
 }
 
 #[test]
-fn xcode_is_the_one_github_only_key() -> Result<(), String> {
+fn xcode_and_cache_push_are_the_github_only_keys() -> Result<(), String> {
     let keys: Vec<&str> = EXTRAS.keys.iter().map(|s| s.key).collect();
-    assert_eq!(keys, ["xcode"]);
+    assert_eq!(keys, ["xcode", "cache-push"]);
     let text = "format 1\n\n## workflows\nid|kind|systems|cache|args\n\
                 ci|gate|aarch64-darwin|-|xcode=26.4\n";
     let registry = parse(text).map_err(|e| e.to_string())?;

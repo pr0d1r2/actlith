@@ -6,8 +6,8 @@
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    ArgSpec, CachixPush, Checkout, GATE, Kind, KindError, KindSpec, Row,
-    Secret, XCODE, cachix, checkout, install_nix, job, matrix_runner,
+    ArgSpec, CACHE_PUSH, CachixPush, Checkout, GATE, Kind, KindError, KindSpec,
+    Row, Secret, XCODE, cachix, checkout, install_nix, job, matrix_runner,
     on_push_and_pr, run, runner_matrix, workflow,
 };
 use crate::pin::PinTable;
@@ -37,11 +37,11 @@ impl Kind for Gate {
     }
 
     fn forge_args(&self) -> &'static [ArgSpec] {
-        &[XCODE]
+        &[XCODE, CACHE_PUSH]
     }
 
     fn secrets(&self, row: &Row) -> Vec<Secret> {
-        let push = row.cache.as_ref().and(CachixPush::SkipForkPr.secret());
+        let push = row.cache.as_ref().and_then(|_| cache_push(row).secret());
         push.into_iter().collect()
     }
 
@@ -122,11 +122,20 @@ fn steps(
     steps.push(checkout(pins, &how)?);
     steps.push(install_nix(pins, row.cache.as_ref())?);
     if let Some(cache) = &row.cache {
-        steps.push(cachix(pins, cache, CachixPush::SkipForkPr)?);
+        steps.push(cachix(pins, cache, cache_push(row))?);
     }
     let command = row.args.get("command").unwrap_or(COMMAND);
     steps.push(run(row.line, command, &[])?);
     Ok(steps)
+}
+
+/// The default gate pushes, while `cache-push=false` makes Cachix a
+/// substituter only.
+fn cache_push(row: &Row) -> CachixPush {
+    match row.args.get("cache-push") {
+        Some("false") => CachixPush::ReadOnly,
+        _ => CachixPush::SkipForkPr,
+    }
 }
 
 #[cfg(test)]

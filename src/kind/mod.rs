@@ -50,7 +50,7 @@ pub(crate) use contract::Kind;
 pub(crate) use error::KindError;
 pub(crate) use job::{job, matrix_runner, runner_matrix, widen};
 pub(crate) use nix::install_nix;
-pub(crate) use row::{EXTRAS, XCODE, check};
+pub(crate) use row::{CACHE_PUSH, EXTRAS, XCODE, check};
 pub(crate) use run::run;
 pub(crate) use secret::Secret;
 pub(crate) use step::{step, uses};
