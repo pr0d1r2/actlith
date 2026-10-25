@@ -55,9 +55,16 @@
     };
     # Rules extracted from agent memory, and the honesty gate on them.
     rekall = {
-      url = "github:pr0d1r2/rekall/v0.4.0";
-      inputs.nixpkgs-lock.follows = "nixpkgs-lock";
-      inputs.nix-hk.follows = "nix-hk";
+      url = "github:pr0d1r2/rekall/v1.0.0";
+      # rekall locks main revisions of itok, microlith and sherd, each
+      # behind ours; its package tests run against our itok.
+      inputs = {
+        nixpkgs-lock.follows = "nixpkgs-lock";
+        nix-hk.follows = "nix-hk";
+        itok.follows = "itok";
+        microlith.follows = "microlith";
+        sherd.follows = "sherd";
+      };
     };
     # One language per file, 1:1 test mirror, TDD order (`xnl`).
     xenolith = {
@@ -109,17 +116,14 @@
       };
 
       # Tools whose pinned tag ships no x86_64-darwin package, MEASURED
-      # 2026-10-25 by evaluating each input's `packages.<system>.default`.
-      # rekall lists x86_64-darwin but its build needs itok there, so an
-      # `or` fallback cannot catch it: the list is explicit. These are built
-      # from the input's locked source with the recipe pklith uses for the
-      # same gap (pklith T74): no tests, Cargo.lock vendored, the root
-      # crate only.
+      # 2026-10-25 by evaluating each input's `packages.<system>.default`:
+      # characterminator v0.1.1 lists none (microlith v0.7.5, itok v0.3.2,
+      # xenolith v0.2.0 and rekall v1.0.0 do). It is built from the input's
+      # locked source with the recipe pklith uses for the same gap (pklith
+      # T74): no tests, Cargo.lock vendored, the root crate only. The entry
+      # goes once a characterminator release lists the system.
       fromSource = {
-        x86_64-darwin = [
-          "characterminator"
-          "rekall"
-        ];
+        x86_64-darwin = [ "characterminator" ];
       };
       source =
         pkgs: input:
