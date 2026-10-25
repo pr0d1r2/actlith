@@ -68,7 +68,7 @@ pub(crate) fn build(plan: &Plan) -> Result<Job, KindError> {
 
 fn build_command(plan: &Plan) -> String {
     format!(
-        "if [ \"$GITHUB_EVENT_NAME\" = push ] && [ \"$GITHUB_REF\" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs \".#packages.$SYSTEM.{}\" | cachix push {}; else nix build --print-build-logs \".#packages.$SYSTEM.{}\"; fi",
+        "set -o pipefail; if [ \"$GITHUB_EVENT_NAME\" = push ] && [ \"$GITHUB_REF\" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs \".#packages.$SYSTEM.{}\" | cachix push {}; else nix build --print-build-logs \".#packages.$SYSTEM.{}\"; fi",
         plan.package,
         plan.cache.name(),
         plan.package
