@@ -7,6 +7,8 @@
 #   nix/guard/no-core-worktree.sh
 set -euo pipefail
 
+unset GIT_DIR GIT_COMMON_DIR GIT_WORK_TREE
+
 if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null || true)" != true ]; then
   echo "no-core-worktree: not inside a git work tree" >&2
   exit 1
