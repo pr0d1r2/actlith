@@ -8,6 +8,7 @@ format 1
 
 ## checks
 id|category|nix|glob|check|fix|env|msg
+no-core-worktree|gate|-|-|bash nix/guard/no-core-worktree.sh|-|-|local git config sets core.worktree, which is shared by parallel workers
 # Overrides the catalog row: its globs miss the extension-less hook shims
 # pklith seeds into .githooks/ (pklith overrides it the same way).
 shellcheck|lint|shellcheck|.githooks/*, .envrc, **/*.sh|shellcheck --shell=bash {{files}}|-|-|shell script finding

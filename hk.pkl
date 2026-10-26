@@ -17,6 +17,9 @@ local fast = (generated.steps) {
     check = "cargo build -q --workspace --bins"
     depends = List("clippy")
   }
+  ["no-core-worktree"] {
+    check = "bash nix/guard/no-core-worktree.sh"
+  }
   ["agents-table"] { depends = List("build") }
   ["readme-badges"] { depends = List("build") }
   ["notices"] { depends = List("build") }

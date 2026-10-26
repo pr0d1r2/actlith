@@ -28,7 +28,7 @@ Instructions for coding agents working in this repository.
 Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 
 <!-- BEGIN steps: generated from hk.pkl by `cargo run -p actlith-dev -- agents`; do not edit -->
-48 steps run on every commit and 55 on push and `hk check`; the commit-msg hook checks the message.
+49 steps run on every commit and 56 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 | --- | --- | --- | --- |
@@ -79,6 +79,7 @@ Generated from `hk.pkl`; the `agents-table` step fails when it is stale.
 | `actlith-gen-check` | commit | `.actlith` `.github/workflows/**` `scripts/actlith/**` `src/**` | yes |
 | `actlith-check` | commit | `.actlith` `.github/workflows/**` | - |
 | `build` | commit | whole tree | - |
+| `no-core-worktree` | commit | whole tree | - |
 | `test` | push | `**/*.rs` `Cargo.toml` `Cargo.lock` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
 | `doctest` | push | `**/*.rs` `Cargo.toml` | - |
