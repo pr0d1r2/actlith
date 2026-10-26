@@ -10,6 +10,13 @@ git -C "$fixture" init -q
 git -C "$fixture" config user.email test@example.invalid
 git -C "$fixture" config user.name test
 
+bare_fixture="$(mktemp -d)"
+git -C "$bare_fixture" init --bare -q
+if (cd "$bare_fixture" && bash "$guard"); then
+  echo "no-core-worktree proof: bare repository was accepted" >&2
+  exit 1
+fi
+
 if ! (cd "$fixture" && bash "$guard"); then
   echo "no-core-worktree proof: clean repository was rejected" >&2
   exit 1
