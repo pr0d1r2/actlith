@@ -2,7 +2,7 @@
 //! `## actions`, `## hand-written`, `## bots`.
 
 use super::error::RegistryError;
-use super::model::{ActionPin, BotRow, HandWritten};
+use super::model::{ActionPin, BotRow, Cache, HandWritten};
 use super::parse::FILE;
 use crate::core::registry::{Row, args, required};
 
@@ -16,6 +16,14 @@ pub(super) fn action(row: &Row) -> Result<ActionPin, RegistryError> {
         action: required(FILE, row, 0, "action")?,
         version: required(FILE, row, 1, "version")?,
         sha: full_sha(row.line, required(FILE, row, 2, "sha")?)?,
+    })
+}
+
+pub(super) fn cache(row: &Row) -> Result<Cache, RegistryError> {
+    Ok(Cache {
+        line: row.line,
+        name: required(FILE, row, 0, "name")?,
+        public_key: required(FILE, row, 1, "public-key")?,
     })
 }
 

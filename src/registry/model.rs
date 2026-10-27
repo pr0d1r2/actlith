@@ -10,6 +10,7 @@ pub(crate) struct Registry {
     pub(crate) workflows: Vec<WorkflowRow>,
     /// `## actions` rows: pins overriding the built-in table.
     pub(crate) actions: Vec<ActionPin>,
+    pub(crate) caches: Vec<Cache>,
     /// `## hand-written` rows: workflow files actlith does not generate.
     pub(crate) hand_written: Vec<HandWritten>,
     /// `## bots` rows (`src/bots` I).
@@ -17,6 +18,13 @@ pub(crate) struct Registry {
     /// `## runners` rows: a system's own runner labels, checked by
     /// pipelith (`src/system` V53).
     pub(crate) runners: crate::core::runner::Runners,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct Cache {
+    pub(crate) line: usize,
+    pub(crate) name: String,
+    pub(crate) public_key: String,
 }
 
 /// A `key=value` arg: pipelith's (src/core).

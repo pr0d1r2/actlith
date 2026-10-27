@@ -10,6 +10,10 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Added
 
+- `## caches` in `.actlith`, with `name|public-key` rows parsed by
+  `src/registry`; omitted sections continue to use pipelith's built-in
+  Cachix cache table.
+
 - `## runners` in `.actlith`, header `system|labels` (pipelith 0.2's
   neutral section, read with `Runners::from_document`): a row such as
   `x86_64-darwin|self-hosted, macOS, X64` moves that system's jobs, in
