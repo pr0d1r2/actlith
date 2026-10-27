@@ -59,7 +59,7 @@ V38: bot files rendered only for `## bots` rows; ∀ bot file in the repo ⊥ ba
 
 id|status|task|cites
 T39|x|`## bots` rows (`src/registry`), `coderabbit`, `greptile`, `socket` files; render adds them; golden files|V38,`.:V1`
-T40|.|central `coderabbit` config repo for the fleet; install CodeRabbit, Socket, Greptile apps on FREE tiers; Greptile OSS application; any paid plan = smallest one, ! user action & approval; actlith only writes stubs|V38,R10,R12
+T40|x|central `coderabbit` config repo for the fleet; install CodeRabbit, Socket, Greptile apps on FREE tiers; Greptile OSS application; any paid plan = smallest one, ! user action & approval; actlith only writes stubs|V38,R10,R12
 
 ## §B BUGS
 
