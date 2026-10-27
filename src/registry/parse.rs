@@ -4,7 +4,7 @@
 
 use super::error::RegistryError;
 use super::model::Registry;
-use super::rows::{action, bot, hand};
+use super::rows::{action, bot, cache, hand};
 use crate::core::kind::{self, RawRow};
 use crate::core::registry::{self, Schema, SectionSpec};
 use crate::core::runner::{self, Runners};
@@ -20,6 +20,12 @@ const SCHEMA: Schema<'static> = Schema {
         SectionSpec {
             name: "actions",
             columns: &["action", "version", "sha"],
+            required: false,
+            key: Some(0),
+        },
+        SectionSpec {
+            name: "caches",
+            columns: &["name", "public-key"],
             required: false,
             key: Some(0),
         },
@@ -52,6 +58,7 @@ pub(crate) fn parse(text: &str) -> Result<Registry, RegistryError> {
             .map(|r| RawRow::from_cells(FILE, r))
             .collect::<Result<_, _>>()?,
         actions: rows("actions").map(action).collect::<Result<_, _>>()?,
+        caches: rows("caches").map(cache).collect::<Result<_, _>>()?,
         hand_written: rows("hand-written")
             .map(hand)
             .collect::<Result<_, _>>()?,

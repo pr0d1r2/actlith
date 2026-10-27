@@ -44,6 +44,27 @@ fn full_fills_the_other_sections() {
 }
 
 #[test]
+fn caches_name_the_repository_cache_and_key() -> Result<(), String> {
+    let reg = parse(
+        "format 1\n## caches\nname|public-key\nrepo|repo.cachix.org-1:key\n",
+    )
+    .unwrap_or_default();
+    assert_eq!(reg.caches.len(), 1);
+    let cache = reg.caches.first().ok_or("no cache")?;
+    assert_eq!(cache.line, 4);
+    assert_eq!(cache.name, "repo");
+    assert_eq!(cache.public_key, "repo.cachix.org-1:key");
+    Ok(())
+}
+
+#[test]
+fn cache_name_and_key_are_required() {
+    let error = refused("format 1\n## caches\nname|public-key\nrepo|-\n");
+    assert_eq!(error.line, 4);
+    assert!(error.what.contains("public-key"), "{error}");
+}
+
+#[test]
 fn format_only_has_empty_sections() {
     assert_eq!(parse(fixture!("format-only")), Ok(Registry::default()));
 }
