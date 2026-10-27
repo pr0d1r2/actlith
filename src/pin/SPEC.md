@@ -52,7 +52,7 @@ V2: ∀ emitted `uses:` = `owner/repo@<40-hex sha>  # <version>`; sha from pin t
 
 id|status|task|cites
 T15|x|built-in pins (checkout v7.0.1, install-nix-action v31.11.0, cachix-action v17), override merge, 40-hex check; missing pin → error naming action|V2
-T45|.|`PinTable::actions()` lists built-in actions ∴ `src/fetch` drops its duplicate name list|V2
+T45|x|`PinTable::actions()` lists built-in actions ∴ `src/fetch` drops its duplicate name list|V2
 
 ## §B BUGS
 
