@@ -48,6 +48,11 @@ impl PinTable {
         )
     }
 
+    /// The actions in the built-in table, in declaration order.
+    pub(crate) fn actions() -> impl Iterator<Item = &'static str> {
+        BUILTIN.iter().map(|(action, _, _)| *action)
+    }
+
     /// This table with each `## actions` row replacing or adding its
     /// action's pin; a row whose SHA is not 40-hex is refused.
     pub(crate) fn with_overrides(

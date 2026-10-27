@@ -107,6 +107,19 @@ fn builtin_checkout_is_v7_0_1() {
 }
 
 #[test]
+fn actions_lists_the_builtin_actions() {
+    let got: Vec<&str> = PinTable::actions().collect();
+    assert_eq!(
+        got,
+        vec![
+            "actions/checkout",
+            "cachix/install-nix-action",
+            "cachix/cachix-action",
+        ]
+    );
+}
+
+#[test]
 fn override_replaces_builtin_and_adds_new_action() {
     let table = PinTable::builtin().with_overrides(&overrides());
     let table = table.unwrap_or_default();

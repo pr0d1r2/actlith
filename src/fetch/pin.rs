@@ -11,15 +11,6 @@ use super::section;
 use crate::pin::{PinTable, Uses};
 use crate::registry::{Registry, parse};
 
-/// The actions of the built-in pin table. `src/pin` exposes lookup, not
-/// iteration, so the names are listed here; versions and SHAs come from
-/// `PinTable::builtin()`, and a test checks each name resolves there.
-pub(crate) const BUILTIN_ACTIONS: [&str; 3] = [
-    "actions/checkout",
-    "cachix/install-nix-action",
-    "cachix/cachix-action",
-];
-
 /// Resolve each action of the pin table (built-in and `## actions` rows)
 /// to its latest release tag, or its recorded version when it has none,
 /// and that tag to a commit SHA. Returns the new `## actions` rows; writes
@@ -53,14 +44,18 @@ fn resolve_all(
     let table = PinTable::builtin()
         .with_overrides(&reg.actions)
         .map_err(FetchError::Pin)?;
-    let resolve = |action| resolved(&table, action, resolver);
-    names(reg).into_iter().map(resolve).collect()
+    names(reg)
+        .into_iter()
+        .map(|action| resolved(&table, &action, resolver))
+        .collect()
 }
 
 /// Built-in actions and `## actions` rows, sorted, each once.
-fn names(reg: &Registry) -> BTreeSet<&str> {
-    let rows = reg.actions.iter().map(|row| row.action.as_str());
-    BUILTIN_ACTIONS.into_iter().chain(rows).collect()
+fn names(reg: &Registry) -> BTreeSet<String> {
+    let mut names: BTreeSet<String> =
+        PinTable::actions().map(str::to_owned).collect();
+    names.extend(reg.actions.iter().map(|row| row.action.clone()));
+    names
 }
 
 /// `action` at its latest release (or recorded version), checked.

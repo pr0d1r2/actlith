@@ -8,9 +8,7 @@ use std::path::{Path, PathBuf};
 use crate::fetch::FetchError;
 use crate::fetch::Resolver;
 use crate::fetch::pin;
-use crate::fetch::pin::BUILTIN_ACTIONS;
 use crate::fetch::section::replace;
-use crate::pin::PinTable;
 
 const FULL: &str = include_str!("../../../tests/fixtures/fetch/full.actlith");
 const NONE: &str =
@@ -85,14 +83,6 @@ fn scratch(name: &str, text: &str) -> PathBuf {
 
 fn actlith(root: &Path) -> String {
     fs::read_to_string(root.join(".actlith")).unwrap_or_default()
-}
-
-#[test]
-fn every_builtin_action_has_a_builtin_pin() {
-    let table = PinTable::builtin();
-    for action in BUILTIN_ACTIONS {
-        assert!(table.uses(action).is_ok(), "{action}");
-    }
 }
 
 #[test]
