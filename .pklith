@@ -9,6 +9,8 @@ format 1
 ## checks
 id|category|nix|glob|check|fix|env|msg
 no-core-worktree|gate|-|-|bash nix/guard/no-core-worktree.sh|-|-|local git config sets core.worktree, which is shared by parallel workers
+# nix:V42: hk's pklr evaluator must see the same commanded steps as pkl eval.
+hk-parity|gate|jq|hk.pkl, hk.pklith.pkl, pkl/**, nix/guard/hk-parity.sh|bash nix/guard/hk-parity.sh|-|-|hk's own Pkl evaluator does not see the steps pkl eval sees
 # Overrides the catalog row: its globs miss the extension-less hook shims
 # pklith seeds into .githooks/ (pklith overrides it the same way).
 shellcheck|lint|shellcheck|.githooks/*, .envrc, **/*.sh|shellcheck --shell=bash {{files}}|-|-|shell script finding
@@ -59,7 +61,7 @@ md|markdownlint, links|-|-
 nix|nixfmt, statix, deadnix, xnl-check, xnl-lint|-|-
 path:**/SPEC.md|markdownlint, links, mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget, itok|-|-
 pklith|pklith-check, gen-check|-|-
-pkl|xnl-check, xnl-lint|-|-
+pkl|xnl-check, xnl-lint, hk-parity|-|-
 pre-commit|shellcheck, xnl-check, xnl-lint|-|-
 pre-push|shellcheck, xnl-check, xnl-lint|-|-
 commit-msg|shellcheck, xnl-check, xnl-lint|-|-
