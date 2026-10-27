@@ -6,24 +6,36 @@ guard="$root/nix/guard/no-core-worktree.sh"
 fixture="$(mktemp -d)"
 trap 'rm -rf "$fixture"' EXIT
 
-git -C "$fixture" init -q
-git -C "$fixture" config user.email test@example.invalid
-git -C "$fixture" config user.name test
+git_scratch=(env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE
+  -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES
+  -u GIT_COMMON_DIR git)
+
+"${git_scratch[@]}" -C "$fixture" init -q
+"${git_scratch[@]}" -C "$fixture" config --local core.hooksPath /dev/null
+"${git_scratch[@]}" -C "$fixture" config user.email test@example.invalid
+"${git_scratch[@]}" -C "$fixture" config user.name test
 
 bare_fixture="$(mktemp -d)"
-git -C "$bare_fixture" init --bare -q
-if (cd "$bare_fixture" && bash "$guard"); then
+"${git_scratch[@]}" -C "$bare_fixture" init --bare -q
+"${git_scratch[@]}" -C "$bare_fixture" config --local core.hooksPath /dev/null
+if (cd "$bare_fixture" && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE \
+  -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_COMMON_DIR \
+  bash "$guard"); then
   echo "no-core-worktree proof: bare repository was accepted" >&2
   exit 1
 fi
 
-if ! (cd "$fixture" && bash "$guard"); then
+if ! (cd "$fixture" && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE \
+  -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_COMMON_DIR \
+  bash "$guard"); then
   echo "no-core-worktree proof: clean repository was rejected" >&2
   exit 1
 fi
 
-git -C "$fixture" config --local core.worktree "$fixture"
-if (cd "$fixture" && bash "$guard"); then
+"${git_scratch[@]}" -C "$fixture" config --local core.worktree "$fixture"
+if (cd "$fixture" && env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE \
+  -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_COMMON_DIR \
+  bash "$guard"); then
   echo "no-core-worktree proof: planted core.worktree was accepted" >&2
   exit 1
 fi
