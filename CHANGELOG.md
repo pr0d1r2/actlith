@@ -49,6 +49,8 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Changed
 
+- Xcode-pinned `gate` workflows pass `HOST_DEVELOPER_DIR` into the default
+  `nix develop` command, preserving the selected Xcode in the dev shell.
 - `build`: generated main-branch builds now fail when `nix build` fails,
   even if the Cachix push succeeds.
 - `build`: Cachix receives only the package output paths printed by `nix

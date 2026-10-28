@@ -132,6 +132,12 @@ fn the_args_set_command_and_timeout() -> Result<(), String> {
     let text = write(&gate);
     assert!(text.contains("      - run: just check\n"), "{text}");
     assert!(text.contains("    timeout-minutes: 12\n"), "{text}");
+
+    let xcode = write(&built(&row(
+        "ci|gate|aarch64-darwin|-|command=just check,xcode=16.4",
+    )?)?);
+    assert!(xcode.contains("      - run: just check\n"), "{xcode}");
+    assert!(!xcode.contains("HOST_DEVELOPER_DIR"), "{xcode}");
     Ok(())
 }
 
@@ -251,6 +257,21 @@ fn rows_without_xcode_have_no_developer_dir() -> Result<(), String> {
         assert!(!text.contains("DEVELOPER_DIR"), "{text}");
         assert!(!text.contains("xcodebuild"), "{text}");
     }
+    Ok(())
+}
+
+#[test]
+fn the_default_command_hands_xcode_to_the_dev_shell() -> Result<(), String> {
+    let pinned = write(&built(&row("ci|gate|aarch64-darwin|-|xcode=16.4")?)?);
+    assert!(
+        pinned.contains(
+            "- run: 'HOST_DEVELOPER_DIR=\"$DEVELOPER_DIR\" nix develop --command hk check --all --check'"
+        ),
+        "{pinned}"
+    );
+
+    let unpinned = write(&built(&row("ci|gate|-|-|-")?)?);
+    assert!(!unpinned.contains("HOST_DEVELOPER_DIR"), "{unpinned}");
     Ok(())
 }
 
