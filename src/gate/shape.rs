@@ -20,6 +20,7 @@ const JOB: &str = "gate";
 
 /// The gate run when the row gives no `command`.
 const COMMAND: &str = "nix develop --command hk check --all --check";
+const HOST_XCODE: &str = "HOST_DEVELOPER_DIR=\"$DEVELOPER_DIR\" ";
 
 /// The Xcode check: the pinned Xcode is on the image, else the job fails
 /// naming its path; never the image's default (V52).
@@ -163,9 +164,19 @@ fn steps(
     if let Some(cache) = &row.cache {
         steps.push(cachix(pins, cache, cache_push(row))?);
     }
-    let command = row.args.get("command").unwrap_or(COMMAND);
-    steps.push(run(row.line, command, &[])?);
+    let command = command(row, xcode);
+    steps.push(run(row.line, &command, &[])?);
     Ok(steps)
+}
+
+/// The default command must pass the pinned Xcode through `nix develop`.
+fn command(row: &Row, xcode: Option<&str>) -> String {
+    let command = row.args.get("command").unwrap_or(COMMAND);
+    if xcode.is_some() && command == COMMAND {
+        format!("{HOST_XCODE}{command}")
+    } else {
+        (*command).to_owned()
+    }
 }
 
 /// The default gate pushes, while `cache-push=false` makes Cachix a
