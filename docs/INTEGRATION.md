@@ -52,7 +52,7 @@ sequence is:
 1. Run `actlith detect` and use its output as the proposed row.
 2. Add or edit that row in `.actlith`.
 3. Remove or rename replaced workflows, or list retained files under
-   `## hand-written`.
+   `## hand-written` with a reason for each file (`path|reason`).
 4. Run `actlith gen`, then `actlith check` and review the complete PR diff.
 5. Only after the diff is approved, open the repository PR.
 
