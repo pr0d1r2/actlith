@@ -156,7 +156,8 @@ and crates.io trusted publishing) are forge-only contracts owned by
 `src/kind`; until two fleet repositories share a shape they remain
 `## hand-written` rows. Harden-Runner, artifact attestations, cache-nix-action
 and flake-checker-action are typed steps owned by `src/kind`, and GitHub merge
-queue is the `merge_group` trigger owned there as well. CodeRabbit, Socket and
+queue is the `merge_group` trigger owned there as well. Secret scanning and
+push protection are settings/API owned there. CodeRabbit, Socket and
 Greptile file stubs are owned by `src/bots`; app-only services emit no file.
 Every row and its free-tier/user-action rule is catalogued in
 `docs/SERVICES.md` (`.:V41`).

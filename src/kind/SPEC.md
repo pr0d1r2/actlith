@@ -46,7 +46,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 id|topic|finding|src
 R19|own runner shape|job `if:` ⊥ sees `matrix` (evaluated before expansion; actionlint refuses) ∴ 1 matrix job ⊥ guards 1 entry; `include` list `os` hides labels behind `${{ matrix.os }}` ∴ own runner = own job `<job>-<system>`, literal `runs-on`|GitHub docs contexts availability; actionlint
-R42|adopt ownership|wf: CodeQL, Dependabot, Renovate, Scorecard, release-plz, Mergify, CodSpeed, Bencher, Codecov, Semantic PR, stale, lychee, Secret scanning/push protection, trusted publishing; steps: Harden-Runner, attestations, cache-nix-action, flake-checker-action; trigger: merge queue; Cachix: C,T17|`docs/SERVICES.md` Adopt
+R42|adoption|wf: CodeQL, Dependabot, Renovate, Scorecard, release-plz, Mergify, CodSpeed, Bencher, Codecov, Semantic PR, stale, lychee, trusted-publishing; settings/API: Secret scanning/push protection; steps: Harden-Runner, attestations, cache-nix-action, flake-checker-action; merge queue; cache:C,T17|`docs/SERVICES.md` Adopt
 
 ## §V INVARIANTS
 
