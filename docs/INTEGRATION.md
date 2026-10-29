@@ -44,7 +44,22 @@ as real files so shellcheck and your other linters see them.
 
 ## A repository that already has workflows
 
-Go one workflow at a time:
+Roll out one repository at a time, starting with pklith, then
+congestimancer, then the remaining byte-identical `ci.yml` groups. For each
+repository, get user approval before opening or pushing a PR. The mechanical
+sequence is:
+
+1. Run `actlith detect` and use its output as the proposed row.
+2. Add or edit that row in `.actlith`.
+3. Run `actlith gen`, then `actlith check` and review the complete PR diff.
+4. Only after the diff is approved, open the repository PR.
+
+Do not use `actlith import` as a fleet migration tool. It accepts only an
+exact render (after comment and whitespace normalisation); the fleet sweep
+found 3 matches out of 214 workflow files, with the misses differing in
+shape. Use `## hand-written` for workflows that are intentionally retained.
+
+For a single existing workflow, the exact-match diagnostic remains useful:
 
 1. Ask whether a kind renders it already:
 
