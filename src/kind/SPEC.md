@@ -33,7 +33,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 - a kind = Rust type implementing `Kind`: `spec()` (pipelith catalogue entry), secrets, `build(&Row, &PinTable) -> Workflow`. ⊥ text templates.
 - row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (kinds ∅, keys `xcode`, `cache-push`); `check` passes a kind only its `Kind::forge_args` (default ∅) ∴ other kinds refuse these keys.
-- common parts here, used by every kind: top permissions, concurrency, job timeout, checkout, install-nix w/ cache substituter, cachix (fork-PR skip, `pushFilter`); gate `cache-push=false` selects read-only Cachix mode.
+- common: permissions, concurrency, timeout, checkout, install-nix/cache, cachix (fork-PR skip, `pushFilter`); gate `cache-push=false`: read-only.
 
 ## §I INTERFACES
 
@@ -46,7 +46,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 id|topic|finding|src
 R19|own runner shape|job `if:` ⊥ sees `matrix` (evaluated before expansion; actionlint refuses) ∴ 1 matrix job ⊥ guards 1 entry; `include` list `os` hides labels behind `${{ matrix.os }}` ∴ own runner = own job `<job>-<system>`, literal `runs-on`|GitHub docs contexts availability; actionlint
-R42|adopted service ownership|CodeQL, Dependabot, Renovate, Scorecard, release-plz, Mergify, CodSpeed, Bencher, Codecov, Semantic PR, stale, lychee and trusted publishing are workflow contracts; Harden-Runner, attestations, cache-nix-action and flake-checker-action are steps; merge queue is a trigger|`docs/SERVICES.md` Adopt
+R42|adopt ownership|wf: CodeQL, Dependabot, Renovate, Scorecard, release-plz, Mergify, CodSpeed, Bencher, Codecov, Semantic PR, stale, lychee, Secret scanning/push protection, trusted publishing; steps: Harden-Runner, attestations, cache-nix-action, flake-checker-action; trigger: merge queue; Cachix: C,T17|`docs/SERVICES.md` Adopt
 
 ## §V INVARIANTS
 
@@ -56,12 +56,13 @@ V14: ∀ kind declares ∀ secret it reads; `report` lists them per workflow. fo
 V49: kind ∈ pipelith catalogue only if it renders on both forges, else forge-only & named by portability check. refines `.:V24`
 V54: job on `Host::Own` → `runs-on: [labels]` & `if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository` (`&&` job's own `if`); hosted job ⊥ guard; ⊥ opt-out (pipelith `runner` `trusted_only`). golden has both, passes actionlint & zizmor
 V58: adopted integrations are typed: workflows stay hand-written until ≥2 fleet repos share a shape (`.:V24`); steps use pinned `Step`, triggers extend `Trigger`, and kinds declare permissions/secrets (`V3,V14`)
+V59: secret scanning/push protection: settings/API; Cachix: C,T17
 
 ## §T TASKS
 
 id|status|task|cites
 T17|x|`Kind` trait, arg schema & parse, common parts (permissions, concurrency, timeouts, checkout, install-nix, cachix, env-only expressions); tests per part|V3,V14,`src/registry:V10`
-T42|x|spec adopted workflow, step and `merge_group` trigger contracts; build only after the `.:V24` shape threshold|`.:V24`,`.:V41`,V58,R42
+T42|x|adopted contracts; build after `.:V24`|`.:V24`,`.:V41`,V58,V59,R42
 T44|x|`.actlith` `## caches` section (columns name, public-key; `src/registry`) so a repo names its own cachix cache; built-in table stays the default|`src/registry:V10`
 T51|x|rows, args, contract → `pipelith` `kind`; mark forge-only arg keys|`tests:V48`,V49
 T53|.|split `docs/KINDS.md`: neutral → pipelith, GitHub syntax → `docs/KINDS-GITHUB.md`|`.:V25`,V49
