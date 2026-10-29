@@ -2,7 +2,7 @@
 
 ## §G GOAL
 
-`actlith` (cmd `actlith`) — GitHub Actions workflow MATERIALIZER: from small `.actlith` (1 row = 1 workflow: id, kind, systems, cache, args) RENDER full `.github/workflows/*.yml` + seeded scripts; ∀ action SHA-pinned; hardening ⊥ optional; CHECK committed files == render (drift) & ∀ workflow file declared (totality). purely mechanical: ⊥ LLM, ⊥ inference, ⊥ network (sole exception `actlith pin`, opt-in).
+`actlith` — GitHub Actions workflow MATERIALIZER: from small `.actlith` (1 row = 1 workflow: id, kind, systems, cache, args) RENDER full `.github/workflows/*.yml` + seeded scripts; ∀ action SHA-pinned; hardening ⊥ optional; CHECK committed files == render (drift) & ∀ workflow file declared (totality). purely mechanical: ⊥ LLM, ⊥ inference, ⊥ network (sole exception `actlith pin`, opt-in).
 
 PAIR: pklith decides WHAT is checked (hk gate); actlith decides WHERE & WHEN CI runs it. actlith ⊥ adds lint steps.
 
@@ -89,7 +89,7 @@ T33|x|parity check `docs/KINDS.md` ↔ kind nodes §V/§T|V25
 T34|x|federate `SPEC.md` w/ sherd: nodes `src/*`, `tests`, `dev`, `nix`; scaffold `src/<node>/mod.rs` w/ build-order edges for `sherd wave`|-
 T35|.|pklith: `actlith-gen-check` catalog row & `.actlith` type — PR to pklith ! user approval|I.nix
 T36|x|publish `0.1.0` to crates.io ! user approval|V22
-T37|.|fleet rollout: pklith, congestimancer, then byte-identical `ci.yml` groups; per repo `detect` → row → `gen` → reviewed PR diff, ⊥ `import` (`src/import:R16`: 3 of 214 fleet files match a render; misses differ in shape); each repo ! user approval|R1
+T37|x|fleet rollout: pklith, congestimancer, then byte-identical `ci.yml` groups; per repo `detect` → row → `gen` → reviewed PR diff, ⊥ `import` (`src/import:R16`: 3 of 214 fleet files match a render; misses differ in shape); each repo ! user approval|R1
 T42|.|spec each Adopt row of `docs/SERVICES.md` into its node (bot file → `src/bots`, workflow → new kind, step → `src/kind`, trigger → `src/kind`) w/ R row + V + T, then build in waves|V41,`src/bots:V38`
 
 ## §B BUGS
