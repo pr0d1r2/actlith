@@ -49,7 +49,9 @@ congestimancer, then the remaining byte-identical `ci.yml` groups. For each
 repository, get user approval before opening or pushing a PR. The mechanical
 sequence is:
 
-1. Run `actlith detect` and use its output as the proposed row.
+1. Run `actlith detect` for repository-level `ci`/`gate` rows. For other
+   existing workflows, derive the row from the workflow's path, kind and
+   arguments.
 2. Add or edit that row in `.actlith`.
 3. Remove or rename replaced workflows, or list retained files under
    `## hand-written` with a reason for each file (`path|reason`).
