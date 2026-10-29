@@ -90,7 +90,7 @@ T34|x|federate `SPEC.md` w/ sherd: nodes `src/*`, `tests`, `dev`, `nix`; scaffol
 T35|.|pklith: `actlith-gen-check` catalog row & `.actlith` type — PR to pklith ! user approval|I.nix
 T36|x|publish `0.1.0` to crates.io ! user approval|V22
 T37|x|fleet rollout: pklith, congestimancer, then byte-identical `ci.yml` groups; per repo `detect` → row → `gen` → reviewed PR diff, ⊥ `import` (`src/import:R16`: 3 of 214 fleet files match a render; misses differ in shape); each repo ! user approval|R1
-T42|.|spec each Adopt row of `docs/SERVICES.md` into its node (bot file → `src/bots`, workflow → new kind, step → `src/kind`, trigger → `src/kind`) w/ R row + V + T, then build in waves|V41,`src/bots:V38`
+T42|x|spec Adopt rows in owning nodes (bot, workflow contract, step, trigger), with R/V/T coverage, then build in waves|V24,V41,`src/bots:V57`,`src/kind:V58`
 
 ## §B BUGS
 

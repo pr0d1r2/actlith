@@ -50,16 +50,19 @@ R10|coderabbit cfg|`.coderabbit.yaml` = `remote_config` → central repo (`jdx/c
 R11|bot cfg files|greptile `greptile.json` (`disabledLabels`, `ignoreKeywords` skip release PRs); socket `socket.yml` optional; bugbot app-only here; entire `.entire/settings.json` + `.entire/runners/trail-*.json` haiku scoring prompts|jdx/hk tree @ main
 R12|bot pricing (verified 2026-10-15)|coderabbit free public repos, paid Essentials $30 \| Team $60 \| Advanced $72/user/mo (annual $24/$48/$72); socket free plan 1,000 scans/mo + free OSS Team on request, paid Team $25/dev/mo (min 5); greptile Starter free 1 dev 50 credits/mo, Pro $30/seat/mo + $1/credit, free non-commercial OSI OSS by application; bugbot only in Cursor Premium $30 \| Super $100 \| Ultra $200/mo, Teams $30+/user/mo, ⊥ free; entire ⊥ published pricing|coderabbit.ai/pricing, socket.dev/pricing, greptile.com/pricing, cursor.com/pricing, docs.entire.io
 R13|jdx wf shapes|hk PR checks: conventional title, link-discussion, perf instruction-count, cargo-deny, pr-closer, draft-limit via reusable `jdx/workflows/...@sha # v1.1.0` = candidate kinds once ≥2 fleet repos need them (`.:V24`)|<https://github.com/jdx/hk/tree/main/.github/workflows>
+R42|bot rows|CodeRabbit, Socket, Greptile have files; Sourcery, cubic, Korbit are app-only|`docs/SERVICES.md` Adopt
 
 ## §V INVARIANTS
 
 V38: bot files rendered only for `## bots` rows; ∀ bot file in the repo ⊥ backed by a row → `check` finding; unknown bot | arg → exit 2
+V57: rows have renderer, `## bots` row; apps emit no file (`.:V41`)
 
 ## §T TASKS
 
 id|status|task|cites
 T39|x|`## bots` rows (`src/registry`), `coderabbit`, `greptile`, `socket` files; render adds them; golden files|V38,`.:V1`
 T40|x|central `coderabbit` config repo for the fleet; install CodeRabbit, Socket, Greptile apps on FREE tiers; Greptile OSS application; any paid plan = smallest one, ! user action & approval; actlith only writes stubs|V38,R10,R12
+T42|x|spec bot files and app-only services|`.:V41`,V57,R42
 
 ## §B BUGS
 
