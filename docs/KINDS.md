@@ -146,3 +146,17 @@ PR mechanics as `update-pins`.
 Survey one-offs (`release.yml` in 3 non-fleet repos, `format-upstream.yml`,
 `publish-image.yml`, ...) stay hand-written and listed in `.actlith`
 `## hand-written`. A kind is added only when two fleet repositories need it.
+
+## Adopted services
+
+The adopted service catalogue is specified by ownership, not by copying YAML
+templates. Workflow services (CodeQL, Dependabot, Renovate, Scorecard,
+release-plz, Mergify, CodSpeed, Bencher, Codecov, Semantic PR, stale, lychee
+and crates.io trusted publishing) are forge-only contracts owned by
+`src/kind`; until two fleet repositories share a shape they remain
+`## hand-written` rows. Harden-Runner, artifact attestations, cache-nix-action
+and flake-checker-action are typed steps owned by `src/kind`, and GitHub merge
+queue is the `merge_group` trigger owned there as well. CodeRabbit, Socket and
+Greptile file stubs are owned by `src/bots`; app-only services emit no file.
+Every row and its free-tier/user-action rule is catalogued in
+`docs/SERVICES.md` (`.:V41`).
