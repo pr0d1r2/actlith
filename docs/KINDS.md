@@ -150,11 +150,14 @@ Survey one-offs (`release.yml` in 3 non-fleet repos, `format-upstream.yml`,
 ## Adopted services
 
 The adopted service catalogue is specified by ownership, not by copying YAML
-templates. Workflow services (CodeQL, Dependabot, Renovate, Scorecard,
-release-plz, Mergify, CodSpeed, Bencher, Codecov, Semantic PR, stale, lychee
-and crates.io trusted publishing) are forge-only contracts owned by
-`src/kind`; until two fleet repositories share a shape they remain
-`## hand-written` rows. Harden-Runner, artifact attestations, cache-nix-action
+templates. Workflow services (CodeQL, Scorecard, release-plz, CodSpeed, Bencher,
+Codecov, Semantic PR, stale, lychee and crates.io trusted publishing) are
+forge-only contracts owned by `src/kind`; until two fleet repositories share a
+shape they remain `## hand-written` rows. Dependabot, Renovate and Mergify
+write non-workflow configuration files and are adopted catalogue entries, but
+their renderers and drift checks are outside v1; their owner and declaration
+path remain documented in `docs/SERVICES.md`. Harden-Runner, artifact
+attestations, cache-nix-action
 and flake-checker-action are typed steps owned by `src/kind`, and GitHub merge
 queue is the `merge_group` trigger owned there as well. Secret scanning and
 push protection are settings/API owned there. CodeRabbit, Socket and
