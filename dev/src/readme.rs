@@ -13,19 +13,21 @@ const README: Doc = Doc {
 };
 
 const DISCLAIMER: &str = "docs/LLM-DISCLAIMER.md";
+const DISCLAIMER_DOC: Doc = Doc {
+    path: DISCLAIMER,
+    verb: "readme",
+};
 
 /// Render or check.
 ///
 /// # Errors
 ///
-/// Stale disclaimer prose or drift (1), an unreadable source (2).
+/// Drift (1), an unreadable source (2).
 pub(crate) fn run_verb(repo: &Path, check: bool) -> Result<(), Failed> {
     let facts = gather(repo)?.checked().map_err(|e| (2, e))?;
-    let stale = badges::stale_prose(&read(repo, DISCLAIMER)?, &facts);
-    if let Some(want) = stale.first() {
-        let why = format!("{DISCLAIMER} must say {want}, as its sources do");
-        return Err((1, why));
-    }
+    let disclaimer = read(repo, DISCLAIMER)?;
+    let wanted_disclaimer = badges::render_prose_numbers(&disclaimer, &facts);
+    update(repo, &DISCLAIMER_DOC, &wanted_disclaimer, check)?;
     let doc = read(repo, README.path)?;
     let wanted = block::splice(&doc, "badges", &badges::render(&facts)).ok_or(
         (2, "README.md has no <!-- BEGIN badges --> block".to_owned()),
