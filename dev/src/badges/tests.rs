@@ -1,4 +1,4 @@
-use super::{Cargo, Facts, render, stale_prose};
+use super::{Cargo, Facts, render, render_prose_numbers};
 use crate::facts::Nixpkgs;
 
 fn nixpkgs() -> Nixpkgs {
@@ -86,11 +86,30 @@ fn an_empty_cargo_fact_is_refused() {
     assert!(why.starts_with("Cargo.toml repository"), "{why}");
 }
 
-/// The disclaimer's numbers must be the facts', across wrapped lines.
 #[test]
-fn stale_prose_is_named() {
-    let good = "**28\ninvariants** and **2 bugs**, a floor of 97.74% here";
-    assert!(stale_prose(good, &facts()).is_empty());
-    let stale = stale_prose(&good.replace("28", "9"), &facts());
-    assert_eq!(stale, ["**28 invariants**"]);
+fn disclaimer_numbers_are_replaced_without_requiring_all_phrases() {
+    let rendered =
+        render_prose_numbers("**9 invariants** and no floor", &facts());
+    assert_eq!(rendered, "**28 invariants** and no floor");
+
+    let rendered = render_prose_numbers("invariants and **9 bugs**", &facts());
+    assert_eq!(rendered, "invariants and **2 bugs**");
+
+    let rendered = render_prose_numbers("floor of 9", &facts());
+    assert_eq!(rendered, "floor of 9");
+
+    assert_eq!(render_prose_numbers("plain", &facts()), "plain");
+    assert_eq!(
+        render_prose_numbers("x invariants**", &facts()),
+        "x invariants**"
+    );
+}
+
+#[test]
+fn disclaimer_floor_prose_is_not_replaced_by_later_percentage() {
+    let rendered = render_prose_numbers(
+        "a floor of confidence before coverage 88%",
+        &facts(),
+    );
+    assert_eq!(rendered, "a floor of confidence before coverage 88%");
 }

@@ -170,23 +170,52 @@ fn platforms(list: &[Platform]) -> String {
     out
 }
 
-/// The disclaimer's quoted numbers that no longer match the facts. Its
-/// lines wrap, so the text is joined before matching. Unlike pklith's, it
-/// quotes no step counts: `pklith lay` adds steps one commit at a time,
-/// and prose no fixer can rewrite would refuse each of those commits; the
-/// badge carries the count instead.
+/// Replace the three generated numbers while preserving all surrounding prose.
 #[must_use]
-pub(crate) fn stale_prose(disclaimer: &str, f: &Facts) -> Vec<String> {
-    let prose = disclaimer.split_whitespace().collect::<Vec<_>>().join(" ");
+pub(crate) fn render_prose_numbers(disclaimer: &str, f: &Facts) -> String {
     let (inv, bugs, _) = f.spec;
-    [
-        format!("**{inv} invariants**"),
-        format!("**{bugs} bugs**"),
-        format!("floor of {}%", f.floor),
-    ]
-    .into_iter()
-    .filter(|want| !prose.contains(want.as_str()))
-    .collect()
+    let text = replace_bold_number(disclaimer, "invariants", inv);
+    let text = replace_bold_number(&text, "bugs", bugs);
+    replace_number_after(&text, "floor of ", "%", &f.floor)
+}
+
+fn replace_bold_number(text: &str, label: &str, value: usize) -> String {
+    let suffix = format!(" {label}**");
+    let Some(end) = text.find(&suffix) else {
+        return text.to_owned();
+    };
+    let Some(start) = text[..end].rfind("**") else {
+        return text.to_owned();
+    };
+    format!("{}**{}{}", &text[..start], value, &text[end..])
+}
+
+fn replace_number_after(
+    text: &str,
+    prefix: &str,
+    suffix: &str,
+    value: &str,
+) -> String {
+    let Some(start) =
+        text.find(prefix).and_then(|i| i.checked_add(prefix.len()))
+    else {
+        return text.to_owned();
+    };
+    let Some(number_end) = numeric_end(text, start) else {
+        return text.to_owned();
+    };
+    if number_end == start || !text[number_end..].starts_with(suffix) {
+        return text.to_owned();
+    }
+    format!("{}{}{}", &text[..start], value, &text[number_end..])
+}
+
+fn numeric_end(text: &str, start: usize) -> Option<usize> {
+    let length = text[start..]
+        .bytes()
+        .take_while(|byte| byte.is_ascii_digit() || *byte == b'.')
+        .count();
+    start.checked_add(length).filter(|end| *end > start)
 }
 
 #[cfg(test)]

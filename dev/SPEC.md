@@ -26,7 +26,7 @@ V37: commit-msg & changelog rules = tested Rust here; hk `commit-msg` hook runs 
 
 id|status|task|cites
 T11|x|port commit-msg & changelog rules (RED, GREEN) & lay `test` (nextest) + `coverage` over its tests; README badges, THIRD-PARTY-NOTICES, AGENTS step table + drift steps|V36,V37,`nix:V20`
-T46|.|`readme` also WRITES the numbers in `docs/LLM-DISCLAIMER.md` (invariants, bugs, coverage floor) instead of only checking them ∴ a spec or coverage change needs no hand edit|V36
+T46|x|`readme` also WRITES the numbers in `docs/LLM-DISCLAIMER.md` (invariants, bugs, coverage floor) instead of only checking them ∴ a spec or coverage change needs no hand edit|V36
 
 ## §B BUGS
 

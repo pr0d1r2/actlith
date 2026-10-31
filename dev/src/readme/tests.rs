@@ -104,16 +104,38 @@ fn an_edited_badge_drifts() {
     );
 }
 
-/// The disclaimer's numbers must match the sources, or nothing is written.
+/// Writing repairs the disclaimer's numbers before rendering the README.
 #[test]
-fn stale_disclaimer_prose_fails() {
+fn stale_disclaimer_prose_is_rendered() {
     let dir = fixture("prose");
     let stale = DISCLAIMER.replace("**1 invariants", "**9 invariants");
     write(&dir, "docs/LLM-DISCLAIMER.md", &stale);
-    let (code, why) = failure(run_verb(&dir, false));
+    assert_eq!(run_verb(&dir, false), Ok(()));
+    assert!(text(&dir, "docs/LLM-DISCLAIMER.md").contains(DISCLAIMER));
+    assert_ne!(text(&dir, "README.md"), README);
+}
+
+/// Check reports stale generated disclaimer numbers without writing them.
+#[test]
+fn stale_disclaimer_prose_fails_in_check_mode() {
+    let dir = fixture("prose-check");
+    let stale = DISCLAIMER.replace("**1 invariants", "**9 invariants");
+    write(&dir, "docs/LLM-DISCLAIMER.md", &stale);
+    let (code, why) = failure(run_verb(&dir, true));
     assert_eq!(code, 1);
-    assert!(why.contains("must say **1 invariants**"), "{why}");
-    assert_eq!(text(&dir, "README.md"), README);
+    assert!(why.contains("docs/LLM-DISCLAIMER.md drifted"), "{why}");
+    assert_eq!(text(&dir, "docs/LLM-DISCLAIMER.md"), stale);
+}
+
+/// A required claim split across lines is rejected instead of passing stale.
+#[test]
+fn malformed_disclaimer_claim_fails_in_check_mode() {
+    let dir = fixture("malformed-prose-check");
+    let malformed = DISCLAIMER.replace("**1 invariants**", "**1\ninvariants**");
+    write(&dir, "docs/LLM-DISCLAIMER.md", &malformed);
+    let (code, why) = failure(run_verb(&dir, true));
+    assert_eq!(code, 1);
+    assert!(why.contains("docs/LLM-DISCLAIMER.md"), "{why}");
 }
 
 /// A source replaced by text that holds no fact, and the error it names.
