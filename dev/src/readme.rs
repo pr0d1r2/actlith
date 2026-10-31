@@ -27,12 +27,30 @@ pub(crate) fn run_verb(repo: &Path, check: bool) -> Result<(), Failed> {
     let facts = gather(repo)?.checked().map_err(|e| (2, e))?;
     let disclaimer = read(repo, DISCLAIMER)?;
     let wanted_disclaimer = badges::render_prose_numbers(&disclaimer, &facts);
+    validate_disclaimer(&wanted_disclaimer, &facts)?;
     update(repo, &DISCLAIMER_DOC, &wanted_disclaimer, check)?;
     let doc = read(repo, README.path)?;
     let wanted = block::splice(&doc, "badges", &badges::render(&facts)).ok_or(
         (2, "README.md has no <!-- BEGIN badges --> block".to_owned()),
     )?;
     update(repo, &README, &wanted, check)
+}
+
+fn validate_disclaimer(text: &str, facts: &Facts) -> Result<(), Failed> {
+    let (invariants, bugs, _) = facts.spec;
+    for claim in [
+        format!("**{invariants} invariants**"),
+        format!("**{bugs} bugs**"),
+        format!("floor of {}%", facts.floor),
+    ] {
+        if !text.contains(&claim) {
+            return Err((
+                1,
+                format!("{DISCLAIMER} must contain {claim}, as its sources do"),
+            ));
+        }
+    }
+    Ok(())
 }
 
 fn gather(repo: &Path) -> Result<Facts, Failed> {
