@@ -201,13 +201,21 @@ fn replace_number_after(
     else {
         return text.to_owned();
     };
-    let Some(end) = text[start..]
-        .find(suffix)
-        .and_then(|i| i.checked_add(start))
-    else {
+    let Some(number_end) = numeric_end(text, start) else {
         return text.to_owned();
     };
-    format!("{}{}{}", &text[..start], value, &text[end..])
+    if number_end == start || !text[number_end..].starts_with(suffix) {
+        return text.to_owned();
+    }
+    format!("{}{}{}", &text[..start], value, &text[number_end..])
+}
+
+fn numeric_end(text: &str, start: usize) -> Option<usize> {
+    let length = text[start..]
+        .bytes()
+        .take_while(|byte| byte.is_ascii_digit() || *byte == b'.')
+        .count();
+    start.checked_add(length).filter(|end| *end > start)
 }
 
 #[cfg(test)]
