@@ -127,6 +127,17 @@ fn stale_disclaimer_prose_fails_in_check_mode() {
     assert_eq!(text(&dir, "docs/LLM-DISCLAIMER.md"), stale);
 }
 
+/// A required claim split across lines is rejected instead of passing stale.
+#[test]
+fn malformed_disclaimer_claim_fails_in_check_mode() {
+    let dir = fixture("malformed-prose-check");
+    let malformed = DISCLAIMER.replace("**1 invariants**", "**1\ninvariants**");
+    write(&dir, "docs/LLM-DISCLAIMER.md", &malformed);
+    let (code, why) = failure(run_verb(&dir, true));
+    assert_eq!(code, 1);
+    assert!(why.contains("docs/LLM-DISCLAIMER.md"), "{why}");
+}
+
 /// A source replaced by text that holds no fact, and the error it names.
 const BROKEN: [(&str, &str, &str); 8] = [
     (
