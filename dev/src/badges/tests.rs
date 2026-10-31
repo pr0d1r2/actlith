@@ -104,3 +104,12 @@ fn disclaimer_numbers_are_replaced_without_requiring_all_phrases() {
         "x invariants**"
     );
 }
+
+#[test]
+fn disclaimer_floor_prose_is_not_replaced_by_later_percentage() {
+    let rendered = render_prose_numbers(
+        "a floor of confidence before coverage 88%",
+        &facts(),
+    );
+    assert_eq!(rendered, "a floor of confidence before coverage 88%");
+}
