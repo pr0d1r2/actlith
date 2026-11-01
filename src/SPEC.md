@@ -52,7 +52,7 @@ V4: ∀ node unit-tested 1-to-1 (`<node>/tests.rs`, `rust-mirror`); fixtures in 
 ## §T TASKS
 
 id|status|task|cites
-T1|.|`lib.rs` re-exports each node's public surface as it lands|V1,V3
+T1|x|`lib.rs` re-exports each node's public surface as it lands|V1,V3
 
 ## §B BUGS
 
