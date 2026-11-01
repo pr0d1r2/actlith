@@ -106,6 +106,18 @@ fn disclaimer_numbers_are_replaced_without_requiring_all_phrases() {
 }
 
 #[test]
+fn repeated_disclaimer_numbers_are_replaced() {
+    let rendered = render_prose_numbers(
+        "**9 invariants** and **8 invariants**, with **7 bugs** and **6 bugs**",
+        &facts(),
+    );
+    assert_eq!(
+        rendered,
+        "**28 invariants** and **28 invariants**, with **2 bugs** and **2 bugs**"
+    );
+}
+
+#[test]
 fn disclaimer_floor_prose_is_not_replaced_by_later_percentage() {
     let rendered = render_prose_numbers(
         "a floor of confidence before coverage 88%",

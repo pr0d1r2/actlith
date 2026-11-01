@@ -181,13 +181,22 @@ pub(crate) fn render_prose_numbers(disclaimer: &str, f: &Facts) -> String {
 
 fn replace_bold_number(text: &str, label: &str, value: usize) -> String {
     let suffix = format!(" {label}**");
-    let Some(end) = text.find(&suffix) else {
-        return text.to_owned();
-    };
-    let Some(start) = text[..end].rfind("**") else {
-        return text.to_owned();
-    };
-    format!("{}**{}{}", &text[..start], value, &text[end..])
+    let mut rendered = String::new();
+    let mut remaining = text;
+
+    while let Some(end) = remaining.find(&suffix) {
+        let Some(start) = remaining[..end].rfind("**") else {
+            rendered.push_str(remaining);
+            return rendered;
+        };
+        let suffix_end = end.saturating_add(suffix.len());
+        rendered.push_str(&format!("{}**{value}", &remaining[..start]));
+        rendered.push_str(&remaining[end..suffix_end]);
+        remaining = &remaining[suffix_end..];
+    }
+
+    rendered.push_str(remaining);
+    rendered
 }
 
 fn replace_number_after(
