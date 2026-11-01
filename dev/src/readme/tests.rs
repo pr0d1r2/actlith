@@ -138,6 +138,25 @@ fn malformed_disclaimer_claim_fails_in_check_mode() {
     assert!(why.contains("docs/LLM-DISCLAIMER.md"), "{why}");
 }
 
+/// A README validation failure does not partially write the disclaimer.
+#[test]
+fn missing_readme_block_does_not_write_disclaimer() {
+    let dir = fixture("atomic");
+    let stale = DISCLAIMER.replace("**1 invariants", "**9 invariants");
+    let readme = "# no block\n";
+    write(&dir, "docs/LLM-DISCLAIMER.md", &stale);
+    write(&dir, "README.md", readme);
+
+    let (code, why) = failure(run_verb(&dir, false));
+    assert_eq!(code, 2);
+    assert!(
+        why.contains("README.md has no <!-- BEGIN badges -->"),
+        "{why}"
+    );
+    assert_eq!(text(&dir, "docs/LLM-DISCLAIMER.md"), stale);
+    assert_eq!(text(&dir, "README.md"), readme);
+}
+
 /// A source replaced by text that holds no fact, and the error it names.
 const BROKEN: [(&str, &str, &str); 8] = [
     (
