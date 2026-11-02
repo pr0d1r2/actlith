@@ -37,7 +37,6 @@ mod document;
 mod error;
 mod format;
 mod json;
-mod kinds;
 mod md;
 mod model;
 mod output;

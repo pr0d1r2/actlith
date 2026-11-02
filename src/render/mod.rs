@@ -34,3 +34,4 @@ pub(crate) use crate::bots::File;
 )]
 pub(crate) use error::RenderError;
 pub(crate) use files::render;
+pub(crate) use kinds::{lookup, names};

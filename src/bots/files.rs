@@ -9,6 +9,18 @@ use crate::registry::BotRow;
 
 /// The v1 bots, as a fix hint names them.
 pub(crate) const BOTS: &str = "`coderabbit`, `greptile`, `socket`";
+pub(crate) const PATHS: [&str; 3] =
+    [".coderabbit.yaml", "greptile.json", "socket.yml"];
+
+/// The GitHub App assumed by a v1 bot.
+pub(crate) fn app_name(bot: &str) -> Option<&'static str> {
+    match bot {
+        "coderabbit" => Some("CodeRabbit"),
+        "greptile" => Some("Greptile"),
+        "socket" => Some("Socket"),
+        _ => None,
+    }
+}
 
 /// The config file of each row.
 ///

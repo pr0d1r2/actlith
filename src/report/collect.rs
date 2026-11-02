@@ -5,15 +5,15 @@
 
 use std::collections::BTreeSet;
 
-use super::apps::{self, NOTE, app};
+use super::apps::{NOTE, app};
 use super::error::ReportError;
-use super::kinds::{lookup, names};
 use super::model::{App, Hosted, Manual, Need, Report, Workflow};
 use crate::kind::{Kind, KindError, Row, check};
 use crate::pin::{PinTable, Uses};
 use crate::registry::{BotRow, Registry, RegistryError, WorkflowRow};
 use crate::system::{Host, Runners, host};
 use crate::yaml::{self, Action};
+use crate::{bots, render};
 
 /// The report of `registry`, its actions pinned from `pins`.
 ///
@@ -45,7 +45,9 @@ fn workflow(
     pins: &PinTable,
     runners: &Runners,
 ) -> Result<Workflow, ReportError> {
-    let kind = lookup(&row.kind).ok_or_else(|| unknown_kind(row))?;
+    let kind = render::lookup(&row.kind)
+        .ok_or_else(|| unknown_kind(row))?
+        .kind;
     let checked = check(kind, row)?;
     let built = kind.build(&checked, pins, runners)?;
     Ok(Workflow {
@@ -63,7 +65,7 @@ fn unknown_kind(row: &WorkflowRow) -> ReportError {
     ReportError::Row(RegistryError::new(
         row.line,
         format!("unknown kind `{}`", row.kind.escape_debug()),
-        format!("use one of {}", names()),
+        format!("use one of {}", render::names()),
     ))
 }
 
@@ -103,7 +105,11 @@ fn actions(
 fn secrets(kind: &dyn Kind, row: &Row) -> Vec<Need> {
     let needs = kind.secrets(row).into_iter().map(|s| Need {
         name: s.name().to_owned(),
-        purpose: s.purpose(),
+        purpose: if s.name() == "GITHUB_TOKEN" {
+            "built-in, nothing to configure"
+        } else {
+            s.purpose()
+        },
     });
     needs.collect::<BTreeSet<_>>().into_iter().collect()
 }
@@ -128,7 +134,7 @@ fn bot(row: &BotRow) -> Result<App, ReportError> {
         ReportError::Row(RegistryError::new(
             row.line,
             format!("unknown bot `{}`", row.bot.escape_debug()),
-            format!("use one of {}", apps::names()),
+            format!("use one of {}", bots::BOTS),
         ))
     })?;
     Ok(App {

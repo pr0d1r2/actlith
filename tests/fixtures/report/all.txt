@@ -1,0 +1,35 @@
+workflows
+  build: kind build, cache pr0d1r2
+    system x86_64-linux on ubuntu-latest
+    system aarch64-linux on ubuntu-24.04-arm
+    system aarch64-darwin on macos-latest
+    system x86_64-darwin on macos-15-intel
+    action actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1
+    action cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 v17
+    action cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0
+    secret CACHIX_AUTH_TOKEN: cachix push
+  ci: kind gate, cache pr0d1r2
+    system x86_64-linux on ubuntu-latest
+    system aarch64-linux on ubuntu-24.04-arm
+    system aarch64-darwin on macos-latest
+    system x86_64-darwin on macos-15-intel
+    action actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1
+    action cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 v17
+    action cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0
+    secret CACHIX_AUTH_TOKEN: cachix push
+  update-pins: kind update-pins, cache -
+    system x86_64-linux on ubuntu-latest
+    action actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1
+    action cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0
+    secret GITHUB_TOKEN: built-in, nothing to configure
+  upstream: kind upstream, cache -
+    system x86_64-linux on ubuntu-latest
+    action actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 v7.0.1
+    action cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 v31.11.0
+    secret GITHUB_TOKEN: built-in, nothing to configure
+hand-written
+  .github/workflows/release.yml: not a v1 kind yet
+bots
+  coderabbit: CodeRabbit; install the app; free tier per docs/SERVICES.md
+  greptile: Greptile; install the app; free tier per docs/SERVICES.md
+  socket: Socket; install the app; free tier per docs/SERVICES.md

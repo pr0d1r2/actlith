@@ -30,8 +30,8 @@
 | --- | --- | --- |
 | `build` | `CACHIX_AUTH_TOKEN` | cachix push |
 | `ci` | `CACHIX_AUTH_TOKEN` | cachix push |
-| `update-pins` | `GITHUB_TOKEN` | push the bump branch and open its PR |
-| `upstream` | `GITHUB_TOKEN` | push the bump branch and open its PR |
+| `update-pins` | `GITHUB_TOKEN` | built-in, nothing to configure |
+| `upstream` | `GITHUB_TOKEN` | built-in, nothing to configure |
 
 ## Hand-written
 
