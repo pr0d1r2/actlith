@@ -22,4 +22,5 @@ use crate::yaml as _;
 
 pub(crate) use error::BotError;
 pub(crate) use files::bot_files;
+pub(crate) use files::{BOTS, PATHS, app_name};
 pub(crate) use model::File;

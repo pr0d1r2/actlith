@@ -8,9 +8,8 @@ use crate::registry::parse;
 use crate::report::{Format, report};
 
 const ALL: &str = include_str!("../../../tests/fixtures/render/all.actlith");
-/// The golden text. Inline, not a fixture file: `.pklith` has no `txt`
-/// type, and `pklith check` refuses a tracked file type without one.
-const TEXT: &str = concat!(
+const TEXT: &str = include_str!("../../../tests/fixtures/report/all.txt");
+/* const TEXT: &str = concat!(
     "workflows\n",
     "  build: kind build, cache pr0d1r2\n",
     "    system x86_64-linux on ubuntu-latest\n",
@@ -58,7 +57,7 @@ const TEXT: &str = concat!(
     "  greptile: Greptile; install the app; free tier per \
      docs/SERVICES.md\n",
     "  socket: Socket; install the app; free tier per docs/SERVICES.md\n",
-);
+); */
 const JSON: &str = include_str!("../../../tests/fixtures/report/all.json");
 const MD: &str = include_str!("../../../tests/fixtures/report/all.md");
 

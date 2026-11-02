@@ -118,7 +118,7 @@
       "secrets": [
         {
           "name": "GITHUB_TOKEN",
-          "purpose": "push the bump branch and open its PR"
+          "purpose": "built-in, nothing to configure"
         }
       ]
     },
@@ -147,7 +147,7 @@
       "secrets": [
         {
           "name": "GITHUB_TOKEN",
-          "purpose": "push the bump branch and open its PR"
+          "purpose": "built-in, nothing to configure"
         }
       ]
     }
