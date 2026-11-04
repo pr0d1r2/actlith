@@ -676,7 +676,12 @@ fn verify_https_names_the_netrc_secret_it_asked_with() -> io::Result<()> {
 
 #[test]
 fn verify_https_says_when_it_asked_without_a_netrc() -> io::Result<()> {
-    let env = [("URL", URL), ("STUB_CURL_MISSING", "x86_64linux")];
+    // Empty, not unset: an inherited NETRC must not reach the script.
+    let env = [
+        ("URL", URL),
+        ("NETRC", ""),
+        ("STUB_CURL_MISSING", "x86_64linux"),
+    ];
     let args = ["hk", "x86_64-linux"];
     let ran = run("vh-bare", "verify-https.sh", &args, &env)?;
     assert_eq!(ran.code, Some(1));
