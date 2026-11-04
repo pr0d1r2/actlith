@@ -110,7 +110,7 @@ fn unplaced(plan: &Plan) -> Result<Job, KindError> {
 /// The build: piped to `cachix push` on a push to `main` for a cachix
 /// cache; a plain build for an https one, which a step after it pushes.
 fn build_command(plan: &Plan) -> String {
-    if !cachix_shaped(plan) {
+    if plan.cache.kind() != CacheKind::Cachix {
         let package = plan.package;
         return format!(
             "nix build --print-build-logs \".#packages.$SYSTEM.{package}\""
@@ -142,7 +142,7 @@ pub(crate) fn verify(plan: &Plan) -> Result<Job, KindError> {
     let mut steps = setup(plan)?;
     steps.push(verify_step(plan, &systems.join(" "))?);
     let mut verified = named("verify-cache", plan, steps);
-    let why = if cachix_shaped(plan) {
+    let why = if plan.cache.kind() == CacheKind::Cachix {
         VERIFY_WHY
     } else {
         VERIFY_HTTPS_WHY
@@ -157,7 +157,7 @@ pub(crate) fn verify(plan: &Plan) -> Result<Job, KindError> {
 /// `verify-https.sh` with the url and any push netrc through `env:`.
 fn verify_step(plan: &Plan, systems: &str) -> Result<Step, KindError> {
     let (cache, package) = (plan.cache.name(), plan.package);
-    if cachix_shaped(plan) {
+    if plan.cache.kind() == CacheKind::Cachix {
         let command =
             format!("bash {VERIFY_SCRIPT} {cache} {package} {systems}");
         return run(plan.row.line, &command, &[]);
@@ -168,12 +168,6 @@ fn verify_step(plan: &Plan, systems: &str) -> Result<Step, KindError> {
     let mut step = run(plan.row.line, &command, &env)?;
     step.env.insert("URL".to_owned(), url(plan.cache));
     Ok(step)
-}
-
-/// RED stub (T81): every cache is rendered as a cachix one.
-fn cachix_shaped(plan: &Plan) -> bool {
-    let _ = plan.cache.kind() == CacheKind::Cachix;
-    true
 }
 
 /// The `build` matrix: an `os` and `system` pair per hosted system.

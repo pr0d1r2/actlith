@@ -29,10 +29,11 @@ impl Kind for Build {
     /// `verify-cache.sh` for a cachix cache; for an https one, the push
     /// script and `verify-https.sh` (V64). `gen` writes them too.
     fn scripts(&self, row: &Checked) -> Vec<&'static str> {
-        // RED stub (T81): verify-cache.sh whatever the cache.
-        let _ = (CacheKind::Cachix, PUSH_SCRIPT, VERIFY_HTTPS);
-        let kind = row.cache.as_ref().map(BinaryCache::kind);
-        kind.map(|_| VERIFY_SCRIPT).into_iter().collect()
+        match row.cache.as_ref().map(BinaryCache::kind) {
+            Some(CacheKind::Cachix) => vec![VERIFY_SCRIPT],
+            Some(_) => vec![PUSH_SCRIPT, VERIFY_HTTPS],
+            None => Vec::new(),
+        }
     }
 
     fn build(

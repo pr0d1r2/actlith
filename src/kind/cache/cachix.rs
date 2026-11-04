@@ -74,8 +74,9 @@ pub(crate) fn cachix(
     let Some(token) = push_secret(cache) else {
         return Ok(None);
     };
-    // RED stub (T79): every cache kind gets the cachix step.
-    let _ = CacheKind::Cachix;
+    if cache.kind() != CacheKind::Cachix {
+        return Ok(None);
+    }
     step(pins, cache, push, &token).map(Some)
 }
 
