@@ -6,8 +6,9 @@
 # authenticated HTTP PUT the netrc file in $NETRC allows (src/kind/cache
 # V61, V62). An ATTR is a flake output path without its system,
 # `<output>.<rest>`: `packages.hk` copies `.#packages.<system>.hk`, the
-# system being this runner's; each `<output>.<system>.<name>` must
-# evaluate, or the script fails naming it before any netrc is written.
+# system being this runner's; each `<output>.<system>.<name>` must exist
+# and each installable's drvPath evaluate, or the script fails naming it
+# before any netrc is written.
 # The url can be a secret, so it is masked
 # before anything is printed and never printed by this script; nix's
 # own output is masked by the runner. A run without the netrc secret (a
@@ -40,7 +41,14 @@ for attr in "$@"; do
     echo "::error::Fix: add \`${attr%%.*}.<system>.${rest%%.*}\` to flake.nix (every flake keeps a default cacheable output), or set cache-push=false on the row." >&2
     exit 1
   fi
-  installables+=(".#${attr%%.*}.$system.$rest")
+  installable=".#${attr%%.*}.$system.$rest"
+  # `--apply` above neither reaches nor forces the leaf `nix copy` takes:
+  # its drvPath does, so a broken one fails here too, before the netrc.
+  if ! nix eval --raw "$installable.drvPath" >/dev/null; then
+    echo "::error::push-https: \`$installable\` does not evaluate; fix that flake output before the https cache push." >&2
+    exit 1
+  fi
+  installables+=("$installable")
 done
 
 umask 077
