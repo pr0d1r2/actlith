@@ -19,6 +19,7 @@ src/kind/SPEC.md             1820
 # src/kind/cache split out of src/kind (T79): src/kind was at its ceiling,
 # so the cache steps became a child node; measured 2026-11-04, +12%.
 src/kind/cache/SPEC.md       1210
+src/kind/cache/netrc/SPEC.md 880
 src/pin/SPEC.md              1120
 src/registry/SPEC.md         1250
 src/bots/SPEC.md             1690
@@ -56,6 +57,7 @@ src/gen                      2870
 src/import                   2910
 src/kind                     3560
 src/kind/cache               4510
+src/kind/cache/netrc         5130
 src/pin                      2990
 src/registry                 3110
 src/render                   2920
