@@ -37,6 +37,15 @@ case "$tool $*" in
     echo "${STUB_REV_BEFORE:-}"
   fi
   ;;
+"nix eval .#"*" --apply "*)
+  # push-https.sh asks whether an output exists; STUB_EVAL_MISSING names
+  # one that does not.
+  if [ -n "${STUB_EVAL_MISSING:-}" ] && [[ "$2" == *"$STUB_EVAL_MISSING"* ]]; then
+    echo "error: flake does not provide attribute '$2'" >&2
+    exit 1
+  fi
+  echo true
+  ;;
 "nix eval --impure --raw --expr builtins.currentSystem")
   echo "${STUB_SYSTEM:-x86_64-linux}"
   ;;
