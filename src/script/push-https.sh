@@ -28,6 +28,15 @@ if [ -z "${NETRC:-}" ]; then
   echo "push-https: no netrc secret on this run; the push is skipped."
   exit 0
 fi
+case "$URL" in
+https://*) ;;
+*)
+  # pipelith V87: a netrc goes only to an https url, checked here since a
+  # secret url is not checked when the row is.
+  echo "::error::push-https: cache \`${CACHE:-?}\`: its url does not start with https://, so the netrc from secret \`${NETRC_SECRET:-?}\` is not written." >&2
+  exit 1
+  ;;
+esac
 
 system="$(nix eval --impure --raw --expr builtins.currentSystem)"
 installables=()
