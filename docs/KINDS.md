@@ -78,6 +78,13 @@ own-cachix|cachix|-|own-cachix.cachix.org-1:<base64>|secret:OWN_CACHIX_TOKEN
   `devShells.<system>.default.inputDerivation` (everything `nix develop`
   needs) before its command, skipping fork pull requests; `build`
   copies `packages.<system>.<package>` from `main` only.
+- An https push needs its output in the flake: every flake is expected
+  to keep a default cacheable output, so a `gate` row pushing to an
+  https cache needs `devShells.<system>.default`. The script evaluates
+  each output before it writes the netrc; a missing one fails the step
+  with an `::error::` naming it and the fix (add it to `flake.nix`, or
+  set `cache-push=false` on the row), not with nix's own error halfway
+  through the copy.
 - `actlith report` lists a url or key secret as `cache read` and the
   push secret as `cachix push` or `cache push (netrc)`.
 
