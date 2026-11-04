@@ -46,12 +46,14 @@ R4|cachix silent fail|cachix push failure logs ⊥ fails job (403 → green over
 
 V30: `verify-cache` asks the cache for ∀ built system's output path & fails on ≠ 200; its logic is a seeded script (`src/script`), ⊥ inline shell
 V46: a `build` row ! name a cache (`verify-cache` has nothing to ask w/o one) & `package` ∈ `[A-Za-z_][A-Za-z0-9_-]*` (pasted into `run:`); else exit 2 naming the row
+V64: `https` cache: `nix build`, then `push-https.sh packages.<package>` on main push (`src/kind/cache:V61`); `verify-cache` → `verify-https.sh` (env `URL`, `NETRC`): `<url>/<hash>.narinfo`, netrc if set, URL masked & ⊥ echoed
 
 ## §T TASKS
 
 id|status|task|cites
 T20|x|kind `build` (jobs `build` `check` `verify-cache`) + `verify-cache.sh` in `src/script`|V30,R4,`src/kind:V3`,`src/kind:V9`
 T76|x|`build` matrix gains `x86_64-darwin`, eval-only step dropped; own-runner build jobs; `verify-cache` needs them|`src/kind:V54`,V30
+T81|.|`build` on `https`: push, `verify-https.sh`, golden w/ actionlint & zizmor|V64,V30,`tests:V4`
 
 ## §B BUGS
 

@@ -47,6 +47,7 @@ R17|Xcode on macOS images|images carry Xcodes side by side at `/Applications/Xco
 
 V52: `xcode` pins that Xcode, ⊥ fallback to image default; missing → job fails naming path. Linux system (incl. `-`) | value ⊥ digits & dots → row error. ⊥ `xcode` → bytes unchanged (V29)
 V29: `gate` render of actlith's own row == this repo's hand-written `.github/workflows/ci.yml` modulo the generated header (golden; dogfood `nix:T31`)
+V63: `https` push (`src/kind/cache:V61`) = `devShells.default.inputDerivation` (∀ input `nix develop` needs; a shell's own output references ⊥ of them), before the gate command ∴ pushed even when the gate fails; `cache-push=false` → ⊥ push
 
 ## §T TASKS
 
@@ -55,6 +56,7 @@ T19|x|kind `gate` + golden vs own `ci.yml`|V29,`src/kind:V3`,`src/kind:V9`
 T69|x|`gate` arg `xcode`: env + check step, refusals, golden through actionlint & zizmor (issue #18)|V52,`src/kind:V49`,`tests:V4`
 T71|x|`xcode` pin must reach the dev shell (B11), e.g. default `command` hands it over as `HOST_DEVELOPER_DIR`; test: ⊥ row loses the pin. open: how|B11,V52
 T75|x|`gate` default matrix gains `x86_64-darwin`; own-runner job per `## runners` system; golden: default row + `## runners` override, guard on own job only, actionlint & zizmor|V29,`src/kind:V54`,`tests:V4`
+T82|.|`gate` on a `## caches` cache: secret read & https push golden through actionlint & zizmor; secrets listed|V63,`src/kind/cache:T79`,`tests:V4`
 
 ## §B BUGS
 
