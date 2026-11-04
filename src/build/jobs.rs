@@ -11,7 +11,7 @@ use super::plan::Plan;
 use crate::kind::{
     CacheKind, CachixPush, Checkout, KindError, cachix, checkout, hosts,
     https_env, install_nix, job, matrix_runner, own, place, push_https,
-    push_secret, run,
+    push_secret, read_secret, run,
 };
 use crate::system::{Host, System, host};
 use crate::yaml::{Comment, Expr, Job, Matrix, Step, Text};
@@ -154,7 +154,9 @@ pub(crate) fn verify(plan: &Plan) -> Result<Job, KindError> {
 }
 
 /// The step asking the cache: `verify-cache.sh` with the cachix name, or
-/// `verify-https.sh` with the url and any push netrc through `env:`.
+/// `verify-https.sh` with the url and a netrc through `env:`: the read
+/// one when the cache has it, else the push one (`src/kind/cache/netrc`
+/// V66).
 fn verify_step(plan: &Plan, systems: &str) -> Result<Step, KindError> {
     let (cache, package) = (plan.cache.name(), plan.package);
     if plan.cache.kind() == CacheKind::Cachix {
@@ -163,7 +165,7 @@ fn verify_step(plan: &Plan, systems: &str) -> Result<Step, KindError> {
         return run(plan.row.line, &command, &[]);
     }
     let command = format!("bash {VERIFY_HTTPS} {package} {systems}");
-    let netrc = push_secret(plan.cache);
+    let netrc = read_secret(plan.cache).or_else(|| push_secret(plan.cache));
     let env: Vec<_> = netrc.iter().map(|s| ("NETRC", s.expr())).collect();
     let mut step = run(plan.row.line, &command, &env)?;
     https_env(&mut step, plan.cache, netrc.as_ref());

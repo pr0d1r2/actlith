@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 use super::error::RenderError;
 use super::kinds::{Entry, lookup, names};
 use crate::bots::{File, bot_files};
-use crate::kind::{Checked, check};
+use crate::kind::{Checked, READ_SCRIPT, check, read_secret};
 use crate::pin::PinTable;
 use crate::registry::{Registry, RegistryError, WorkflowRow};
 use crate::script::scripts;
@@ -30,10 +30,17 @@ pub(crate) fn render(registry: &Registry) -> Result<Vec<File>, RenderError> {
         files.push(workflow(entry, &checked, &pins, &registry.runners)?);
         needed.extend(entry.scripts.iter().copied());
         needed.extend(entry.kind.scripts(&checked));
+        needed.extend(reads_netrc(&checked).then_some(READ_SCRIPT));
     }
     files.extend(seeded(&needed));
     files.extend(bot_files(&registry.bots)?);
     sorted(files)
+}
+
+/// Whether `row`'s cache has a read netrc, so every kind's workflow runs
+/// [`READ_SCRIPT`] (`src/kind/cache/netrc` V66).
+fn reads_netrc(row: &Checked) -> bool {
+    row.cache.as_ref().and_then(read_secret).is_some()
 }
 
 /// The v1 kind `row` names, or a row error listing them.

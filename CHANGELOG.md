@@ -45,6 +45,19 @@ the bytes actlith emits for the same inputs is at least a minor version
   - `actlith report` lists the cache's url and key secrets as
     `cache read` and its push secret as `cachix push` or
     `cache push (netrc)`.
+  - A private https cache, one that answers only with credentials
+    (pipelith 0.2.2): `read=secret:R` in the `push` cell, beside
+    `push=secret:P` or alone, names the netrc nix reads it with
+    (T85). Every kind's workflow then runs the new seeded
+    `scripts/actlith/read-netrc.sh` before install-nix, skipping fork
+    pull requests: it masks the url, applies the run-time `https://`
+    check, and writes the netrc mode 600 to `$RUNNER_TEMP/read-netrc`,
+    which stays for the job's later steps. The trusted install-nix
+    step's `extra_nix_config` gains
+    `netrc-file = ${{ runner.temp }}/read-netrc`; a fork pull request
+    runs without the cache. The push keeps its own netrc and file, and
+    `verify-https.sh` asks the cache with the read netrc when there is
+    one. `actlith report` lists the read secret as `cache read (netrc)`.
   Files rendered from `.actlith` files without `## caches` are unchanged
   byte for byte, including every workflow on the built-in `pr0d1r2`
   cache.
