@@ -25,6 +25,15 @@ shift
 
 auth=()
 if [ -n "${NETRC:-}" ]; then
+  case "$URL" in
+  https://*) ;;
+  *)
+    # pipelith V87: a netrc goes only to an https url, checked here since a
+    # secret url is not checked when the row is.
+    echo "::error::verify-https: cache \`${CACHE:-?}\`: its url does not start with https://, so the netrc from secret \`${NETRC_SECRET:-?}\` is not written." >&2
+    exit 1
+    ;;
+  esac
   umask 077
   netrc="${RUNNER_TEMP:?RUNNER_TEMP is not set}/netrc"
   trap 'rm -f "$netrc"' EXIT

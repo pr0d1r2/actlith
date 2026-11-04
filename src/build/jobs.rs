@@ -10,8 +10,8 @@ use std::collections::BTreeMap;
 use super::plan::Plan;
 use crate::kind::{
     CacheKind, CachixPush, Checkout, KindError, cachix, checkout, hosts,
-    install_nix, job, matrix_runner, own, place, push_https, push_secret, run,
-    url,
+    https_env, install_nix, job, matrix_runner, own, place, push_https,
+    push_secret, run,
 };
 use crate::system::{Host, System, host};
 use crate::yaml::{Comment, Expr, Job, Matrix, Step, Text};
@@ -166,7 +166,7 @@ fn verify_step(plan: &Plan, systems: &str) -> Result<Step, KindError> {
     let netrc = push_secret(plan.cache);
     let env: Vec<_> = netrc.iter().map(|s| ("NETRC", s.expr())).collect();
     let mut step = run(plan.row.line, &command, &env)?;
-    step.env.insert("URL".to_owned(), url(plan.cache));
+    https_env(&mut step, plan.cache, netrc.as_ref());
     Ok(step)
 }
 

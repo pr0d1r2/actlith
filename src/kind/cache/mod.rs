@@ -21,5 +21,5 @@ pub(crate) use cachix::{
     CachixPush, PUSH_FILTER, SKIP_FORK_PR, SKIP_UNLESS_MAIN, cachix,
 };
 pub(crate) use nix::install_nix;
-pub(crate) use push::{PUSH_SCRIPT, https_push, push_https, url};
+pub(crate) use push::{PUSH_SCRIPT, https_env, https_push, push_https, url};
 pub(crate) use secrets::{push_secret, secrets};

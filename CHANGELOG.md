@@ -34,6 +34,11 @@ the bytes actlith emits for the same inputs is at least a minor version
     no `devShells.<system>.default` under a gate, fails before the netrc
     is written, with an `::error::` naming the missing output and the
     fix.
+  - Both https scripts hand the netrc to nix or curl only after a
+    run-time check that the resolved url, literal or secret, starts with
+    `https://` (pipelith V87). Otherwise they stop before writing it,
+    and the `::error::` names the cache and the netrc secret, which the
+    step passes as `CACHE` and `NETRC_SECRET`, never the url.
   - `build` on an https cache: `verify-cache` runs the new seeded
     `scripts/actlith/verify-https.sh`, which asks `<url>/<hash>.narinfo`,
     with the push netrc when set.

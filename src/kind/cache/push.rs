@@ -36,7 +36,7 @@ pub(crate) fn push_https(
     };
     let command = format!("bash {PUSH_SCRIPT} {attr}");
     let mut step = run(line, &command, &[("NETRC", netrc.expr())])?;
-    step.env.insert("URL".to_owned(), url(cache));
+    https_env(&mut step, cache, Some(&netrc));
     let (when, why) = if mode == CachixPush::SkipForkPr {
         (TRUSTED, FORK_WHY)
     } else {
@@ -60,6 +60,22 @@ pub(crate) fn https_push(
 fn netrc(cache: &BinaryCache, mode: CachixPush) -> Option<Secret> {
     let https = cache.kind() == CacheKind::Https && mode.pushes();
     push_secret(cache).filter(|_| https)
+}
+
+/// The env an https script reads beside `NETRC`: `URL`, and with a
+/// netrc the `CACHE` and `NETRC_SECRET` names its run-time https check
+/// reports instead of the url (V65).
+pub(crate) fn https_env(
+    step: &mut Step,
+    cache: &BinaryCache,
+    netrc: Option<&Secret>,
+) {
+    step.env.insert("URL".to_owned(), url(cache));
+    if let Some(netrc) = netrc {
+        step.env.insert("CACHE".to_owned(), Text::lit(cache.name()));
+        let name = Text::lit(netrc.name());
+        step.env.insert("NETRC_SECRET".to_owned(), name);
+    }
 }
 
 /// The url of `cache` as an env value: the literal, or its secret.
