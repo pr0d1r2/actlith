@@ -10,9 +10,35 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Added
 
-- `## caches` in `.actlith`, with `name|public-key` rows parsed by
-  `src/registry`; omitted sections continue to use pipelith's built-in
-  Cachix cache table.
+- `## caches` in `.actlith`, pipelith 0.2.1's neutral section with
+  header `name|kind|url|key|push` (T79-T82): a `## workflows` row's
+  `cache` cell names a `cachix` or `https` cache there, each of `url`,
+  `key` and `push` a literal or `secret:NAME`. It replaces the
+  unreleased `name|public-key` header, which is now refused.
+  - Reading: install-nix's `extra_nix_config` gains the cache's
+    `extra-substituters` and `extra-trusted-public-keys`. A secret value
+    is written as `${{ secrets.NAME }}` in an install-nix step that skips
+    fork pull requests, beside a cache-less one that runs only for them,
+    so a fork never gets an empty substituter.
+  - Pushing: a read-only cache (`push` is `-`) gets no cachix step and
+    no push step. A cachix row's token secret is the cachix step's
+    `authToken`. An https cache pushes with the new seeded
+    `scripts/actlith/push-https.sh`, given `NETRC` and `URL` through
+    `env:`: it masks the url before any output, skips a run without the
+    netrc, writes it mode 600 to `$RUNNER_TEMP/netrc`, removes it on
+    exit, and runs `nix copy --option netrc-file ... --to "$URL"`. `gate`
+    pushes `devShells.default.inputDerivation` (skipping fork PRs, and
+    never with `cache-push=false`), `build` pushes `packages.<package>`
+    from `main` only.
+  - `build` on an https cache: `verify-cache` runs the new seeded
+    `scripts/actlith/verify-https.sh`, which asks `<url>/<hash>.narinfo`,
+    with the push netrc when set.
+  - `actlith report` lists the cache's url and key secrets as
+    `cache read` and its push secret as `cachix push` or
+    `cache push (netrc)`.
+  Files rendered from `.actlith` files without `## caches` are unchanged
+  byte for byte, including every workflow on the built-in `pr0d1r2`
+  cache.
 
 - `## runners` in `.actlith`, header `system|labels` (pipelith 0.2's
   neutral section, read with `Runners::from_document`): a row such as

@@ -33,10 +33,13 @@ pub(crate) fn install_nix(
     if let Some(config) = cache.nix_config() {
         return Ok(vec![trusting(pins, Text::lit(&config))?]);
     }
-    // RED stub: a secret value is not read yet.
-    let _ = (config, SECRET_WHY, FORK_WHY, SKIP_FORK_PR, TRUSTED);
-    let _ = (Expr::new(&GITHUB, TRUSTED), Comment::new(FORK_WHY));
-    Ok(vec![plain(pins)?])
+    let mut trusted = trusting(pins, config(cache))?;
+    trusted.condition = Expr::new(&GITHUB, TRUSTED);
+    trusted.comments = vec![Comment::new(SECRET_WHY)];
+    let mut fork = plain(pins)?;
+    fork.condition = Expr::new(&GITHUB, SKIP_FORK_PR);
+    fork.comments = vec![Comment::new(FORK_WHY)];
+    Ok(vec![trusted, fork])
 }
 
 fn plain(pins: &PinTable) -> Result<Step, KindError> {

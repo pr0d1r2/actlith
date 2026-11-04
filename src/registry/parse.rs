@@ -55,7 +55,7 @@ pub(crate) fn parse(text: &str) -> Result<Registry, RegistryError> {
             .map(|r| RawRow::from_cells(FILE, r))
             .collect::<Result<_, _>>()?,
         actions: rows("actions").map(action).collect::<Result<_, _>>()?,
-        caches: Caches::default(),
+        caches: Caches::from_document(FILE, &doc)?,
         hand_written: rows("hand-written")
             .map(hand)
             .collect::<Result<_, _>>()?,

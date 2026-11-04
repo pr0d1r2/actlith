@@ -23,10 +23,9 @@ pub(crate) fn push_secret(cache: &BinaryCache) -> Option<Secret> {
         CacheKind::Https => NETRC,
         _ => CACHIX,
     };
-    // RED stub (T79): a row's own secret reads as the built-in token.
-    let _ = purpose;
     match cache.push() {
-        Push::Forge | Push::Secret(_) => Secret::cachix(),
+        Push::Forge => Secret::cachix(),
+        Push::Secret(name) => Secret::new(name, purpose),
         _ => None,
     }
 }
@@ -40,10 +39,10 @@ pub(crate) fn secrets(
     let Some(cache) = cache else {
         return Vec::new();
     };
-    // RED stub (T79): only the built-in token, as before `## caches`.
-    let _ = (READ, cache.read_secrets());
-    let forge = cache.push() == &Push::Forge && mode.pushes();
-    push_secret(cache).filter(|_| forge).into_iter().collect()
+    let read = cache.read_secrets().into_iter();
+    let read = read.filter_map(|name| Secret::new(name, READ));
+    let push = push_secret(cache).filter(|_| mode.pushes());
+    read.chain(push).collect()
 }
 
 /// `${{ secrets.<name> }}` for a cell `value` held by a secret; `None`

@@ -58,17 +58,15 @@ pub(crate) fn https_push(
 
 /// The netrc secret of an https `cache` that pushes in `mode`.
 fn netrc(cache: &BinaryCache, mode: CachixPush) -> Option<Secret> {
-    // RED stub (T79): an https cache does not push yet.
-    let _ = (push_secret(cache), cache.kind() == CacheKind::Https, mode);
-    None
+    let https = cache.kind() == CacheKind::Https && mode.pushes();
+    push_secret(cache).filter(|_| https)
 }
 
 /// The url of `cache` as an env value: the literal, or its secret.
 pub(crate) fn url(cache: &BinaryCache) -> Text {
     let value = cache.url();
-    // RED stub (T79): the literal only.
-    let _ = secret_expr(value);
-    Text::lit(value.literal().unwrap_or_default())
+    let literal = || Text::lit(value.literal().unwrap_or_default());
+    secret_expr(value).map_or_else(literal, Text::expr)
 }
 
 #[cfg(test)]
