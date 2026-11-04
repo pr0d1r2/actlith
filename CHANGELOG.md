@@ -29,7 +29,10 @@ the bytes actlith emits for the same inputs is at least a minor version
     exit, and runs `nix copy --option netrc-file ... --to "$URL"`. `gate`
     pushes `devShells.default.inputDerivation` (skipping fork PRs, and
     never with `cache-push=false`), `build` pushes `packages.<package>`
-    from `main` only.
+    from `main` only. Each output is evaluated first: a flake without
+    it, such as one with no `devShells.<system>.default` under a gate,
+    fails before the netrc is written, with an `::error::` naming the
+    missing output and the fix.
   - `build` on an https cache: `verify-cache` runs the new seeded
     `scripts/actlith/verify-https.sh`, which asks `<url>/<hash>.narinfo`,
     with the push netrc when set.
