@@ -36,14 +36,14 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §I INTERFACES
 
-- types: `Registry { workflows, actions, hand_written, bots, runners }` (`runners` = pipelith `Runners::from_document`, `RUNNERS` in schema), `WorkflowRow { line, id, kind, systems, cache, args }`, `ActionPin { line, action, version, sha }`, `HandWritten { line, path, reason }`, `BotRow { line, bot, args }`, `Arg { key, value }`, `RegistryError` (line, what, fix). ∀ row carries its line ∴ later nodes name it. args & systems split on `,` ∴ ⊥ comma inside an arg value.
+- types: `Registry { workflows, actions, caches, hand_written, bots, runners }` (`runners` = pipelith `Runners::from_document`, `RUNNERS` in schema; `caches` = pipelith `Caches::from_document`, `CACHES` in schema), `WorkflowRow { line, id, kind, systems, cache, args }`, `ActionPin { line, action, version, sha }`, `HandWritten { line, path, reason }`, `BotRow { line, bot, args }`, `Arg { key, value }`, `RegistryError` (line, what, fix). ∀ row carries its line ∴ later nodes name it. args & systems split on `,` ∴ ⊥ comma inside an arg value.
 - fns: `parse(&str) -> Result<Registry, RegistryError>`.
 
 ## §V INVARIANTS
 
 V10: unknown kind | args key | system, missing required arg, bad `## runners` row (pipelith `runner` checks) → exit 2 naming it. ⊥ silent default. registry checks row SHAPE; kind & system names validated against `src/kind` & `src/system` by `src/render`
 V11: `.actlith` ! carry `format` line; newer than supported → exit 2 naming both versions, ⊥ best-effort parse
-V12: missing `.actlith` → `gen`|`check` exit 2, ⊥ pass, ⊥ empty render. missing optional section (`## actions`, `## hand-written`, `## runners`) = empty
+V12: missing `.actlith` → `gen`|`check` exit 2, ⊥ pass, ⊥ empty render. missing optional section (`## actions`, `## caches`, `## hand-written`, `## runners`) = empty
 
 ## §T TASKS
 
@@ -51,6 +51,7 @@ id|status|task|cites
 T13|x|parse `format`, `## workflows`, `## actions`, `## hand-written`; duplicate id, empty reason, bad cell count → error w/ line; fixtures 1-to-1|V10,V11,V12
 T64|x|grammar → pipelith `registry`, `WorkflowRow` = `kind::RawRow`, `Arg` pipelith; newer format in pipelith words (3a); fixtures unchanged|V10,V11,`tests:V48`,`src/core:V51`
 T73|x|`## runners` in schema, parsed by pipelith `Runners::from_document` → `Registry.runners`; fixtures for unknown system, empty labels, bad label, repeat|V10,V12
+T80|.|`## caches` = pipelith `cache::CACHES` (`name\|kind\|url\|key\|push`) → `Registry.caches`; replaces unreleased `name\|public-key` (`src/kind/cache:T44`); bad row → error w/ line, ⊥ secret value|V10,V12
 
 ## §B BUGS
 

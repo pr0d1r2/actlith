@@ -4,6 +4,11 @@
 
 `src/kind` — what every kind shares: arg schema, hardening, common steps, secrets.
 
+## §F FEDERATION
+
+dir|owns|⊥owns|tokens
+cache|cache steps: install-nix config, cachix & https push, cache secrets|which kind pushes when|-
+
 ## §N NAV
 
 rel|path|lens
@@ -31,16 +36,15 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 
 ## §C CONSTRAINTS
 
-- a kind = Rust type implementing `Kind`: `spec()` (pipelith catalogue entry), secrets, `build(&Row, &PinTable) -> Workflow`. ⊥ text templates.
+- a kind = Rust type implementing `Kind`: `spec()` (pipelith catalogue entry), secrets, `build(&Checked, &PinTable) -> Workflow`. ⊥ text templates.
 - row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (kinds ∅, keys `xcode`, `cache-push`); `check` passes a kind only its `Kind::forge_args` (default ∅) ∴ other kinds refuse these keys.
-- common: permissions, concurrency, timeout, checkout, install-nix/cache, cachix (fork-PR skip, `pushFilter`); gate `cache-push=false`: read-only.
+- common: permissions, concurrency, timeout, checkout; cache steps → `src/kind/cache`.
 
 ## §I INTERFACES
 
-- types: `Kind` trait (+ `forge_args`), `Secret`, `KindError` (`Row` ← pipelith's | `Pin`); `Row`, `Args`, `Cache` = pipelith's.
-- fns: `check(&dyn Kind, &WorkflowRow) -> Result<Row, KindError>`: systems known (∀ has a host, `src/system:V53` ∴ ⊥ refused at render), then pipelith `Row::check` (keys, cache, timeout 1..=360, rules → error naming line); builders flat (⊥ `common` module).
-- runners: `Kind::build(&Row, &PinTable, &Runners)`; `hosts(&Row, &Runners) -> Hosts` splits systems hosted | own; `own(Job, labels)` → `runs-on: [labels]` + guard `if:` (V54).
-- cache: public keys from pipelith's built-in table (v1: `pr0d1r2` only); other cache names refused w/ fix hint, ⊥ guessed key. `## caches` (`name|public-key`) = T44.
+- types: `Kind` trait (+ `forge_args`), `Secret`, `KindError` (`Row` ← pipelith's | `Pin`); `Row`, `Args`, `Caches` = pipelith's; `Checked` derefs to `Row`, `.cache` = pipelith `BinaryCache` (`## caches` | built-in).
+- fns: `check(&dyn Kind, &WorkflowRow, &Caches) -> Result<Checked, KindError>`: systems known (∀ has a host, `src/system:V53` ∴ ⊥ refused at render), then pipelith `Row::check_with` (keys, cache, timeout 1..=360, rules → error naming line); builders flat (⊥ `common` module).
+- runners: `Kind::build(&Checked, &PinTable, &Runners)`; `hosts(&Row, &Runners) -> Hosts` splits systems hosted | own; `own(Job, labels)` → `runs-on: [labels]` + guard `if:` (V54).
 
 ## §R RESEARCH
 
@@ -63,7 +67,6 @@ V59: secret scanning/push protection: settings/API; Cachix: C,T17
 id|status|task|cites
 T17|x|`Kind` trait, arg schema & parse, common parts (permissions, concurrency, timeouts, checkout, install-nix, cachix, env-only expressions); tests per part|V3,V14,`src/registry:V10`
 T42|x|adopted contracts; build after `.:V24`|`.:V24`,`.:V41`,V58,V59,R42
-T44|x|`.actlith` `## caches` section (columns name, public-key; `src/registry`) so a repo names its own cachix cache; built-in table stays the default|`src/registry:V10`
 T51|x|rows, args, contract → `pipelith` `kind`; mark forge-only arg keys|`tests:V48`,V49
 T53|.|split `docs/KINDS.md`: neutral → pipelith, GitHub syntax → `docs/KINDS-GITHUB.md`|`.:V25`,V49
 T65|x|rows, args, cache, catalogue → pipelith `kind`; `Kind` = spec + secrets + build; runner wording kept; empty `Extras`|V49,`tests:V48`,`src/core:V51`
