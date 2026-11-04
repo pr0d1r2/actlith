@@ -33,6 +33,7 @@ pub(crate) trait Kind {
 
     /// The seeded scripts the workflow built from `row` runs beyond the
     /// ones its kind always runs: those its cache needs (`src/kind/cache`).
+    /// `render` adds the read netrc one for every kind itself.
     fn scripts(&self, _row: &Checked) -> Vec<&'static str> {
         Vec::new()
     }

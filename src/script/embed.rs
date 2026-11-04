@@ -23,6 +23,7 @@ macro_rules! seeded {
 const SCRIPTS: &[(&str, &str)] = &[
     seeded!("open-pr.sh"),
     seeded!("push-https.sh"),
+    seeded!("read-netrc.sh"),
     seeded!("update-pins.sh"),
     seeded!("verify-cache.sh"),
     seeded!("verify-https.sh"),
