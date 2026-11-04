@@ -52,6 +52,20 @@ case "$tool $*" in
   fi
   echo true
   ;;
+"nix eval --raw .#"*".drvPath")
+  # push-https.sh forces the exact installable; STUB_DRV_BROKEN names one
+  # that does not evaluate. The netrc's presence is logged, as above.
+  if [ -e "${RUNNER_TEMP:-/nonexistent}/netrc" ]; then
+    echo "drv with netrc on disk" >>"$STUB_LOG"
+  else
+    echo "drv before netrc" >>"$STUB_LOG"
+  fi
+  if [ -n "${STUB_DRV_BROKEN:-}" ] && [[ "$3" == *"$STUB_DRV_BROKEN"* ]]; then
+    echo "error: attribute 'inputDerivation' missing" >&2
+    exit 1
+  fi
+  echo /nix/store/stub.drv
+  ;;
 "nix eval --impure --raw --expr builtins.currentSystem")
   echo "${STUB_SYSTEM:-x86_64-linux}"
   ;;
