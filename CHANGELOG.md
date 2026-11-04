@@ -42,7 +42,8 @@ the bytes actlith emits for the same inputs is at least a minor version
   - `build` on an https cache: `verify-cache` runs the new seeded
     `scripts/actlith/verify-https.sh`, which asks `<url>/<hash>.narinfo`,
     with the cache's read netrc when it has one (below), else the push
-    netrc when set.
+    netrc when set. A miss names the secret it asked with, from
+    `NETRC_SECRET`, or says no netrc was used.
   - `actlith report` lists the cache's url and key secrets as
     `cache read` and its push secret as `cachix push` or
     `cache push (netrc)`.
