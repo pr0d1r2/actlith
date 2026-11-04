@@ -50,7 +50,9 @@ jobs:
       - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: bash scripts/actlith/push-https.sh packages.hk
         env:
+          CACHE: example-cache
           NETRC: ${{ secrets.EXAMPLE_NETRC }}
+          NETRC_SECRET: EXAMPLE_NETRC
           URL: 'https://cache.example.org'
   # --all-systems is the point: a bare `nix flake check` skips every system
   # the runner cannot build.
@@ -87,5 +89,7 @@ jobs:
             extra-trusted-public-keys = example-cache-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=
       - run: bash scripts/actlith/verify-https.sh hk x86_64-linux aarch64-linux aarch64-darwin x86_64-darwin
         env:
+          CACHE: example-cache
           NETRC: ${{ secrets.EXAMPLE_NETRC }}
+          NETRC_SECRET: EXAMPLE_NETRC
           URL: 'https://cache.example.org'
