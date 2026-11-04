@@ -57,7 +57,7 @@ T69|x|`gate` arg `xcode`: env + check step, refusals, golden through actionlint 
 T71|x|`xcode` pin must reach the dev shell (B11), e.g. default `command` hands it over as `HOST_DEVELOPER_DIR`; test: ⊥ row loses the pin. open: how|B11,V52
 T75|x|`gate` default matrix gains `x86_64-darwin`; own-runner job per `## runners` system; golden: default row + `## runners` override, guard on own job only, actionlint & zizmor|V29,`src/kind:V54`,`tests:V4`
 T82|x|`gate` on a `## caches` cache: secret read & https push golden through actionlint & zizmor; secrets listed|V63,`src/kind/cache:T79`,`tests:V4`
-T83|.|missing dev shell → push fails early, clearly|V63
+T83|x|missing dev shell → push fails early, clearly|V63
 
 ## §B BUGS
 
