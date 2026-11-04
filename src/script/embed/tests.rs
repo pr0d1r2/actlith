@@ -510,6 +510,9 @@ const PLAIN: &str = "http://cache.example.org";
 /// before any netrc or nix call, naming the cache and the secret only.
 fn refused_url(name: &str, script: &str, args: &[&str]) -> io::Result<()> {
     let temp = runner_temp(name)?;
+    // A directory where the netrc would go: any write to it fails loudly
+    // ("Is a directory"), even one an EXIT trap would clean up after.
+    fs::create_dir(Path::new(&temp).join("netrc"))?;
     let env = [("URL", PLAIN), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
     let secret = ("NETRC_SECRET", "EXAMPLE_NETRC");
     let env = [env[0], env[1], env[2], ("CACHE", "example-cache"), secret];
@@ -519,15 +522,18 @@ fn refused_url(name: &str, script: &str, args: &[&str]) -> io::Result<()> {
                  https://, so the netrc from secret `EXAMPLE_NETRC`";
     assert!(ran.stderr.contains(named), "{}", ran.stderr);
     assert!(!ran.stderr.contains("example.org"), "{}", ran.stderr);
-    untouched(&ran, &temp);
-    Ok(())
+    untouched(&ran, &temp)
 }
 
-/// Neither nix nor curl ran, and no netrc was written.
-fn untouched(ran: &Ran, temp: &str) {
+/// Neither nix nor curl ran, and nothing tried to write the netrc: its
+/// path is still the empty directory `refused_url` put there.
+fn untouched(ran: &Ran, temp: &str) -> io::Result<()> {
     assert!(!ran.log.contains("nix "), "{}", ran.log);
     assert!(!ran.log.contains("curl "), "{}", ran.log);
-    assert!(!Path::new(temp).join("netrc").exists(), "netrc written");
+    assert!(!ran.stderr.contains("Is a directory"), "{}", ran.stderr);
+    let netrc = Path::new(temp).join("netrc");
+    assert!(fs::read_dir(netrc)?.next().is_none(), "netrc written");
+    Ok(())
 }
 
 #[test]
