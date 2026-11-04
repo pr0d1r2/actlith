@@ -34,7 +34,8 @@ clap_mangen = "0.3.3"
 # only, no dependencies of its own. Wired in by tests:T50 and src/kind:T51.
 # pipelith 0.2 (its PR #16, T38): `## runners`, x86_64-darwin a CI system.
 # pipelith 0.2.1 (its T40): `## caches`, `Row::check_with`, `BinaryCache`.
-pipelith = "0.2.1"
+# pipelith 0.2.2 (its T42): `read=` netrc arg, `BinaryCache::read_netrc`.
+pipelith = "0.2.2"
 
 [lints.rust]
 # No FFI anywhere, so no module needs to lift it (SPEC.md C).
