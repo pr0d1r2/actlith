@@ -655,6 +655,37 @@ fn verify_https_fails_on_a_miss_without_naming_the_url() -> io::Result<()> {
 }
 
 #[test]
+fn verify_https_names_the_netrc_secret_it_asked_with() -> io::Result<()> {
+    let temp = runner_temp("vh-named")?;
+    let env = [
+        ("URL", URL),
+        ("NETRC", NETRC),
+        ("RUNNER_TEMP", &temp),
+        ("NETRC_SECRET", "PRIVATE_READ"),
+        ("STUB_CURL_MISSING", "x86_64linux"),
+    ];
+    let args = ["hk", "x86_64-linux"];
+    let ran = run("vh-named", "verify-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(1));
+    // The read netrc, when the cache has one, is not the push secret.
+    let named = "::error::Check secret `PRIVATE_READ`";
+    assert!(ran.stderr.contains(named), "{}", ran.stderr);
+    assert!(!ran.stderr.contains("push secret"), "{}", ran.stderr);
+    Ok(())
+}
+
+#[test]
+fn verify_https_says_when_it_asked_without_a_netrc() -> io::Result<()> {
+    let env = [("URL", URL), ("STUB_CURL_MISSING", "x86_64linux")];
+    let args = ["hk", "x86_64-linux"];
+    let ran = run("vh-bare", "verify-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(1));
+    let none = "::error::No netrc was used to ask the cache";
+    assert!(ran.stderr.contains(none), "{}", ran.stderr);
+    Ok(())
+}
+
+#[test]
 fn verify_https_without_its_arguments_is_a_usage_error() -> io::Result<()> {
     let ran = run("vh-usage", "verify-https.sh", &["hk"], &[("URL", URL)])?;
     assert_eq!(ran.code, Some(2));
