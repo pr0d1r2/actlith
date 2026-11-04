@@ -35,9 +35,9 @@ V65: ∀ netrc user (`push-https.sh`, `verify-https.sh`): resolved `URL` ! start
 ## §T TASKS
 
 id|status|task|cites
-T44|x|`## caches` w/ `name, public-key`; superseded by T79 (unreleased)|`src/registry:V10`
+T44|x|`## caches` w/ `name, public-key`; superseded by T79|`src/registry:V10`
 T79|x|render pipelith 0.2.1 `## caches` (its T41): `check` → `Row::check_with` → `Checked`; `nix.rs`, `cachix.rs` → here; read, push, secrets per V60–V62; scripts tested w/ stubs; new goldens pass actionlint & zizmor, old unchanged|V60,V61,V62,`src/kind:V14`,`tests:V4`,`.:V18`
-T84|.|run-time `https://` check before ∀ netrc; tested w/ stubs|V65
+T84|x|run-time `https://` check before ∀ netrc; tested w/ stubs|V65
 
 ## §B BUGS
 
