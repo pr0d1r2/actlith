@@ -52,6 +52,10 @@ workflow, and `actlith gen --check` fails when the file on disk no longer
 matches.
 
 ```text
+## caches
+name|kind|url|key|push
+my-cachix-cache|cachix|-|my-cachix-cache.cachix.org-1:<base64>|secret:CACHIX_AUTH_TOKEN
+
 ## workflows
 id|kind|systems|cache|args
 ci|gate|-|my-cachix-cache|-
@@ -59,7 +63,9 @@ ci|gate|-|my-cachix-cache|-
 
 That row becomes `.github/workflows/ci.yml`: the [hk](https://hk.jdx.dev)
 gate on Linux x86, Linux arm and macOS, with nix installed and the cachix
-cache wired in. Every workflow actlith writes is hardened the same way,
+cache wired in. A cache can also be any https nix binary cache, with its
+url, key or push credential held by repository secrets
+([docs/KINDS.md](docs/KINDS.md#caches)). Every workflow actlith writes is hardened the same way,
 with no option to turn it off:
 
 - `permissions: contents: read` at the top; a job widens only what it needs.
