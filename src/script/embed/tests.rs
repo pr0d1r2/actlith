@@ -503,6 +503,45 @@ fn push_https_names_a_missing_dev_shell_and_the_fix() -> io::Result<()> {
     Ok(())
 }
 
+/// A url that resolved to something other than `https://` (V65).
+const PLAIN: &str = "http://cache.example.org";
+
+/// `script` with the netrc set and a url that is not https: stopped
+/// before any netrc or nix call, naming the cache and the secret only.
+fn refused_url(name: &str, script: &str, args: &[&str]) -> io::Result<()> {
+    let temp = runner_temp(name)?;
+    let env = [("URL", PLAIN), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
+    let secret = ("NETRC_SECRET", "EXAMPLE_NETRC");
+    let env = [env[0], env[1], env[2], ("CACHE", "example-cache"), secret];
+    let ran = run(name, script, args, &env)?;
+    assert_eq!(ran.code, Some(1), "{}", ran.stderr);
+    let named = "cache `example-cache`: its url does not start with \
+                 https://, so the netrc from secret `EXAMPLE_NETRC`";
+    assert!(ran.stderr.contains(named), "{}", ran.stderr);
+    assert!(!ran.stderr.contains("example.org"), "{}", ran.stderr);
+    untouched(&ran, &temp);
+    Ok(())
+}
+
+/// Neither nix nor curl ran, and no netrc was written.
+fn untouched(ran: &Ran, temp: &str) {
+    assert!(!ran.log.contains("nix "), "{}", ran.log);
+    assert!(!ran.log.contains("curl "), "{}", ran.log);
+    assert!(!Path::new(temp).join("netrc").exists(), "netrc written");
+}
+
+#[test]
+fn push_https_refuses_a_url_that_is_not_https() -> io::Result<()> {
+    let args = ["packages.hk"];
+    refused_url("ph-plain", "push-https.sh", &args)
+}
+
+#[test]
+fn verify_https_refuses_a_url_that_is_not_https() -> io::Result<()> {
+    let args = ["hk", "x86_64-linux"];
+    refused_url("vh-plain", "verify-https.sh", &args)
+}
+
 #[test]
 fn verify_https_asks_the_url_for_every_system() -> io::Result<()> {
     let args = ["hk", "x86_64-linux", "aarch64-darwin"];

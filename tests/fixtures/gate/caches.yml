@@ -54,6 +54,8 @@ jobs:
           github.event.pull_request.head.repo.full_name == github.repository }}
         run: bash scripts/actlith/push-https.sh devShells.default.inputDerivation
         env:
+          CACHE: hidden-cache
           NETRC: ${{ secrets.HIDDEN_NETRC }}
+          NETRC_SECRET: HIDDEN_NETRC
           URL: ${{ secrets.HIDDEN_URL }}
       - run: nix develop --command hk check --all --check

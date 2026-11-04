@@ -46,6 +46,17 @@ fn a_netrc_secret_pushes_through_the_seeded_script() -> Result<(), String> {
 }
 
 #[test]
+fn the_step_names_the_cache_and_netrc_secret() -> Result<(), String> {
+    let step = step("example-cache", CachixPush::SkipForkPr)?.ok_or("none")?;
+    // The names the run-time https check reports (V65), never the url.
+    let cache = Text::lit("example-cache");
+    assert_eq!(step.env.get("CACHE"), Some(&cache));
+    let secret_name = Text::lit("EXAMPLE_NETRC");
+    assert_eq!(step.env.get("NETRC_SECRET"), Some(&secret_name));
+    Ok(())
+}
+
+#[test]
 fn main_only_pushes_from_a_push_to_main() -> Result<(), String> {
     for mode in [CachixPush::MainOnly, CachixPush::ExplicitMain] {
         let step = step("hidden-cache", mode)?.ok_or("none")?;
