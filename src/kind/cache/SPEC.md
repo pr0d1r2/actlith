@@ -21,7 +21,7 @@ self|src/kind/cache|cache steps: install-nix config, cachix & https push, cache 
 
 ## §I INTERFACES
 
-- fns: `install_nix(&PinTable, Option<&BinaryCache>) -> Vec<Step>`; `cachix(&PinTable, &BinaryCache, CachixPush) -> Option<Step>`; `push_https(line, &BinaryCache, CachixPush, attr) -> Option<Step>`; `secrets(Option<&BinaryCache>, CachixPush) -> Vec<Secret>`.
+- fns (`Result<_, KindError>`): `install_nix(&PinTable, Option<&BinaryCache>) -> Result<Vec<Step>>`; `cachix(&PinTable, &BinaryCache, CachixPush) -> Result<Option<Step>>`; `push_https(line, &BinaryCache, CachixPush, attr) -> Result<Option<Step>>`; `secrets(Option<&BinaryCache>, CachixPush) -> Vec<Secret>`.
 - script `scripts/actlith/push-https.sh ATTR…`, env `URL`, `NETRC`: ATTR `<output>.<rest>` → installable `.#<output>.<system>.<rest>`, system = runner's.
 - secret purposes: `cache read` (url | key secret), `cachix push`, `cache push (netrc)`.
 
