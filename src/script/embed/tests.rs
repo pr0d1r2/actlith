@@ -431,6 +431,38 @@ fn private_netrc(ran: &Ran, temp: &str) {
 }
 
 #[test]
+fn push_https_checks_every_output_before_the_netrc() -> io::Result<()> {
+    let temp = runner_temp("ph-check")?;
+    let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
+    let args = ["devShells.default.inputDerivation"];
+    let ran = run("ph-check", "push-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    let check = "nix eval .#devShells.x86_64-linux.default --apply x: true";
+    let at = |call: &str| calls(&ran).iter().position(|c| c.starts_with(call));
+    let (checked, netrc) = (at(check), at("netrc "));
+    assert!(checked.is_some() && checked < netrc, "{}", ran.log);
+    Ok(())
+}
+
+#[test]
+fn push_https_names_a_missing_dev_shell_and_the_fix() -> io::Result<()> {
+    let temp = runner_temp("ph-missing")?;
+    let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
+    let env = [env[0], env[1], env[2], ("STUB_EVAL_MISSING", "devShells")];
+    let args = ["devShells.default.inputDerivation"];
+    let ran = run("ph-missing", "push-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(1));
+    let named = "::error::push-https: the flake has no output \
+                 `devShells.x86_64-linux.default`";
+    assert!(ran.stderr.contains(named), "{}", ran.stderr);
+    assert!(ran.stderr.contains("add `devShells"), "{}", ran.stderr);
+    assert!(!ran.log.contains("nix copy"), "{}", ran.log);
+    assert!(!Path::new(&temp).join("netrc").exists(), "netrc written");
+    masked(&ran);
+    Ok(())
+}
+
+#[test]
 fn verify_https_asks_the_url_for_every_system() -> io::Result<()> {
     let args = ["hk", "x86_64-linux", "aarch64-darwin"];
     let ran = run("vh-ok", "verify-https.sh", &args, &[("URL", URL)])?;
