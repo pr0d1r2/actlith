@@ -29,7 +29,7 @@ self|src/kind/cache|cache steps: install-nix config, cachix & https push, cache 
 
 V60: read: url & key literal → `extra_nix_config` = `nix_config()` as is. a secret → 2 install-nix steps: `if:` trusted (⊥ fork PR, `src/kind:V54` guard) w/ `${{ secrets.N }}` in `extra_nix_config`; `if:` fork PR w/o cache ∴ ⊥ empty substituter. `read_secrets()` ∈ kind `secrets()` (`src/kind:V14`)
 V61: push per `Push`: `ReadOnly` → ⊥ cachix step, ⊥ push step, ⊥ push secret · `Forge` → cachix step as before, `CACHIX_AUTH_TOKEN` · cachix `Secret(N)` → that step w/ `authToken: ${{ secrets.N }}` · https `Secret(N)` → `push-https.sh` step, `env:` `NETRC: ${{ secrets.N }}` & `URL`, `if:` from mode (`SkipForkPr` ⊥ fork PR, `MainOnly`|`ExplicitMain` main push), ⊥ cachix step. mode `ReadOnly` → ⊥ push, ⊥ push secret, whatever the cache
-V62: `push-https.sh`: `::add-mask::` URL before any output, ⊥ echo URL; ⊥ ATTR | ⊥ `URL` → exit 2; empty `NETRC` (fork) → skip, exit 0; `umask 077`, netrc → `$RUNNER_TEMP/netrc`, `trap` removes it; ∀ ATTR `<output>.<system>.<name>` ! evaluate (`nix eval … --apply`) before netrc, else `::error::` naming it & fix, exit 1; `nix copy --option netrc-file <it> --to "$URL" <installables>`
+V62: `push-https.sh`: `::add-mask::` URL before any output, ⊥ echo URL; ⊥ ATTR | ⊥ `URL` → exit 2; empty `NETRC` (fork) → skip, exit 0; `umask 077`, netrc → `$RUNNER_TEMP/netrc`, `trap` removes it; ∀ ATTR before netrc: `<output>.<system>.<name>` ! exist (`nix eval … --apply`) & its installable's `drvPath` ! evaluate (forced), else `::error::` naming it & fix, exit 1; `nix copy --option netrc-file <it> --to "$URL" <installables>`
 
 ## §T TASKS
 
