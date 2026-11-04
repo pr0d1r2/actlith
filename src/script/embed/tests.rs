@@ -446,6 +446,46 @@ fn push_https_checks_every_output_before_the_netrc() -> io::Result<()> {
 }
 
 #[test]
+fn push_https_forces_the_exact_installable_first() -> io::Result<()> {
+    let temp = runner_temp("ph-force")?;
+    let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
+    let args = ["devShells.default.inputDerivation"];
+    let ran = run("ph-force", "push-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    let force = "nix eval --raw \
+                 .#devShells.x86_64-linux.default.inputDerivation.drvPath";
+    assert!(calls(&ran).contains(&force), "{}", ran.log);
+    assert!(calls(&ran).contains(&"drv before netrc"), "{}", ran.log);
+    assert!(!ran.log.contains("drv with netrc on disk"), "{}", ran.log);
+    Ok(())
+}
+
+/// `push-https.sh` on the dev shell with the stub failing `stub`:
+/// refused before any copy or netrc, the url still masked.
+fn refused_push(name: &str, stub: (&str, &str)) -> io::Result<Ran> {
+    let temp = runner_temp(name)?;
+    let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp), stub];
+    let args = ["devShells.default.inputDerivation"];
+    let ran = run(name, "push-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(1), "{}", ran.stderr);
+    assert!(!ran.log.contains("nix copy"), "{}", ran.log);
+    assert!(!Path::new(&temp).join("netrc").exists(), "netrc written");
+    masked(&ran);
+    Ok(ran)
+}
+
+#[test]
+fn push_https_names_a_leaf_that_does_not_evaluate() -> io::Result<()> {
+    let stub = ("STUB_DRV_BROKEN", "inputDerivation");
+    let ran = refused_push("ph-broken", stub)?;
+    let named = "::error::push-https: \
+                 `.#devShells.x86_64-linux.default.inputDerivation` does not \
+                 evaluate";
+    assert!(ran.stderr.contains(named), "{}", ran.stderr);
+    Ok(())
+}
+
+#[test]
 fn push_https_names_a_missing_dev_shell_and_the_fix() -> io::Result<()> {
     let temp = runner_temp("ph-missing")?;
     let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
