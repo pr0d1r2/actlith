@@ -55,7 +55,13 @@ done
 
 if [ "$rc" -ne 0 ]; then
   echo "::error::$package missing from the https cache after a main build." >&2
-  echo "::error::Check the push secret: a netrc file allowed to PUT to the" >&2
-  echo "::error::cache. A failed push does not always fail its job." >&2
+  # The netrc this job asked with: the read one when the cache has it,
+  # else the push one (src/kind/cache/netrc V66), named by the step.
+  if [ -n "${NETRC:-}" ]; then
+    echo "::error::Check secret \`${NETRC_SECRET:-?}\`: the netrc this job asked the cache with." >&2
+  else
+    echo "::error::No netrc was used to ask the cache; a private one needs its read netrc." >&2
+  fi
+  echo "::error::Check the push too: a failed push does not always fail its job." >&2
   exit 1
 fi
