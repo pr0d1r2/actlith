@@ -32,7 +32,7 @@ V66: read netrc `secret:R` → step before install-nix, `if:` trusted: `read-net
 
 id|status|task|cites
 T84|x|run-time `https://` check before ∀ netrc; tested w/ stubs|V65
-T85|.|pipelith 0.2.2 read netrc (`read=secret:R`): step, config line, purpose, verify netrc; `read-netrc.sh` tested w/ stubs; goldens w/ it pass actionlint & zizmor, old unchanged|V65,V66,`src/kind/cache:V60`,`tests:V4`,`.:V18`
+T85|x|pipelith 0.2.2 read netrc (`read=secret:R`): step, config line, purpose, verify netrc; `read-netrc.sh` tested w/ stubs; goldens w/ it pass actionlint & zizmor, old unchanged|V65,V66,`src/kind/cache:V60`,`tests:V4`,`.:V18`
 
 ## §B BUGS
 
