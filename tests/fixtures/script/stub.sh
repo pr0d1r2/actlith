@@ -39,7 +39,13 @@ case "$tool $*" in
   ;;
 "nix eval .#"*" --apply "*)
   # push-https.sh asks whether an output exists; STUB_EVAL_MISSING names
-  # one that does not.
+  # one that does not. Whether the netrc is on disk yet is logged, so a
+  # test sees the real write's order, not the copy's.
+  if [ -e "${RUNNER_TEMP:-/nonexistent}/netrc" ]; then
+    echo "eval with netrc on disk" >>"$STUB_LOG"
+  else
+    echo "eval before netrc" >>"$STUB_LOG"
+  fi
   if [ -n "${STUB_EVAL_MISSING:-}" ] && [[ "$2" == *"$STUB_EVAL_MISSING"* ]]; then
     echo "error: flake does not provide attribute '$2'" >&2
     exit 1

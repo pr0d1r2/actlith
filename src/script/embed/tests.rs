@@ -438,9 +438,10 @@ fn push_https_checks_every_output_before_the_netrc() -> io::Result<()> {
     let ran = run("ph-check", "push-https.sh", &args, &env)?;
     assert_eq!(ran.code, Some(0), "{}", ran.stderr);
     let check = "nix eval .#devShells.x86_64-linux.default --apply x: true";
-    let at = |call: &str| calls(&ran).iter().position(|c| c.starts_with(call));
-    let (checked, netrc) = (at(check), at("netrc "));
-    assert!(checked.is_some() && checked < netrc, "{}", ran.log);
+    assert!(calls(&ran).contains(&check), "{}", ran.log);
+    // The stub logs whether $RUNNER_TEMP/netrc exists when it is asked.
+    assert!(calls(&ran).contains(&"eval before netrc"), "{}", ran.log);
+    assert!(!ran.log.contains("eval with netrc on disk"), "{}", ran.log);
     Ok(())
 }
 
