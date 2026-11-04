@@ -2,7 +2,7 @@
 //! files, the declared secret, and every refused row.
 
 use crate::bump::Upstream;
-use crate::kind::{Kind, Row};
+use crate::kind::{Checked, Kind};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::Runners;
@@ -14,10 +14,10 @@ const ROWS: &str =
 const DEFAULT: &str = include_str!("../../../tests/fixtures/bump/upstream.yml");
 const CUSTOM: &str = include_str!("../../../tests/fixtures/bump/up-custom.yml");
 
-fn checked(id: &str) -> Result<Row, String> {
+fn checked(id: &str) -> Result<Checked, String> {
     let registry = parse(ROWS).map_err(|e| e.to_string())?;
     let row = registry.workflows.iter().find(|r| r.id == id);
-    crate::kind::check(&Upstream, row.ok_or("no row")?)
+    crate::kind::check(&Upstream, row.ok_or("no row")?, &registry.caches)
         .map_err(|e| e.to_string())
 }
 

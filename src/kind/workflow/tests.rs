@@ -6,9 +6,10 @@ use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    CachixPush, Checkout, GATE, Kind, KindError, KindSpec, Row, Secret, cachix,
-    checkout, concurrency, hosts, install_nix, job, matrix_runner,
-    on_push_and_pr, on_schedule, read_only, run, runner_matrix, workflow,
+    CachixPush, Checked, Checkout, GATE, Kind, KindError, KindSpec, Secret,
+    cachix, checkout, concurrency, hosts, install_nix, job, matrix_runner,
+    on_push_and_pr, on_schedule, read_only, run, runner_matrix, secrets,
+    workflow,
 };
 use crate::pin::PinTable;
 use crate::registry::parse;
@@ -37,14 +38,13 @@ impl Kind for Gate {
         &GATE
     }
 
-    fn secrets(&self, row: &Row) -> Vec<Secret> {
-        let push = row.cache.as_ref().and(CachixPush::SkipForkPr.secret());
-        push.into_iter().collect()
+    fn secrets(&self, row: &Checked) -> Vec<Secret> {
+        secrets(row.cache.as_ref(), CachixPush::SkipForkPr)
     }
 
     fn build(
         &self,
-        row: &Row,
+        row: &Checked,
         pins: &PinTable,
         runners: &Runners,
     ) -> Result<Workflow, KindError> {
@@ -59,28 +59,26 @@ impl Kind for Gate {
     }
 }
 
-fn steps(row: &Row, pins: &PinTable) -> Result<Vec<Step>, KindError> {
+fn steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
     let how = Checkout {
         pushes: false,
         fetch_depth: Some(0),
         why_depth: Some(Comment::new(DEPTH_WHY)),
     };
-    let mut steps = vec![
-        checkout(pins, &how)?,
-        install_nix(pins, row.cache.as_ref())?,
-    ];
+    let mut steps = vec![checkout(pins, &how)?];
+    steps.extend(install_nix(pins, row.cache.as_ref())?);
     if let Some(cache) = &row.cache {
-        steps.push(cachix(pins, cache, CachixPush::SkipForkPr)?);
+        steps.extend(cachix(pins, cache, CachixPush::SkipForkPr)?);
     }
     let command = row.args.get("command").unwrap_or_default();
     steps.push(run(row.line, command, &[])?);
     Ok(steps)
 }
 
-fn ci_row() -> Result<Row, String> {
+fn ci_row() -> Result<Checked, String> {
     let registry = parse(ROW).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    crate::kind::check(&Gate, row).map_err(|e| e.to_string())
+    crate::kind::check(&Gate, row, &registry.caches).map_err(|e| e.to_string())
 }
 
 #[test]

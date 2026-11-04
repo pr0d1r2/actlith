@@ -3,17 +3,17 @@
 
 use super::{Plan, attribute, cache, package};
 use crate::build::Build;
-use crate::kind::{BUILD, EXTRAS, KindError, Row, parse_args};
+use crate::kind::{BUILD, Checked, EXTRAS, KindError, parse_args};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::Runners;
 
 const ROWS: &str = include_str!("../../../tests/fixtures/build/rows.actlith");
 
-fn row(id: &str) -> Result<Row, String> {
+fn row(id: &str) -> Result<Checked, String> {
     let registry = parse(ROWS).map_err(|e| e.to_string())?;
     let found = registry.workflows.iter().find(|w| w.id == id);
-    crate::kind::check(&Build, found.ok_or("no such row")?)
+    crate::kind::check(&Build, found.ok_or("no such row")?, &registry.caches)
         .map_err(|e| e.to_string())
 }
 
@@ -83,7 +83,7 @@ fn the_parts_answer_alone() -> Result<(), String> {
         cache(&good).map(|c| c.name().to_owned()),
         Ok("pr0d1r2".into())
     );
-    let bare = Row {
+    let bare = Checked {
         cache: None,
         ..good.clone()
     };

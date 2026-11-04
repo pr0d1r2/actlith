@@ -23,7 +23,7 @@ pub(crate) struct Entry {
 pub(crate) fn entries() -> [Entry; 4] {
     [
         entry(&Gate, &[]),
-        entry(&Build, Build::scripts()),
+        entry(&Build, &[]),
         entry(&UpdatePins, &[UPDATE_PINS, OPEN_PR]),
         entry(&Upstream, &[OPEN_PR]),
     ]

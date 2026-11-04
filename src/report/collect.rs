@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 use super::apps::{NOTE, app};
 use super::error::ReportError;
 use super::model::{App, Hosted, Manual, Need, Report, Workflow};
-use crate::kind::{Kind, KindError, Row, check};
+use crate::kind::{Checked, Kind, KindError, Row, check};
 use crate::pin::{PinTable, Uses};
 use crate::registry::{BotRow, Registry, RegistryError, WorkflowRow};
 use crate::system::{Host, Runners, host};
@@ -26,7 +26,7 @@ pub(crate) fn collect(
 ) -> Result<Report, ReportError> {
     let rows = registry.workflows.iter();
     let mut workflows: Vec<Workflow> = rows
-        .map(|r| workflow(r, pins, &registry.runners))
+        .map(|r| workflow(r, pins, registry))
         .collect::<Result<_, _>>()?;
     workflows.sort_by(|a, b| a.id.cmp(&b.id));
     let mut bots: Vec<App> =
@@ -43,12 +43,13 @@ pub(crate) fn collect(
 fn workflow(
     row: &WorkflowRow,
     pins: &PinTable,
-    runners: &Runners,
+    registry: &Registry,
 ) -> Result<Workflow, ReportError> {
     let kind = render::lookup(&row.kind)
         .ok_or_else(|| unknown_kind(row))?
         .kind;
-    let checked = check(kind, row)?;
+    let checked = check(kind, row, &registry.caches)?;
+    let runners = &registry.runners;
     let built = kind.build(&checked, pins, runners)?;
     Ok(Workflow {
         id: checked.id.clone(),
@@ -102,7 +103,7 @@ fn actions(
 }
 
 /// The secrets `kind` declares for `row`, once each, by name.
-fn secrets(kind: &dyn Kind, row: &Row) -> Vec<Need> {
+fn secrets(kind: &dyn Kind, row: &Checked) -> Vec<Need> {
     let needs = kind.secrets(row).into_iter().map(|s| Need {
         name: s.name().to_owned(),
         purpose: if s.name() == "GITHUB_TOKEN" {

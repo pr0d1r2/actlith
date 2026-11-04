@@ -1,10 +1,11 @@
 //! The `Kind` trait: what a kind is (C). A kind is typed Rust data, never
 //! a text template: its pipelith catalogue entry, the secrets it reads,
-//! and the [`Workflow`] it builds from a checked [`Row`].
+//! and the [`Workflow`] it builds from a [`Checked`] row.
 
 use super::error::KindError;
+use super::row::Checked;
 use super::secret::Secret;
-use crate::core::kind::{ArgSpec, KindSpec, Row};
+use crate::core::kind::{ArgSpec, KindSpec};
 use crate::pin::PinTable;
 use crate::system::Runners;
 use crate::yaml::Workflow;
@@ -28,13 +29,19 @@ pub(crate) trait Kind {
     }
 
     /// Every secret the workflow built from `row` reads (V14).
-    fn secrets(&self, row: &Row) -> Vec<Secret>;
+    fn secrets(&self, row: &Checked) -> Vec<Secret>;
+
+    /// The seeded scripts the workflow built from `row` runs beyond the
+    /// ones its kind always runs: those its cache needs (`src/kind/cache`).
+    fn scripts(&self, _row: &Checked) -> Vec<&'static str> {
+        Vec::new()
+    }
 
     /// The workflow for `row`, its actions pinned from `pins`, each job
     /// on the host `runners` gives its system (`src/system` V53).
     fn build(
         &self,
-        row: &Row,
+        row: &Checked,
         pins: &PinTable,
         runners: &Runners,
     ) -> Result<Workflow, KindError>;

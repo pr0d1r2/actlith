@@ -9,14 +9,18 @@ use std::collections::BTreeMap;
 
 use super::plan::Plan;
 use crate::kind::{
-    CachixPush, Checkout, KindError, cachix, checkout, hosts, install_nix, job,
-    matrix_runner, own, place, run,
+    CacheKind, CachixPush, Checkout, KindError, cachix, checkout, hosts,
+    install_nix, job, matrix_runner, own, place, push_https, push_secret, run,
+    url,
 };
 use crate::system::{Host, System, host};
 use crate::yaml::{Comment, Expr, Job, Matrix, Step, Text};
 
 /// The seeded script the `verify-cache` job runs (V30).
 pub(crate) const VERIFY_SCRIPT: &str = "scripts/actlith/verify-cache.sh";
+
+/// The seeded script `verify-cache` runs for an https cache (V64).
+pub(crate) const VERIFY_HTTPS: &str = "scripts/actlith/verify-https.sh";
 
 /// `verify-cache` runs on a push to `main` only.
 const MAIN_PUSH: &str =
@@ -31,6 +35,10 @@ const CHECK_WHY: &str = "--all-systems is the point: a bare `nix flake \
 const VERIFY_WHY: &str = "A failed cachix push does not fail its job, so \
     this asks the cache\nitself for every built path, after the builds' \
     post-job pushes.";
+
+const VERIFY_HTTPS_WHY: &str = "This asks the https cache itself for every \
+    built path, after the\nbuilds' pushes: a cache that took an upload but \
+    does not serve it fails here.";
 
 /// Every job, by id: `build` over the hosted systems, `build-<system>`
 /// per system on the repository's own runner (`src/kind:V54`), `check`
@@ -89,14 +97,25 @@ fn unplaced(plan: &Plan) -> Result<Job, KindError> {
         .map(|e| ("SYSTEM", e))
         .collect();
     let mut steps = setup(plan)?;
-    steps.push(cachix(plan.pins, plan.cache, CachixPush::ExplicitMain)?);
+    steps.extend(cachix(plan.pins, plan.cache, CachixPush::ExplicitMain)?);
     steps.push(run(plan.row.line, &command, &env)?);
+    let package = format!("packages.{}", plan.package);
+    let push = CachixPush::MainOnly;
+    steps.extend(push_https(plan.row.line, plan.cache, push, &package)?);
     let mut built = named("build", plan, steps);
     built.comments = vec![Comment::new(BUILD_WHY)];
     Ok(built)
 }
 
+/// The build: piped to `cachix push` on a push to `main` for a cachix
+/// cache; a plain build for an https one, which a step after it pushes.
 fn build_command(plan: &Plan) -> String {
+    if !cachix_shaped(plan) {
+        let package = plan.package;
+        return format!(
+            "nix build --print-build-logs \".#packages.$SYSTEM.{package}\""
+        );
+    }
     format!(
         "set -o pipefail; if [ \"$GITHUB_EVENT_NAME\" = push ] && [ \"$GITHUB_REF\" = refs/heads/main ]; then nix build --print-out-paths --print-build-logs \".#packages.$SYSTEM.{}\" | cachix push {}; else nix build --print-build-logs \".#packages.$SYSTEM.{}\"; fi",
         plan.package,
@@ -120,18 +139,41 @@ pub(crate) fn check(plan: &Plan) -> Result<Job, KindError> {
 pub(crate) fn verify(plan: &Plan) -> Result<Job, KindError> {
     let systems: Vec<String> =
         plan.row.systems.iter().map(ToString::to_string).collect();
-    let (cache, package) = (plan.cache.name(), plan.package);
-    let command = format!(
-        "bash {VERIFY_SCRIPT} {cache} {package} {}",
-        systems.join(" ")
-    );
     let mut steps = setup(plan)?;
-    steps.push(run(plan.row.line, &command, &[])?);
+    steps.push(verify_step(plan, &systems.join(" "))?);
     let mut verified = named("verify-cache", plan, steps);
-    verified.comments = vec![Comment::new(VERIFY_WHY)];
+    let why = if cachix_shaped(plan) {
+        VERIFY_WHY
+    } else {
+        VERIFY_HTTPS_WHY
+    };
+    verified.comments = vec![Comment::new(why)];
     verified.needs = built(plan);
     verified.condition = Expr::new(&GITHUB, MAIN_PUSH);
     Ok(place(verified, linux(plan)))
+}
+
+/// The step asking the cache: `verify-cache.sh` with the cachix name, or
+/// `verify-https.sh` with the url and any push netrc through `env:`.
+fn verify_step(plan: &Plan, systems: &str) -> Result<Step, KindError> {
+    let (cache, package) = (plan.cache.name(), plan.package);
+    if cachix_shaped(plan) {
+        let command =
+            format!("bash {VERIFY_SCRIPT} {cache} {package} {systems}");
+        return run(plan.row.line, &command, &[]);
+    }
+    let command = format!("bash {VERIFY_HTTPS} {package} {systems}");
+    let netrc = push_secret(plan.cache);
+    let env: Vec<_> = netrc.iter().map(|s| ("NETRC", s.expr())).collect();
+    let mut step = run(plan.row.line, &command, &env)?;
+    step.env.insert("URL".to_owned(), url(plan.cache));
+    Ok(step)
+}
+
+/// RED stub (T81): every cache is rendered as a cachix one.
+fn cachix_shaped(plan: &Plan) -> bool {
+    let _ = plan.cache.kind() == CacheKind::Cachix;
+    true
 }
 
 /// The `build` matrix: an `os` and `system` pair per hosted system.
@@ -164,10 +206,9 @@ fn built(plan: &Plan) -> Vec<String> {
 
 /// Checkout without credentials, then install-nix trusting the cache.
 fn setup(plan: &Plan) -> Result<Vec<Step>, KindError> {
-    Ok(vec![
-        checkout(plan.pins, &Checkout::default())?,
-        install_nix(plan.pins, Some(plan.cache))?,
-    ])
+    let mut steps = vec![checkout(plan.pins, &Checkout::default())?];
+    steps.extend(install_nix(plan.pins, Some(plan.cache))?);
+    Ok(steps)
 }
 
 /// Job `id`, named `id` (`src/kind:V9`), before it is given a runner.

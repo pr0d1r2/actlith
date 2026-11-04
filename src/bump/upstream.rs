@@ -9,8 +9,8 @@ use std::collections::BTreeMap;
 use super::cron::cron;
 use super::shared::{LIMITS, bump_job, plain, pushing_checkout, token};
 use crate::kind::{
-    CachixPush, Kind, KindError, KindSpec, Row, Secret, UPSTREAM, cachix,
-    install_nix, on_schedule, run, workflow,
+    CachixPush, Checked, Kind, KindError, KindSpec, Row, Secret, UPSTREAM,
+    cachix, install_nix, on_schedule, run, secrets, workflow,
 };
 use crate::pin::PinTable;
 use crate::system::Runners;
@@ -43,15 +43,16 @@ impl Kind for Upstream {
         &UPSTREAM
     }
 
-    /// The token only: the cachix step never pushes, so it reads no
-    /// `CACHIX_AUTH_TOKEN`.
-    fn secrets(&self, row: &Row) -> Vec<Secret> {
-        token(&row.args).into_iter().collect()
+    /// The token, and the secrets reading the cache takes: the cachix
+    /// step never pushes, so it reads no push secret.
+    fn secrets(&self, row: &Checked) -> Vec<Secret> {
+        let read = secrets(row.cache.as_ref(), CachixPush::ReadOnly);
+        token(&row.args).into_iter().chain(read).collect()
     }
 
     fn build(
         &self,
-        row: &Row,
+        row: &Checked,
         pins: &PinTable,
         runners: &Runners,
     ) -> Result<Workflow, KindError> {
@@ -63,14 +64,15 @@ impl Kind for Upstream {
     }
 }
 
-fn steps(row: &Row, pins: &PinTable) -> Result<Vec<Step>, KindError> {
+fn steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
     let token = token(&row.args)?;
-    let mut steps = vec![
-        pushing_checkout(pins, &token)?,
-        install_nix(pins, row.cache.as_ref())?,
-    ];
-    if let Some(cache) = &row.cache {
-        let mut read = cachix(pins, cache, CachixPush::ReadOnly)?;
+    let mut steps = vec![pushing_checkout(pins, &token)?];
+    steps.extend(install_nix(pins, row.cache.as_ref())?);
+    let read = row
+        .cache
+        .as_ref()
+        .map(|cache| cachix(pins, cache, CachixPush::ReadOnly));
+    if let Some(mut read) = read.transpose()?.flatten() {
         read.comments = vec![Comment::new(CACHE_WHY)];
         steps.push(read);
     }

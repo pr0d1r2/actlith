@@ -109,6 +109,40 @@ fn a_pushing_cache_reads_the_cachix_token() -> Result<(), String> {
     Ok(())
 }
 
+/// The caches fixture's `## caches`, then `cells` as one workflow row.
+fn cached(cells: &str) -> Result<crate::report::model::Workflow, String> {
+    let caches = include_str!("../../../tests/fixtures/kind/caches.actlith");
+    let text = format!(
+        "{caches}\n## workflows\nid|kind|systems|cache|args\n{cells}\n"
+    );
+    let mut all = report(&text)?.workflows;
+    all.pop().ok_or_else(|| "no workflow".to_owned())
+}
+
+fn need(name: &str, purpose: &'static str) -> Need {
+    Need {
+        name: name.to_owned(),
+        purpose,
+    }
+}
+
+#[test]
+fn a_caches_row_lists_its_read_and_push_secrets() -> Result<(), String> {
+    let got = cached("ci|gate|-|hidden-cache|-")?;
+    assert_eq!(got.cache.as_deref(), Some("hidden-cache"));
+    let want = [
+        need("HIDDEN_KEY", "cache read"),
+        need("HIDDEN_NETRC", "cache push (netrc)"),
+        need("HIDDEN_URL", "cache read"),
+    ];
+    assert_eq!(got.secrets, want);
+    let bump = cached("up|update-pins|-|hidden-cache|-")?;
+    let names: Vec<&str> =
+        bump.secrets.iter().map(|n| n.name.as_str()).collect();
+    assert_eq!(names, ["GITHUB_TOKEN", "HIDDEN_KEY", "HIDDEN_URL"]);
+    Ok(())
+}
+
 #[test]
 fn a_bump_reads_the_token_its_row_names() -> Result<(), String> {
     let got = one("up|update-pins|-|-|token=PIN_TOKEN")?.secrets;

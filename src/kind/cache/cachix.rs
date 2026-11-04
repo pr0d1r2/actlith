@@ -1,11 +1,12 @@
-//! The cachix step (V14): a fork PR gets no secret, so its push is
-//! skipped while the cache still serves reads; `pushFilter` keeps
-//! sources and tarballs out of the cache.
+//! The cachix step (`src/kind:V14`, V61): a fork PR gets no secret, so
+//! its push is skipped while the cache still serves reads; `pushFilter`
+//! keeps sources and tarballs out of the cache. Only a cachix cache that
+//! can push gets one; its token is the built-in `CACHIX_AUTH_TOKEN` or
+//! the secret its `## caches` row names.
 
-use super::error::KindError;
-use super::secret::Secret;
-use super::step::uses;
-use crate::core::kind::Cache;
+use super::secrets::push_secret;
+use crate::core::cache::{BinaryCache, CacheKind};
+use crate::kind::{KindError, Secret, uses};
 use crate::pin::PinTable;
 use crate::yaml::GITHUB;
 use crate::yaml::{Comment, Expr, Input, Step, Text, Value, With};
@@ -47,14 +48,9 @@ pub(crate) enum CachixPush {
 }
 
 impl CachixPush {
-    /// The secret the step reads: none when it never pushes.
-    pub(crate) fn secret(self) -> Option<Secret> {
-        match self {
-            Self::ReadOnly => None,
-            Self::SkipForkPr | Self::MainOnly | Self::ExplicitMain => {
-                Secret::cachix()
-            }
-        }
+    /// Whether a job in this mode pushes at all.
+    pub(crate) fn pushes(self) -> bool {
+        self != Self::ReadOnly
     }
 
     fn skip(self) -> Option<(&'static str, &'static str)> {
@@ -68,22 +64,37 @@ impl CachixPush {
     }
 }
 
-/// The `cachix/cachix-action` step for `cache`, pinned.
+/// The `cachix/cachix-action` step for `cache`, pinned; `None` unless
+/// `cache` is a cachix cache that can push (V61).
 pub(crate) fn cachix(
     pins: &PinTable,
-    cache: &Cache,
+    cache: &BinaryCache,
     push: CachixPush,
+) -> Result<Option<Step>, KindError> {
+    let Some(token) = push_secret(cache) else {
+        return Ok(None);
+    };
+    // RED stub (T79): every cache kind gets the cachix step.
+    let _ = CacheKind::Cachix;
+    step(pins, cache, push, &token).map(Some)
+}
+
+fn step(
+    pins: &PinTable,
+    cache: &BinaryCache,
+    push: CachixPush,
+    token: &Secret,
 ) -> Result<Step, KindError> {
     let name = Input::new(Value::Text(Text::lit(cache.name())));
     let with = With::default().set("name", name);
-    let Some(((skip, why), secret)) = push.skip().zip(push.secret()) else {
+    let Some((skip, why)) = push.skip() else {
         let skip = Input::new(Value::Bool(true));
         return uses(pins, "cachix/cachix-action", with.set("skipPush", skip));
     };
     let mut step = uses(
         pins,
         "cachix/cachix-action",
-        pushing(with, &secret, skip, push == CachixPush::ExplicitMain),
+        pushing(with, token, skip, push == CachixPush::ExplicitMain),
     )?;
     step.comments = vec![Comment::new(why)];
     Ok(step)

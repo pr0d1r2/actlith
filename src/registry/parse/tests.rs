@@ -1,5 +1,6 @@
 //! One test per fixture in `tests/fixtures/registry/` (registry T13).
 
+use crate::core::cache::{CacheKind, Push};
 use crate::registry::{Registry, RegistryError, parse};
 
 macro_rules! fixture {
@@ -43,25 +44,34 @@ fn full_fills_the_other_sections() {
     assert_eq!(bots, ["coderabbit", "socket"]);
 }
 
+/// Every cache shape `src/kind/cache` renders, as `## caches` rows.
+const CACHES: &str =
+    include_str!("../../../tests/fixtures/kind/caches.actlith");
+
 #[test]
-fn caches_name_the_repository_cache_and_key() -> Result<(), String> {
-    let reg = parse(
-        "format 1\n## caches\nname|public-key\nrepo|repo.cachix.org-1:key\n",
-    )
-    .unwrap_or_default();
-    assert_eq!(reg.caches.len(), 1);
-    let cache = reg.caches.first().ok_or("no cache")?;
-    assert_eq!(cache.line, 4);
-    assert_eq!(cache.name, "repo");
-    assert_eq!(cache.public_key, "repo.cachix.org-1:key");
+fn caches_are_pipelith_section() -> Result<(), String> {
+    let reg = parse(CACHES).map_err(|e| e.to_string())?;
+    assert!(reg.caches.has_row("example-cache"));
+    let cache = reg.caches.find("example-cache").ok_or("no cache")?;
+    assert_eq!(cache.kind(), CacheKind::Https);
+    assert_eq!(cache.push(), &Push::Secret("EXAMPLE_NETRC".to_owned()));
     Ok(())
 }
 
 #[test]
-fn cache_name_and_key_are_required() {
-    let error = refused("format 1\n## caches\nname|public-key\nrepo|-\n");
+fn the_old_two_column_caches_header_is_refused() {
+    let error = refused("format 1\n## caches\nname|public-key\nrepo|k\n");
+    assert_eq!(error.line, 3);
+}
+
+#[test]
+fn a_bad_cache_row_names_its_line_but_not_a_secret() {
+    let error = refused(
+        "format 1\n## caches\nname|kind|url|key|push\n\
+         hidden|https|secret:HIDDEN_URL|-|-\n",
+    );
     assert_eq!(error.line, 4);
-    assert!(error.what.contains("public-key"), "{error}");
+    assert!(error.to_string().contains("key"), "{error}");
 }
 
 #[test]

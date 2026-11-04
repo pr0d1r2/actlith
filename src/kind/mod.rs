@@ -4,7 +4,8 @@
 //! Composition only (src C): the trait lives in `contract`, the row
 //! check in `row` (the row, its args and cache are pipelith's `kind`,
 //! through `src/core`), the common builders in
-//! `workflow`, `job`, `step`, `checkout`, `nix`, `cachix` and `run`.
+//! `workflow`, `job`, `step`, `checkout` and `run`, and the cache steps
+//! in the child node `cache`.
 //! Dead code is `allow`ed, not `expect`ed, until a consumer lands (see
 //! `src/registry`).
 #![cfg_attr(
@@ -26,24 +27,25 @@ use crate::registry as _;
 use crate::system as _;
 use crate::yaml as _;
 
-mod cachix;
+mod cache;
 mod checkout;
 mod contract;
 mod error;
 mod job;
-mod nix;
 mod row;
 mod run;
 mod secret;
 mod step;
 mod workflow;
 
+pub(crate) use crate::core::cache::{BinaryCache, CacheKind, Caches, Push};
 pub(crate) use crate::core::kind::{
-    ArgDefault, ArgSpec, Args, BUILD, Cache, GATE, KindSpec, Row, TIMEOUT,
+    ArgDefault, ArgSpec, Args, BUILD, GATE, KindSpec, Row, TIMEOUT,
     UPDATE_PINS, UPSTREAM, parse_args, portable,
 };
-pub(crate) use cachix::{
-    CachixPush, PUSH_FILTER, SKIP_FORK_PR, SKIP_UNLESS_MAIN, cachix,
+pub(crate) use cache::{
+    CachixPush, PUSH_FILTER, PUSH_SCRIPT, SKIP_FORK_PR, SKIP_UNLESS_MAIN,
+    cachix, https_push, install_nix, push_https, push_secret, secrets, url,
 };
 pub(crate) use checkout::{Checkout, checkout};
 pub(crate) use contract::Kind;
@@ -51,8 +53,7 @@ pub(crate) use error::KindError;
 pub(crate) use job::{
     Hosts, TRUSTED, hosts, job, matrix_runner, own, place, runner_matrix, widen,
 };
-pub(crate) use nix::install_nix;
-pub(crate) use row::{CACHE_PUSH, EXTRAS, XCODE, check};
+pub(crate) use row::{CACHE_PUSH, Checked, EXTRAS, XCODE, check};
 pub(crate) use run::run;
 pub(crate) use secret::Secret;
 pub(crate) use step::{step, uses};

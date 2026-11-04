@@ -64,10 +64,11 @@ const PINS_CALLS: [&str; 5] = [
     "git push -u origin pins/nixpkgs-abcdef012345",
 ];
 
-/// What a script run left behind: exit code, recorded calls, stderr.
+/// What a script run left behind: exit code, recorded calls, output.
 struct Ran {
     code: Option<i32>,
     log: String,
+    stdout: String,
     stderr: String,
 }
 
@@ -147,11 +148,13 @@ fn run(
 }
 
 fn ran(out: &Output, log: &Path) -> io::Result<Ran> {
+    let stdout = String::from_utf8_lossy(&out.stdout).into_owned();
     let stderr = String::from_utf8_lossy(&out.stderr).into_owned();
     let log = fs::read_to_string(log)?;
     Ok(Ran {
         code: out.status.code(),
         log,
+        stdout,
         stderr,
     })
 }
@@ -166,6 +169,7 @@ fn update_pins(name: &str, args: &[&str], env: &[(&str, &str)]) -> Ran {
     run(name, "update-pins.sh", args, &env).unwrap_or(Ran {
         code: None,
         log: String::new(),
+        stdout: String::new(),
         stderr: String::new(),
     })
 }
@@ -175,8 +179,10 @@ fn scripts_are_published_under_scripts_actlith_sorted() {
     let paths: Vec<_> = scripts().iter().map(|(path, _)| *path).collect();
     let want = [
         "scripts/actlith/open-pr.sh",
+        "scripts/actlith/push-https.sh",
         "scripts/actlith/update-pins.sh",
         "scripts/actlith/verify-cache.sh",
+        "scripts/actlith/verify-https.sh",
     ];
     assert_eq!(paths, want);
 }
@@ -340,6 +346,149 @@ fn verify_cache_fails_when_a_path_is_missing() -> io::Result<()> {
     assert_eq!(ran.code, Some(1));
     assert!(ran.stderr.contains("::error::hk missing from c.cachix.org"));
     assert!(ran.log.contains("aarch64linux.narinfo"), "{}", ran.log);
+    Ok(())
+}
+
+/// The cache url the https scripts are given; it must never be printed
+/// but in the `::add-mask::` line that hides it (`src/kind/cache` V62).
+const URL: &str = "https://cache.example.org";
+
+const NETRC: &str = "machine cache.example.org login ci password p";
+
+/// A fresh `$RUNNER_TEMP` for one https script run.
+fn runner_temp(name: &str) -> io::Result<String> {
+    let id = std::process::id();
+    let dir = std::env::temp_dir().join(format!("actlith-temp-{id}-{name}"));
+    let _ = fs::remove_dir_all(&dir);
+    fs::create_dir_all(&dir)?;
+    Ok(dir.to_string_lossy().into_owned())
+}
+
+/// The url appears only in the line that masks it.
+fn masked(ran: &Ran) {
+    let mask = format!("::add-mask::{URL}");
+    assert_eq!(
+        ran.stdout.lines().next(),
+        Some(mask.as_str()),
+        "{}",
+        ran.stdout
+    );
+    let rest: Vec<&str> = ran.stdout.lines().skip(1).collect();
+    assert!(!rest.iter().any(|l| l.contains(URL)), "{}", ran.stdout);
+    assert!(!ran.stderr.contains(URL), "{}", ran.stderr);
+}
+
+#[test]
+fn push_https_without_its_arguments_is_a_usage_error() -> io::Result<()> {
+    let ran = run("ph-usage", "push-https.sh", &[], &[("URL", URL)])?;
+    assert_eq!(ran.code, Some(2));
+    assert!(
+        ran.stderr.contains("usage: push-https.sh"),
+        "{}",
+        ran.stderr
+    );
+    let ran = run("ph-no-url", "push-https.sh", &["packages.hk"], &[])?;
+    assert_eq!(ran.code, Some(2));
+    assert!(ran.stderr.contains("URL is empty"), "{}", ran.stderr);
+    assert_eq!(ran.log, "");
+    Ok(())
+}
+
+#[test]
+fn push_https_skips_a_run_without_the_netrc_secret() -> io::Result<()> {
+    let env = [("URL", URL), ("NETRC", "")];
+    let ran = run("ph-fork", "push-https.sh", &["packages.hk"], &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    assert_eq!(ran.log, "");
+    assert!(ran.stdout.contains("push is skipped"), "{}", ran.stdout);
+    masked(&ran);
+    Ok(())
+}
+
+#[test]
+fn push_https_copies_with_a_private_netrc_it_removes() -> io::Result<()> {
+    let temp = runner_temp("ph-copy")?;
+    let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
+    let args = ["packages.hk", "devShells.default.inputDerivation"];
+    let ran = run("ph-copy", "push-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    let copy = format!(
+        "nix copy --option netrc-file {temp}/netrc --to {URL} \
+         .#packages.x86_64-linux.hk \
+         .#devShells.x86_64-linux.default.inputDerivation"
+    );
+    assert!(calls(&ran).contains(&copy.as_str()), "{}", ran.log);
+    private_netrc(&ran, &temp);
+    masked(&ran);
+    Ok(())
+}
+
+/// The netrc was mode 600 while nix copied, and is gone after.
+fn private_netrc(ran: &Ran, temp: &str) {
+    let netrc = format!("netrc 600 {NETRC}");
+    assert!(calls(ran).contains(&netrc.as_str()), "{}", ran.log);
+    assert!(!Path::new(temp).join("netrc").exists(), "netrc left behind");
+}
+
+#[test]
+fn verify_https_asks_the_url_for_every_system() -> io::Result<()> {
+    let args = ["hk", "x86_64-linux", "aarch64-darwin"];
+    let ran = run("vh-ok", "verify-https.sh", &args, &[("URL", URL)])?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    for hash in ["x86_64linux", "aarch64darwin"] {
+        let url = format!("{URL}/{hash}.narinfo");
+        let asked = calls(&ran)
+            .iter()
+            .any(|c| c.starts_with("curl ") && c.ends_with(&url));
+        assert!(asked, "{url} not asked in {}", ran.log);
+    }
+    assert!(!ran.log.contains("curl netrc"), "{}", ran.log);
+    masked(&ran);
+    Ok(())
+}
+
+#[test]
+fn verify_https_reads_with_a_netrc_it_removes() -> io::Result<()> {
+    let temp = runner_temp("vh-netrc")?;
+    let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
+    let ran =
+        run("vh-netrc", "verify-https.sh", &["hk", "x86_64-linux"], &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    assert!(ran.log.contains("curl netrc"), "{}", ran.log);
+    let gone = !Path::new(&temp).join("netrc").exists();
+    assert!(gone, "netrc left behind");
+    Ok(())
+}
+
+#[test]
+fn verify_https_fails_on_a_miss_without_naming_the_url() -> io::Result<()> {
+    let env = [
+        ("URL", "https://cache.example.org/"),
+        ("STUB_CURL_MISSING", "aarch64linux"),
+    ];
+    let args = ["hk", "x86_64-linux", "aarch64-linux"];
+    let ran = run("vh-miss", "verify-https.sh", &args, &env)?;
+    assert_eq!(ran.code, Some(1));
+    assert!(ran.log.contains(".org/x86_64linux.narinfo"), "{}", ran.log);
+    let error = "::error::hk missing from the https cache";
+    assert!(ran.stderr.contains(error), "{}", ran.stderr);
+    assert!(!ran.stderr.contains("example.org"), "{}", ran.stderr);
+    Ok(())
+}
+
+#[test]
+fn verify_https_without_its_arguments_is_a_usage_error() -> io::Result<()> {
+    let ran = run("vh-usage", "verify-https.sh", &["hk"], &[("URL", URL)])?;
+    assert_eq!(ran.code, Some(2));
+    assert!(
+        ran.stderr.contains("usage: verify-https.sh"),
+        "{}",
+        ran.stderr
+    );
+    let ran =
+        run("vh-no-url", "verify-https.sh", &["hk", "x86_64-linux"], &[])?;
+    assert_eq!(ran.code, Some(2));
+    assert_eq!(ran.log, "");
     Ok(())
 }
 

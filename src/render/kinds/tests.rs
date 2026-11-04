@@ -50,10 +50,8 @@ fn the_names_list_every_kind_in_order() {
 fn each_kind_needs_its_scripts() {
     let needs = |name: &str| lookup(name).map(|e| e.scripts.to_vec());
     assert_eq!(needs("gate"), Some(vec![]));
-    assert_eq!(
-        needs("build"),
-        Some(vec!["scripts/actlith/verify-cache.sh"])
-    );
+    // build's scripts depend on its cache (`Kind::scripts`, V64).
+    assert_eq!(needs("build"), Some(vec![]));
     assert_eq!(
         needs("update-pins"),
         Some(vec![
