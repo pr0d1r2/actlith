@@ -70,3 +70,26 @@ fn no_cache_or_a_read_only_one_reads_nothing() -> Result<(), String> {
     assert!(push_secret(&row_cache("read-cache")?).is_none());
     Ok(())
 }
+
+#[test]
+fn a_read_netrc_is_its_own_secret_beside_the_push_one() -> Result<(), String> {
+    let cache = row_cache("private-cache")?;
+    let read = pairs(&[("PRIVATE_READ", "cache read (netrc)")]);
+    let mut all = read.clone();
+    all.extend(pairs(&[("PRIVATE_PUSH", "cache push (netrc)")]));
+    assert_eq!(named(&cache, CachixPush::SkipForkPr), all);
+    assert_eq!(named(&cache, CachixPush::ReadOnly), read);
+    Ok(())
+}
+
+#[test]
+fn a_read_netrc_follows_the_url_and_key_secrets() -> Result<(), String> {
+    let cache = row_cache("private-read")?;
+    let want = pairs(&[
+        ("PRIVATE_URL", "cache read"),
+        ("PRIVATE_READ", "cache read (netrc)"),
+    ]);
+    assert_eq!(named(&cache, CachixPush::SkipForkPr), want);
+    assert!(push_secret(&cache).is_none(), "read-only");
+    Ok(())
+}

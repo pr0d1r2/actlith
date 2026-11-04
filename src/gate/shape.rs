@@ -178,7 +178,7 @@ fn steps(
 /// install-nix trusting the row's cache, then its cachix or https push
 /// (`src/kind/cache` V61).
 fn cache_steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
-    let mut steps = install_nix(pins, row.cache.as_ref())?;
+    let mut steps = install_nix(row.line, pins, row.cache.as_ref())?;
     if let Some(cache) = &row.cache {
         let push = cache_push(row);
         steps.extend(cachix(pins, cache, push)?);

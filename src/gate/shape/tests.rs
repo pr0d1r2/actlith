@@ -26,6 +26,10 @@ const CACHES_ROW: &str =
     include_str!("../../../tests/fixtures/gate/caches.actlith");
 const CACHES_YML: &str =
     include_str!("../../../tests/fixtures/gate/caches.yml");
+const PRIVATE_ROW: &str =
+    include_str!("../../../tests/fixtures/gate/private.actlith");
+const PRIVATE_YML: &str =
+    include_str!("../../../tests/fixtures/gate/private.yml");
 const RUNNERS_YML: &str =
     include_str!("../../../tests/fixtures/gate/runners.yml");
 
@@ -406,6 +410,26 @@ fn the_caches_golden_passes_zizmor_offline() -> Result<(), String> {
         "zizmor",
         &["--offline", "--no-progress"],
         &fixture("caches.yml"),
+    )
+}
+
+#[test]
+fn the_private_cache_row_renders_its_golden_file() -> Result<(), String> {
+    assert_eq!(render(&built(&checked(PRIVATE_ROW)?)?), PRIVATE_YML);
+    Ok(())
+}
+
+#[test]
+fn the_private_cache_golden_passes_actionlint() -> Result<(), String> {
+    lint("actionlint", &["-no-color"], &fixture("private.yml"))
+}
+
+#[test]
+fn the_private_cache_golden_passes_zizmor_offline() -> Result<(), String> {
+    lint(
+        "zizmor",
+        &["--offline", "--no-progress"],
+        &fixture("private.yml"),
     )
 }
 

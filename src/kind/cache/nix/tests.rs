@@ -33,7 +33,7 @@ fn row_cache(name: &str) -> Result<BinaryCache, String> {
 }
 
 fn steps(cache: Option<&BinaryCache>) -> Result<Vec<Step>, String> {
-    install_nix(&PinTable::builtin(), cache).map_err(|e| e.to_string())
+    install_nix(1, &PinTable::builtin(), cache).map_err(|e| e.to_string())
 }
 
 /// The steps as the writer prints them.
@@ -121,7 +121,38 @@ fn a_literal_url_beside_a_secret_key_keeps_both() -> Result<(), String> {
 #[test]
 fn install_nix_without_a_pin_is_refused() -> Result<(), String> {
     let cache = row_cache("hidden-cache")?;
-    let refused = install_nix(&PinTable::default(), Some(&cache));
+    let refused = install_nix(1, &PinTable::default(), Some(&cache));
     assert!(matches!(refused, Err(KindError::Pin(_))));
+    Ok(())
+}
+
+#[test]
+fn a_read_netrc_is_written_before_install_nix() -> Result<(), String> {
+    let steps = steps(Some(&row_cache("private-cache")?))?;
+    let [read, trusted, fork] = steps.as_slice() else {
+        return Err(format!("{} steps", steps.len()));
+    };
+    let script = Action::Run("bash scripts/actlith/read-netrc.sh".to_owned());
+    assert_eq!(read.action, script);
+    assert_eq!(read.condition, Expr::new(&GITHUB, TRUSTED));
+    assert_eq!(trusted.condition, Expr::new(&GITHUB, TRUSTED));
+    assert_eq!(fork.condition, Expr::new(&GITHUB, SKIP_FORK_PR));
+    assert_eq!(with(fork), With::default(), "a fork PR has no netrc");
+    Ok(())
+}
+
+#[test]
+fn the_trusted_config_points_nix_at_the_read_netrc() -> Result<(), String> {
+    let text = printed(steps(Some(&row_cache("private-cache")?))?);
+    let want = "\
+          extra_nix_config: |
+            extra-substituters = https://private.example.org
+            extra-trusted-public-keys = private-cache-1:\
+            79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=
+            netrc-file = ${{ runner.temp }}/read-netrc
+";
+    assert!(text.contains(want), "{text}");
+    assert!(text.contains("# The cache is read with a netrc"), "{text}");
+    assert!(!text.contains("PRIVATE_PUSH"), "{text}");
     Ok(())
 }

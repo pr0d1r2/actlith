@@ -291,6 +291,24 @@ fn an_https_cache_writes_the_scripts_it_runs() -> Result<(), String> {
 }
 
 #[test]
+fn a_read_netrc_writes_its_script_for_every_kind() -> Result<(), String> {
+    let (read, push) = (
+        "scripts/actlith/read-netrc.sh",
+        "scripts/actlith/push-https.sh",
+    );
+    let gate = rendered(&with_caches("ci|gate|-|private-cache|-"))?;
+    assert_eq!(paths(&gate), [".github/workflows/ci.yml", push, read]);
+    let build =
+        rendered(&with_caches("build|build|-|private-cache|package=hk"))?;
+    let verify = "scripts/actlith/verify-https.sh";
+    let want = [".github/workflows/build.yml", push, read, verify];
+    assert_eq!(paths(&build), want);
+    let bump = rendered(&with_caches("up|update-pins|-|private-read|-"))?;
+    assert!(paths(&bump).contains(&read), "{:?}", paths(&bump));
+    Ok(())
+}
+
+#[test]
 fn a_cache_neither_listed_nor_built_in_is_refused() -> Result<(), String> {
     let error = refused(&with_caches("ci|gate|-|no-such-cache|-"))?;
     assert!(matches!(error, RenderError::Kind(_)), "{error}");

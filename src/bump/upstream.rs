@@ -67,7 +67,7 @@ impl Kind for Upstream {
 fn steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
     let token = token(&row.args)?;
     let mut steps = vec![pushing_checkout(pins, &token)?];
-    steps.extend(install_nix(pins, row.cache.as_ref())?);
+    steps.extend(install_nix(row.line, pins, row.cache.as_ref())?);
     let read = row
         .cache
         .as_ref()

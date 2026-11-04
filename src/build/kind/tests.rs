@@ -13,12 +13,13 @@ use crate::registry::parse;
 use crate::system::Runners;
 use crate::yaml::render;
 
-/// `(row file, golden file)` under `tests/fixtures/build/`.
 /// A `build` row on an https cache (V64).
 const HTTPS_ROW: &str =
     include_str!("../../../tests/fixtures/build/https.actlith");
 
-const GOLDEN: [(&str, &str); 3] = [
+/// `(row file, golden file)` under `tests/fixtures/build/`; the last on
+/// a private https cache (`src/kind/cache/netrc` V66).
+const GOLDEN: [(&str, &str); 4] = [
     (
         include_str!("../../../tests/fixtures/build/build.actlith"),
         include_str!("../../../tests/fixtures/build/build.yml"),
@@ -31,9 +32,14 @@ const GOLDEN: [(&str, &str); 3] = [
         HTTPS_ROW,
         include_str!("../../../tests/fixtures/build/https.yml"),
     ),
+    (
+        include_str!("../../../tests/fixtures/build/private.actlith"),
+        include_str!("../../../tests/fixtures/build/private.yml"),
+    ),
 ];
 
-const FILES: [&str; 3] = ["build.yml", "picked.yml", "https.yml"];
+const FILES: [&str; 4] =
+    ["build.yml", "picked.yml", "https.yml", "private.yml"];
 
 /// A hook's git environment, dropped from every tool the tests run.
 const GIT_ENV: [&str; 6] = [
@@ -152,5 +158,19 @@ fn a_refused_row_builds_nothing() -> Result<(), String> {
     );
     assert!(Build.secrets(&row).is_empty());
     assert!(Build.scripts(&row).is_empty());
+    Ok(())
+}
+
+#[test]
+fn a_private_cache_declares_its_read_and_push_netrc() -> Result<(), String> {
+    let (text, _) = GOLDEN.last().ok_or("no fixture")?;
+    let secrets = Build.secrets(&row(text)?);
+    let named: Vec<_> =
+        secrets.iter().map(|s| (s.name(), s.purpose())).collect();
+    let want = [
+        ("PRIVATE_READ", "cache read (netrc)"),
+        ("PRIVATE_PUSH", "cache push (netrc)"),
+    ];
+    assert_eq!(named, want);
     Ok(())
 }
