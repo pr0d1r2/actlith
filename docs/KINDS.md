@@ -17,7 +17,7 @@ nix-hk `build.yml`, `update-pins.yml` and `upstream.yml` for the others.
 - `timeout-minutes` on every job (default 30).
 - Checkout pinned by SHA, `persist-credentials: false` unless the job pushes.
 - install-nix pinned by SHA, with `extra-substituters` and
-  `extra-trusted-public-keys` for the row's cache.
+  `extra-trusted-public-keys` for the row's cache (see Caches).
 - Every `run:` is one line. Logic longer than one command lives in a script
   seeded into the repository (`scripts/actlith/<name>.sh`, see
   SPEC-PROMPT.md), so shellcheck, bats and xenolith see it.
@@ -29,9 +29,57 @@ nix-hk `build.yml`, `update-pins.yml` and `upstream.yml` for the others.
 - `id`: file name `.github/workflows/<id>.yml`, and the workflow `name`.
 - `kind`: one of the kinds below; v1 has no repository-defined kinds.
 - `systems`: nix systems, comma-separated; `-` = the kind's default.
-- `cache`: cachix cache name; `-` = no cachix steps.
+- `cache`: a cache named in `## caches` (below), or a built-in cachix
+  cache (v1: `pr0d1r2`) when no `## caches` row has that name; `-` = no
+  cache steps.
 - `args`: `key=value` pairs, comma-separated, validated per kind; an unknown
   key is an error, not ignored.
+
+## Caches
+
+`## caches`, columns `name|kind|url|key|push`, optional: pipelith's
+neutral section, so the same rows work on GitLab through lablith. Each
+of `url`, `key` and `push` is `-`, a literal, or `secret:NAME` (a
+repository secret). pipelith checks every row; its docs/KINDS.md has the
+rules for each kind.
+
+```text
+## caches
+name|kind|url|key|push
+example-cache|https|https://cache.example.org|example-cache-1:<base64>|secret:EXAMPLE_NETRC
+hidden-cache|https|secret:HIDDEN_URL|secret:HIDDEN_KEY|-
+own-cachix|cachix|-|own-cachix.cachix.org-1:<base64>|secret:OWN_CACHIX_TOKEN
+```
+
+- Reading: install-nix's `extra_nix_config` gains `extra-substituters`
+  (the url) and `extra-trusted-public-keys` (the key), literals as they
+  are. When either is a secret, it is written as `${{ secrets.NAME }}`
+  in an install-nix step that skips fork pull requests, and a second
+  install-nix step without the cache runs only for them: a fork gets no
+  secrets, so it builds without the cache rather than with an empty
+  substituter.
+- Pushing, `push` is `-`: read-only, no cachix step and no push step.
+  A `build` row is refused on a read-only cache, since it pushes there
+  and asks it back.
+- Pushing, the built-in cache: the cachix step with `CACHIX_AUTH_TOKEN`,
+  as before.
+- Pushing, `cachix` with `secret:NAME`: the same cachix step with
+  `authToken: ${{ secrets.NAME }}`.
+- Pushing, `https` with `secret:NAME`: the secret holds a netrc file for
+  the cache's host, and the endpoint must accept authenticated HTTP
+  `PUT`. A step runs the seeded `scripts/actlith/push-https.sh`, given
+  `NETRC: ${{ secrets.NAME }}` and `URL` through `env:`. The script masks
+  the url with `::add-mask::` before any output and never prints it,
+  skips a run without the netrc, writes the netrc with `umask 077` to
+  `$RUNNER_TEMP/netrc`, removes it on exit, and runs `nix copy --option
+  netrc-file "$RUNNER_TEMP/netrc" --to "$URL"` on the outputs. `nix
+  copy` uploads paths as built, so the cache signs them when it serves
+  them, or they were signed upstream. `gate` copies
+  `devShells.<system>.default.inputDerivation` (everything `nix develop`
+  needs) before its command, skipping fork pull requests; `build`
+  copies `packages.<system>.<package>` from `main` only.
+- `actlith report` lists a url or key secret as `cache read` and the
+  push secret as `cachix push` or `cache push (netrc)`.
 
 ## Own runners
 
@@ -72,8 +120,8 @@ The hk gate on every supported system. Replaces the fleet `ci.yml`.
   `gate-<system>`, named `gate (<system>)` so its check reads like the
   matrix's, with the same steps and the guard.
 - Steps: checkout (`fetch-depth: 0`, the semver step needs tags), install-nix,
-  cachix (push skipped for fork PRs, `pushFilter` keeps sources out), run the
-  gate command.
+  cachix (push skipped for fork PRs, `pushFilter` keeps sources out) or the
+  https push (see Caches), run the gate command.
 - Default systems: `x86_64-linux`, `aarch64-linux`, `aarch64-darwin`,
   `x86_64-darwin` (on `macos-15-intel`, GitHub's last Intel image,
   available until August 2027).
@@ -104,7 +152,9 @@ For packaging repositories such as nix-hk.
   runner, so none is only evaluated.
 - Job `verify-cache` (needs every build job, `main` push only): every system's output
   path answers 200 from the cache. Reason: a cachix push failure does not fail
-  its job.
+  its job. On an https cache it runs the seeded
+  `scripts/actlith/verify-https.sh`, which asks `<url>/<hash>.narinfo`
+  with the push netrc when there is one, and never prints the url.
 - args: `package` (required), `timeout` (job minutes, default `30`).
 
 ## `update-pins`
