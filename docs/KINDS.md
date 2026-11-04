@@ -49,6 +49,7 @@ name|kind|url|key|push
 example-cache|https|https://cache.example.org|example-cache-1:<base64>|secret:EXAMPLE_NETRC
 hidden-cache|https|secret:HIDDEN_URL|secret:HIDDEN_KEY|-
 own-cachix|cachix|-|own-cachix.cachix.org-1:<base64>|secret:OWN_CACHIX_TOKEN
+private-cache|https|https://private.example.org|private-cache-1:<base64>|read=secret:PRIVATE_READ, push=secret:PRIVATE_PUSH
 ```
 
 - Reading: install-nix's `extra_nix_config` gains `extra-substituters`
@@ -58,6 +59,21 @@ own-cachix|cachix|-|own-cachix.cachix.org-1:<base64>|secret:OWN_CACHIX_TOKEN
   install-nix step without the cache runs only for them: a fork gets no
   secrets, so it builds without the cache rather than with an empty
   substituter.
+- Reading a private `https` cache, one that answers only with
+  credentials: `read=secret:R` in the `push` cell (alone, or beside
+  `push=secret:P`) names the netrc nix reads it with. Before
+  install-nix, a step that skips fork pull requests runs the seeded
+  `scripts/actlith/read-netrc.sh` with `NETRC: ${{ secrets.R }}` and
+  `URL` through `env:`. The script masks the url, checks that it starts
+  with `https://` (a url held by a secret is known only when the job
+  runs) and stops without writing anything when it does not, naming the
+  cache and the secret but never the url; otherwise it writes the
+  netrc with `umask 077` to `$RUNNER_TEMP/read-netrc`, which stays for
+  the job's later steps and goes with the runner's temp dir. The
+  trusted install-nix step adds
+  `netrc-file = ${{ runner.temp }}/read-netrc`; a fork pull request
+  runs without the cache. Every
+  kind does this, `gate`, `build`, `update-pins` and `upstream` alike.
 - Pushing, `push` is `-`: read-only, no cachix step and no push step.
   A `build` row is refused on a read-only cache, since it pushes there
   and asks it back.
@@ -85,8 +101,12 @@ own-cachix|cachix|-|own-cachix.cachix.org-1:<base64>|secret:OWN_CACHIX_TOKEN
   with an `::error::` naming it and the fix (add it to `flake.nix`, or
   set `cache-push=false` on the row), not with nix's own error halfway
   through the copy.
-- `actlith report` lists a url or key secret as `cache read` and the
-  push secret as `cachix push` or `cache push (netrc)`.
+- The read and push netrc stay apart: the push step gets only the push
+  secret and writes its own file, passed to `nix copy` with `--option
+  netrc-file`, whichever netrc nix reads the cache with.
+- `actlith report` lists a url or key secret as `cache read`, a read
+  netrc as `cache read (netrc)`, and the push secret as `cachix push`
+  or `cache push (netrc)`.
 
 ## Own runners
 
@@ -161,7 +181,8 @@ For packaging repositories such as nix-hk.
   path answers 200 from the cache. Reason: a cachix push failure does not fail
   its job. On an https cache it runs the seeded
   `scripts/actlith/verify-https.sh`, which asks `<url>/<hash>.narinfo`
-  with the push netrc when there is one, and never prints the url.
+  with the read netrc when the cache has one, else the push netrc when
+  there is one, and never prints the url.
 - args: `package` (required), `timeout` (job minutes, default `30`).
 
 ## `update-pins`
