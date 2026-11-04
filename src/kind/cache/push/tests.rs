@@ -108,3 +108,13 @@ fn an_attribute_with_an_expression_is_refused() -> Result<(), String> {
     assert!(bad.is_err());
     Ok(())
 }
+
+#[test]
+fn a_private_cache_pushes_with_its_push_secret_only() -> Result<(), String> {
+    let push = step("private-cache", CachixPush::MainOnly)?.ok_or("none")?;
+    assert_eq!(push.env.get("NETRC"), secret("PRIVATE_PUSH").as_ref());
+    let name = Text::lit("PRIVATE_PUSH");
+    assert_eq!(push.env.get("NETRC_SECRET"), Some(&name));
+    assert!(step("private-read", CachixPush::MainOnly)?.is_none());
+    Ok(())
+}

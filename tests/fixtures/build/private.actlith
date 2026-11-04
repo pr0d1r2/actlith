@@ -1,0 +1,13 @@
+format 1
+
+# A package on a private https cache: read with one netrc secret, pushed
+# with another; verify-cache asks it back with the read one
+# (src/kind/cache/netrc V66).
+
+## caches
+name|kind|url|key|push
+private-cache|https|https://private.example.org|private-cache-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|read=secret:PRIVATE_READ, push=secret:PRIVATE_PUSH
+
+## workflows
+id|kind|systems|cache|args
+build|build|-|private-cache|package=hk

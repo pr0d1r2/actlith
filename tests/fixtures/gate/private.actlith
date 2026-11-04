@@ -1,0 +1,13 @@
+format 1
+
+# A gate on a private https cache: it answers only with credentials, so
+# nix reads it with the netrc one secret holds and the push uses another
+# (src/kind/cache/netrc V66).
+
+## caches
+name|kind|url|key|push
+private-cache|https|https://private.example.org|private-cache-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|read=secret:PRIVATE_READ, push=secret:PRIVATE_PUSH
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|-|private-cache|-

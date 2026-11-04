@@ -1,7 +1,8 @@
 format 1
 
 # Every cache shape src/kind/cache renders (V60-V62): literal and secret
-# url and key, a netrc push, cachix with its own token, read-only ones.
+# url and key, a netrc push, cachix with its own token, read-only ones,
+# and private ones read with a netrc (src/kind/cache/netrc V66).
 
 ## caches
 name|kind|url|key|push
@@ -11,3 +12,5 @@ half-cache|https|https://half.example.org|secret:HALF_KEY|-
 read-cache|https|https://read.example.org|read-cache-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|-
 own-cachix|cachix|-|own-cachix.cachix.org-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|secret:OWN_CACHIX_TOKEN
 read-cachix|cachix|-|read-cachix.cachix.org-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|-
+private-cache|https|https://private.example.org|private-cache-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|read=secret:PRIVATE_READ, push=secret:PRIVATE_PUSH
+private-read|https|secret:PRIVATE_URL|private-read-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|read=secret:PRIVATE_READ

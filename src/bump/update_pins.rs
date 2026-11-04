@@ -59,7 +59,7 @@ fn steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
     let mut update = run(row.line, COMMAND, &[("GH_TOKEN", token.expr())])?;
     update.env.insert("BUILD".to_owned(), Text::lit(build));
     let mut steps = vec![pushing_checkout(pins, &token)?];
-    steps.extend(install_nix(pins, row.cache.as_ref())?);
+    steps.extend(install_nix(row.line, pins, row.cache.as_ref())?);
     steps.push(update);
     Ok(steps)
 }

@@ -201,7 +201,7 @@ fn built(plan: &Plan) -> Vec<String> {
 /// Checkout without credentials, then install-nix trusting the cache.
 fn setup(plan: &Plan) -> Result<Vec<Step>, KindError> {
     let mut steps = vec![checkout(plan.pins, &Checkout::default())?];
-    steps.extend(install_nix(plan.pins, Some(plan.cache))?);
+    steps.extend(install_nix(plan.row.line, plan.pins, Some(plan.cache))?);
     Ok(steps)
 }
 

@@ -180,6 +180,7 @@ fn scripts_are_published_under_scripts_actlith_sorted() {
     let want = [
         "scripts/actlith/open-pr.sh",
         "scripts/actlith/push-https.sh",
+        "scripts/actlith/read-netrc.sh",
         "scripts/actlith/update-pins.sh",
         "scripts/actlith/verify-cache.sh",
         "scripts/actlith/verify-https.sh",
@@ -510,9 +511,11 @@ const PLAIN: &str = "http://cache.example.org";
 /// before any netrc or nix call, naming the cache and the secret only.
 fn refused_url(name: &str, script: &str, args: &[&str]) -> io::Result<()> {
     let temp = runner_temp(name)?;
-    // A directory where the netrc would go: any write to it fails loudly
+    // A directory where each netrc would go: any write to it fails loudly
     // ("Is a directory"), even one an EXIT trap would clean up after.
-    fs::create_dir(Path::new(&temp).join("netrc"))?;
+    for file in NETRC_FILES {
+        fs::create_dir(Path::new(&temp).join(file))?;
+    }
     let env = [("URL", PLAIN), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
     let secret = ("NETRC_SECRET", "EXAMPLE_NETRC");
     let env = [env[0], env[1], env[2], ("CACHE", "example-cache"), secret];
@@ -525,14 +528,20 @@ fn refused_url(name: &str, script: &str, args: &[&str]) -> io::Result<()> {
     untouched(&ran, &temp)
 }
 
-/// Neither nix nor curl ran, and nothing tried to write the netrc: its
+/// The files the https scripts write a netrc to: the push and verify
+/// one, and the read one (`src/kind/cache/netrc` V66).
+const NETRC_FILES: [&str; 2] = ["netrc", "read-netrc"];
+
+/// Neither nix nor curl ran, and nothing tried to write a netrc: each
 /// path is still the empty directory `refused_url` put there.
 fn untouched(ran: &Ran, temp: &str) -> io::Result<()> {
     assert!(!ran.log.contains("nix "), "{}", ran.log);
     assert!(!ran.log.contains("curl "), "{}", ran.log);
     assert!(!ran.stderr.contains("Is a directory"), "{}", ran.stderr);
-    let netrc = Path::new(temp).join("netrc");
-    assert!(fs::read_dir(netrc)?.next().is_none(), "netrc written");
+    for file in NETRC_FILES {
+        let netrc = Path::new(temp).join(file);
+        assert!(fs::read_dir(netrc)?.next().is_none(), "{file} written");
+    }
     Ok(())
 }
 
@@ -546,6 +555,57 @@ fn push_https_refuses_a_url_that_is_not_https() -> io::Result<()> {
 fn verify_https_refuses_a_url_that_is_not_https() -> io::Result<()> {
     let args = ["hk", "x86_64-linux"];
     refused_url("vh-plain", "verify-https.sh", &args)
+}
+
+#[test]
+fn read_netrc_refuses_a_url_that_is_not_https() -> io::Result<()> {
+    refused_url("rn-plain", "read-netrc.sh", &[])
+}
+
+#[test]
+fn read_netrc_writes_a_private_file_it_keeps() -> io::Result<()> {
+    let temp = runner_temp("rn-write")?;
+    let env = [("URL", URL), ("NETRC", NETRC), ("RUNNER_TEMP", &temp)];
+    let ran = run("rn-write", "read-netrc.sh", &[], &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    // Later steps' nix reads it, so it outlives the step (V66).
+    let file = Path::new(&temp).join("read-netrc");
+    assert_eq!(fs::read_to_string(&file)?, format!("{NETRC}\n"));
+    let mode = fs::metadata(&file)?.permissions().mode() & 0o777;
+    assert_eq!(mode, 0o600, "{mode:o}");
+    assert_eq!(ran.log, "", "no nix, no curl");
+    assert!(!ran.stdout.contains(NETRC), "{}", ran.stdout);
+    masked(&ran);
+    Ok(())
+}
+
+#[test]
+fn read_netrc_skips_a_run_without_the_secret() -> io::Result<()> {
+    let temp = runner_temp("rn-fork")?;
+    let env = [("URL", URL), ("NETRC", ""), ("RUNNER_TEMP", &temp)];
+    let ran = run("rn-fork", "read-netrc.sh", &[], &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    assert!(ran.stdout.contains("without it"), "{}", ran.stdout);
+    assert!(!Path::new(&temp).join("read-netrc").exists(), "written");
+    masked(&ran);
+    Ok(())
+}
+
+#[test]
+fn read_netrc_without_a_url_or_with_arguments_is_a_usage_error()
+-> io::Result<()> {
+    let ran = run("rn-no-url", "read-netrc.sh", &[], &[("NETRC", NETRC)])?;
+    assert_eq!(ran.code, Some(2));
+    assert!(ran.stderr.contains("URL is empty"), "{}", ran.stderr);
+    let ran = run("rn-args", "read-netrc.sh", &["x"], &[("URL", URL)])?;
+    assert_eq!(ran.code, Some(2));
+    assert!(
+        ran.stderr.contains("usage: read-netrc.sh"),
+        "{}",
+        ran.stderr
+    );
+    assert_eq!(ran.log, "");
+    Ok(())
 }
 
 #[test]

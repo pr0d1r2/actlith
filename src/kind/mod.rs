@@ -44,9 +44,9 @@ pub(crate) use crate::core::kind::{
     UPDATE_PINS, UPSTREAM, parse_args, portable,
 };
 pub(crate) use cache::{
-    CachixPush, PUSH_FILTER, PUSH_SCRIPT, SKIP_FORK_PR, SKIP_UNLESS_MAIN,
-    cachix, https_env, https_push, install_nix, push_https, push_secret,
-    secrets, url,
+    CachixPush, PUSH_FILTER, PUSH_SCRIPT, READ_SCRIPT, SKIP_FORK_PR,
+    SKIP_UNLESS_MAIN, cachix, https_env, https_push, install_nix, push_https,
+    push_secret, read_secret, secrets, url,
 };
 pub(crate) use checkout::{Checkout, checkout};
 pub(crate) use contract::Kind;

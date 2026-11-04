@@ -66,7 +66,7 @@ fn steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
         why_depth: Some(Comment::new(DEPTH_WHY)),
     };
     let mut steps = vec![checkout(pins, &how)?];
-    steps.extend(install_nix(pins, row.cache.as_ref())?);
+    steps.extend(install_nix(row.line, pins, row.cache.as_ref())?);
     if let Some(cache) = &row.cache {
         steps.extend(cachix(pins, cache, CachixPush::SkipForkPr)?);
     }

@@ -144,6 +144,17 @@ fn a_caches_row_lists_its_read_and_push_secrets() -> Result<(), String> {
 }
 
 #[test]
+fn a_private_cache_lists_its_read_and_push_netrc() -> Result<(), String> {
+    let got = cached("ci|gate|-|private-cache|-")?;
+    let want = [
+        need("PRIVATE_PUSH", "cache push (netrc)"),
+        need("PRIVATE_READ", "cache read (netrc)"),
+    ];
+    assert_eq!(got.secrets, want);
+    Ok(())
+}
+
+#[test]
 fn a_bump_reads_the_token_its_row_names() -> Result<(), String> {
     let got = one("up|update-pins|-|-|token=PIN_TOKEN")?.secrets;
     let names: Vec<&str> = got.iter().map(|n| n.name.as_str()).collect();

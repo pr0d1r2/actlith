@@ -4,6 +4,7 @@
 //! empty substituter.
 
 use super::cachix::SKIP_FORK_PR;
+use super::netrc::{netrc_file, read_netrc};
 use super::secrets::secret_expr;
 use crate::core::cache::{BinaryCache, CacheValue};
 use crate::kind::{KindError, TRUSTED, uses};
@@ -24,6 +25,7 @@ const FORK_WHY: &str =
 /// secret value gets two steps: trusting it unless the run is a fork PR,
 /// and without it on a fork PR.
 pub(crate) fn install_nix(
+    line: usize,
     pins: &PinTable,
     cache: Option<&BinaryCache>,
 ) -> Result<Vec<Step>, KindError> {
@@ -33,13 +35,14 @@ pub(crate) fn install_nix(
     if let Some(config) = cache.nix_config() {
         return Ok(vec![trusting(pins, Text::lit(&config))?]);
     }
-    let mut trusted = trusting(pins, config(cache))?;
+    let read = read_netrc(line, cache)?;
+    let mut trusted = trusting(pins, netrc_file(config(cache), cache))?;
     trusted.condition = Expr::new(&GITHUB, TRUSTED);
     trusted.comments = vec![Comment::new(SECRET_WHY)];
     let mut fork = plain(pins)?;
     fork.condition = Expr::new(&GITHUB, SKIP_FORK_PR);
     fork.comments = vec![Comment::new(FORK_WHY)];
-    Ok(vec![trusted, fork])
+    Ok(read.into_iter().chain([trusted, fork]).collect())
 }
 
 fn plain(pins: &PinTable) -> Result<Step, KindError> {
