@@ -53,7 +53,7 @@ V64: `https` cache: `nix build`, then `push-https.sh packages.<package>` on main
 id|status|task|cites
 T20|x|kind `build` (jobs `build` `check` `verify-cache`) + `verify-cache.sh` in `src/script`|V30,R4,`src/kind:V3`,`src/kind:V9`
 T76|x|`build` matrix gains `x86_64-darwin`, eval-only step dropped; own-runner build jobs; `verify-cache` needs them|`src/kind:V54`,V30
-T81|.|`build` on `https`: push, `verify-https.sh`, golden w/ actionlint & zizmor|V64,V30,`tests:V4`
+T81|x|`build` on `https`: push, `verify-https.sh`, golden w/ actionlint & zizmor|V64,V30,`tests:V4`
 
 ## §B BUGS
 

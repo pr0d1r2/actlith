@@ -35,7 +35,7 @@ V62: `push-https.sh`: `::add-mask::` URL before any output, ⊥ echo URL; ⊥ AT
 
 id|status|task|cites
 T44|x|`.actlith` `## caches` section (columns name, public-key; `src/registry`) so a repo names its own cachix cache; built-in table stays the default. superseded by T79 (unreleased)|`src/registry:V10`
-T79|.|render pipelith 0.2.1 `## caches` (its T41): `check` → `Row::check_with` → `Checked`; `nix.rs`, `cachix.rs` → here; read, push, secrets per V60–V62; `push-https.sh` tested under bash w/ stubs; goldens w/ `## caches` pass actionlint & zizmor (`tests:V4`), goldens w/o it unchanged|V60,V61,V62,`src/kind:V14`,`tests:V4`,`.:V18`
+T79|x|render pipelith 0.2.1 `## caches` (its T41): `check` → `Row::check_with` → `Checked`; `nix.rs`, `cachix.rs` → here; read, push, secrets per V60–V62; `push-https.sh` tested under bash w/ stubs; goldens w/ `## caches` pass actionlint & zizmor (`tests:V4`), goldens w/o it unchanged|V60,V61,V62,`src/kind:V14`,`tests:V4`,`.:V18`
 
 ## §B BUGS
 
