@@ -2,7 +2,7 @@
 //! golden files, the declared secret, and every refused row.
 
 use crate::bump::UpdatePins;
-use crate::kind::{Kind, Row};
+use crate::kind::{Checked, Kind};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::Runners;
@@ -16,10 +16,10 @@ const DEFAULT: &str =
 const CUSTOM: &str =
     include_str!("../../../tests/fixtures/bump/pins-custom.yml");
 
-fn row(id: &str) -> Result<Row, String> {
+fn row(id: &str) -> Result<Checked, String> {
     let registry = parse(ROWS).map_err(|e| e.to_string())?;
     let row = registry.workflows.iter().find(|r| r.id == id);
-    crate::kind::check(&UpdatePins, row.ok_or("no row")?)
+    crate::kind::check(&UpdatePins, row.ok_or("no row")?, &registry.caches)
         .map_err(|e| e.to_string())
 }
 

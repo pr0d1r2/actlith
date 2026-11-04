@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::gate::Gate;
-use crate::kind::{Kind, Row};
+use crate::kind::{Checked, Kind};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::Runners;
@@ -22,22 +22,26 @@ const XCODE_ROW: &str =
 const XCODE_YML: &str = include_str!("../../../tests/fixtures/gate/xcode.yml");
 const RUNNERS_ROW: &str =
     include_str!("../../../tests/fixtures/gate/runners.actlith");
+const CACHES_ROW: &str =
+    include_str!("../../../tests/fixtures/gate/caches.actlith");
+const CACHES_YML: &str =
+    include_str!("../../../tests/fixtures/gate/caches.yml");
 const RUNNERS_YML: &str =
     include_str!("../../../tests/fixtures/gate/runners.yml");
 
 const HEAD: &str = "format 1\n\n## workflows\nid|kind|systems|cache|args\n";
 
-fn checked(text: &str) -> Result<Row, String> {
+fn checked(text: &str) -> Result<Checked, String> {
     let registry = parse(text).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    crate::kind::check(&Gate, row).map_err(|e| e.to_string())
+    crate::kind::check(&Gate, row, &registry.caches).map_err(|e| e.to_string())
 }
 
-fn row(cells: &str) -> Result<Row, String> {
+fn row(cells: &str) -> Result<Checked, String> {
     checked(&format!("{HEAD}{cells}\n"))
 }
 
-fn built(row: &Row) -> Result<Workflow, String> {
+fn built(row: &Checked) -> Result<Workflow, String> {
     Gate.build(row, &PinTable::builtin(), &Runners::default())
         .map_err(|e| e.to_string())
 }
@@ -88,7 +92,7 @@ fn the_job_is_named_gate() -> Result<(), String> {
 
 #[test]
 fn a_cache_needs_the_cachix_secret() -> Result<(), String> {
-    let names = |r: &Row| -> Vec<String> {
+    let names = |r: &Checked| -> Vec<String> {
         Gate.secrets(r)
             .iter()
             .map(|s| s.name().to_owned())
@@ -308,7 +312,8 @@ fn built_with_runners(text: &str) -> Result<Workflow, String> {
     let registry = parse(text).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
     let runners = &registry.runners;
-    let checked = crate::kind::check(&Gate, row).map_err(|e| e.to_string())?;
+    let checked = crate::kind::check(&Gate, row, &registry.caches)
+        .map_err(|e| e.to_string())?;
     Gate.build(&checked, &PinTable::builtin(), runners)
         .map_err(|e| e.to_string())
 }
@@ -381,5 +386,73 @@ fn only_own_runner_systems_leave_no_matrix_job() -> Result<(), String> {
     assert_eq!(ids, ["gate-x86_64-darwin"]);
     let mine = gate.jobs.get("gate-x86_64-darwin").ok_or("no own job")?;
     assert!(mine.env.contains_key("DEVELOPER_DIR"), "xcode still pins");
+    Ok(())
+}
+
+#[test]
+fn the_caches_row_renders_its_golden_file() -> Result<(), String> {
+    assert_eq!(render(&built(&checked(CACHES_ROW)?)?), CACHES_YML);
+    Ok(())
+}
+
+#[test]
+fn the_caches_golden_passes_actionlint() -> Result<(), String> {
+    lint("actionlint", &["-no-color"], &fixture("caches.yml"))
+}
+
+#[test]
+fn the_caches_golden_passes_zizmor_offline() -> Result<(), String> {
+    lint(
+        "zizmor",
+        &["--offline", "--no-progress"],
+        &fixture("caches.yml"),
+    )
+}
+
+/// The caches fixture's `## caches` with `ci|gate|-|hidden-cache|<args>`.
+fn hidden(args: &str) -> Result<Checked, String> {
+    let head = CACHES_ROW.split("## workflows").next().unwrap_or_default();
+    let rows = "## workflows\nid|kind|systems|cache|args\n";
+    checked(&format!("{head}{rows}ci|gate|-|hidden-cache|{args}\n"))
+}
+
+fn secret_names(row: &Checked) -> Vec<String> {
+    Gate.secrets(row)
+        .iter()
+        .map(|s| s.name().to_owned())
+        .collect()
+}
+
+#[test]
+fn an_https_cache_pushes_its_dev_shell_before_the_gate() -> Result<(), String> {
+    let row = hidden("-")?;
+    let want = ["HIDDEN_URL", "HIDDEN_KEY", "HIDDEN_NETRC"];
+    assert_eq!(secret_names(&row), want);
+    assert_eq!(Gate.scripts(&row), ["scripts/actlith/push-https.sh"]);
+    let text = write(&built(&row)?);
+    let push = "bash scripts/actlith/push-https.sh \
+                devShells.default.inputDerivation";
+    let (before, after) = text.split_once(push).ok_or("no push")?;
+    assert!(after.contains("hk check --all --check"), "{text}");
+    assert!(!before.contains("hk check"), "{text}");
+    assert!(!text.contains("cachix/cachix-action"), "{text}");
+    Ok(())
+}
+
+#[test]
+fn cache_push_false_on_https_only_reads() -> Result<(), String> {
+    let row = hidden("cache-push=false")?;
+    assert_eq!(secret_names(&row), ["HIDDEN_URL", "HIDDEN_KEY"]);
+    assert!(Gate.scripts(&row).is_empty());
+    let text = write(&built(&row)?);
+    assert!(!text.contains("push-https.sh"), "{text}");
+    assert!(!text.contains("HIDDEN_NETRC"), "{text}");
+    assert!(text.contains("secrets.HIDDEN_URL"), "{text}");
+    Ok(())
+}
+
+#[test]
+fn the_built_in_cache_needs_no_script() -> Result<(), String> {
+    assert!(Gate.scripts(&row("ci|gate|-|pr0d1r2|-")?).is_empty());
     Ok(())
 }

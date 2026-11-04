@@ -8,8 +8,8 @@ use std::collections::BTreeMap;
 use super::cron::cron;
 use super::shared::{LIMITS, bump_job, plain, pushing_checkout, token};
 use crate::kind::{
-    Kind, KindError, KindSpec, Row, Secret, UPDATE_PINS, install_nix,
-    on_schedule, run, workflow,
+    CachixPush, Checked, Kind, KindError, KindSpec, Secret, UPDATE_PINS,
+    install_nix, on_schedule, run, secrets, workflow,
 };
 use crate::pin::PinTable;
 use crate::system::Runners;
@@ -32,13 +32,16 @@ impl Kind for UpdatePins {
         &UPDATE_PINS
     }
 
-    fn secrets(&self, row: &Row) -> Vec<Secret> {
-        token(&row.args).into_iter().collect()
+    /// The token, and the secrets reading the cache takes; it never
+    /// pushes.
+    fn secrets(&self, row: &Checked) -> Vec<Secret> {
+        let read = secrets(row.cache.as_ref(), CachixPush::ReadOnly);
+        token(&row.args).into_iter().chain(read).collect()
     }
 
     fn build(
         &self,
-        row: &Row,
+        row: &Checked,
         pins: &PinTable,
         runners: &Runners,
     ) -> Result<Workflow, KindError> {
@@ -50,16 +53,15 @@ impl Kind for UpdatePins {
     }
 }
 
-fn steps(row: &Row, pins: &PinTable) -> Result<Vec<Step>, KindError> {
+fn steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
     let token = token(&row.args)?;
     let build = plain(&row.args, "build")?;
     let mut update = run(row.line, COMMAND, &[("GH_TOKEN", token.expr())])?;
     update.env.insert("BUILD".to_owned(), Text::lit(build));
-    Ok(vec![
-        pushing_checkout(pins, &token)?,
-        install_nix(pins, row.cache.as_ref())?,
-        update,
-    ])
+    let mut steps = vec![pushing_checkout(pins, &token)?];
+    steps.extend(install_nix(pins, row.cache.as_ref())?);
+    steps.push(update);
+    Ok(steps)
 }
 
 #[cfg(test)]

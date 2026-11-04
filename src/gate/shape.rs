@@ -7,9 +7,10 @@
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    ArgSpec, CACHE_PUSH, CachixPush, Checkout, GATE, Kind, KindError, KindSpec,
-    Row, Secret, XCODE, cachix, checkout, hosts, install_nix, job,
-    matrix_runner, on_push_and_pr, own, run, runner_matrix, workflow,
+    ArgSpec, CACHE_PUSH, CachixPush, Checked, Checkout, GATE, Kind, KindError,
+    KindSpec, PUSH_SCRIPT, Row, Secret, XCODE, cachix, checkout, hosts,
+    https_push, install_nix, job, matrix_runner, on_push_and_pr, own,
+    push_https, run, runner_matrix, secrets, workflow,
 };
 use crate::pin::PinTable;
 use crate::system::{Runners, System};
@@ -27,6 +28,10 @@ const HOST_XCODE: &str = "HOST_DEVELOPER_DIR=\"$DEVELOPER_DIR\" ";
 const XCODE_CHECK: &str = "test -d \"$DEVELOPER_DIR\" || { echo \
     \"::error::missing $DEVELOPER_DIR\"; exit 1; }; xcodebuild -version";
 
+/// What an https cache push copies (V63): every input `nix develop`
+/// needs, which the dev shell's own output does not reference.
+const SHELL_INPUTS: &str = "devShells.default.inputDerivation";
+
 const DEPTH_WHY: &str = "Full history: tdd-order reads the push range, and \
     a later semver\nstep compares with the last release tag.";
 
@@ -43,14 +48,18 @@ impl Kind for Gate {
         &[XCODE, CACHE_PUSH]
     }
 
-    fn secrets(&self, row: &Row) -> Vec<Secret> {
-        let push = row.cache.as_ref().and_then(|_| cache_push(row).secret());
-        push.into_iter().collect()
+    fn secrets(&self, row: &Checked) -> Vec<Secret> {
+        secrets(row.cache.as_ref(), cache_push(row))
+    }
+
+    fn scripts(&self, row: &Checked) -> Vec<&'static str> {
+        let push = https_push(row.cache.as_ref(), cache_push(row));
+        push.then_some(PUSH_SCRIPT).into_iter().collect()
     }
 
     fn build(
         &self,
-        row: &Row,
+        row: &Checked,
         pins: &PinTable,
         runners: &Runners,
     ) -> Result<Workflow, KindError> {
@@ -69,7 +78,7 @@ impl Kind for Gate {
 
 /// The gate job before it is given a runner: the row's steps, its
 /// timeout, and `DEVELOPER_DIR` when it pins an Xcode.
-fn gate(row: &Row, pins: &PinTable) -> Result<Job, KindError> {
+fn gate(row: &Checked, pins: &PinTable) -> Result<Job, KindError> {
     let xcode = xcode(row)?;
     let steps = steps(row, pins, xcode)?;
     let mut gate = job(Text::default(), row.args.timeout()?, steps);
@@ -145,10 +154,10 @@ fn xcode_check(row: &Row, version: &str) -> Result<Step, KindError> {
     Ok(check)
 }
 
-/// The Xcode check when the row pins one, checkout, install-nix, cachix
-/// when the row has a cache, the gate.
+/// The Xcode check when the row pins one, checkout, install-nix, the
+/// cache push when the row has a cache that pushes, the gate.
 fn steps(
-    row: &Row,
+    row: &Checked,
     pins: &PinTable,
     xcode: Option<&str>,
 ) -> Result<Vec<Step>, KindError> {
@@ -160,12 +169,21 @@ fn steps(
     let check = xcode.map(|v| xcode_check(row, v)).transpose()?;
     let mut steps: Vec<Step> = check.into_iter().collect();
     steps.push(checkout(pins, &how)?);
-    steps.push(install_nix(pins, row.cache.as_ref())?);
-    if let Some(cache) = &row.cache {
-        steps.push(cachix(pins, cache, cache_push(row))?);
-    }
+    steps.extend(cache_steps(row, pins)?);
     let command = command(row, xcode);
     steps.push(run(row.line, &command, &[])?);
+    Ok(steps)
+}
+
+/// install-nix trusting the row's cache, then its cachix or https push
+/// (`src/kind/cache` V61).
+fn cache_steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
+    let mut steps = install_nix(pins, row.cache.as_ref())?;
+    if let Some(cache) = &row.cache {
+        let push = cache_push(row);
+        steps.extend(cachix(pins, cache, push)?);
+        steps.extend(push_https(row.line, cache, push, SHELL_INPUTS)?);
+    }
     Ok(steps)
 }
 

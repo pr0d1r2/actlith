@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 use super::{VERIFY_SCRIPT, build, check, jobs, matrix, verify};
 use crate::build::Build;
 use crate::build::plan::Plan;
-use crate::kind::{Row, SKIP_UNLESS_MAIN, TRUSTED, matrix_runner};
+use crate::kind::{Checked, SKIP_UNLESS_MAIN, TRUSTED, matrix_runner};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::{Runners, System};
@@ -17,14 +17,14 @@ use crate::yaml::{Action, Job, RunsOn, Step, Text, Value};
 
 const ROW: &str = include_str!("../../../tests/fixtures/build/picked.actlith");
 
-fn picked() -> Result<Row, String> {
+fn picked() -> Result<Checked, String> {
     let registry = parse(ROW).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    crate::kind::check(&Build, row).map_err(|e| e.to_string())
+    crate::kind::check(&Build, row, &registry.caches).map_err(|e| e.to_string())
 }
 
 fn made(
-    row: &Row,
+    row: &Checked,
     part: fn(&Plan) -> Result<Job, crate::kind::KindError>,
 ) -> Result<Job, String> {
     let pins = PinTable::builtin();
@@ -96,7 +96,7 @@ fn build_runs_one_runner_per_system() -> Result<(), String> {
 #[test]
 fn x86_64_darwin_builds_on_the_intel_image() -> Result<(), String> {
     let mut row = picked()?;
-    row.systems = vec![System::X86_64Darwin];
+    row.row.systems = vec![System::X86_64Darwin];
     let pins = PinTable::builtin();
     let runners = Runners::default();
     let plan = Plan::new(&row, &pins, &runners).map_err(|e| e.to_string())?;
@@ -115,7 +115,7 @@ fn all_jobs(
     rows: &str,
 ) -> Result<BTreeMap<String, Job>, String> {
     let mut row = picked()?;
-    row.systems = systems;
+    row.row.systems = systems;
     let text = format!("format 1\n\n## runners\nsystem|labels\n{rows}");
     let own = parse(&text).map_err(|e| e.to_string())?.runners;
     let pins = PinTable::builtin();

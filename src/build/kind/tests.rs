@@ -7,14 +7,18 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use super::Build;
-use crate::kind::{Kind, Row};
+use crate::kind::{Checked, Kind};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::Runners;
 use crate::yaml::render;
 
 /// `(row file, golden file)` under `tests/fixtures/build/`.
-const GOLDEN: [(&str, &str); 2] = [
+/// A `build` row on an https cache (V64).
+const HTTPS_ROW: &str =
+    include_str!("../../../tests/fixtures/build/https.actlith");
+
+const GOLDEN: [(&str, &str); 3] = [
     (
         include_str!("../../../tests/fixtures/build/build.actlith"),
         include_str!("../../../tests/fixtures/build/build.yml"),
@@ -23,9 +27,13 @@ const GOLDEN: [(&str, &str); 2] = [
         include_str!("../../../tests/fixtures/build/picked.actlith"),
         include_str!("../../../tests/fixtures/build/picked.yml"),
     ),
+    (
+        HTTPS_ROW,
+        include_str!("../../../tests/fixtures/build/https.yml"),
+    ),
 ];
 
-const FILES: [&str; 2] = ["build.yml", "picked.yml"];
+const FILES: [&str; 3] = ["build.yml", "picked.yml", "https.yml"];
 
 /// A hook's git environment, dropped from every tool the tests run.
 const GIT_ENV: [&str; 6] = [
@@ -37,10 +45,10 @@ const GIT_ENV: [&str; 6] = [
     "GIT_COMMON_DIR",
 ];
 
-fn row(text: &str) -> Result<Row, String> {
+fn row(text: &str) -> Result<Checked, String> {
     let registry = parse(text).map_err(|e| e.to_string())?;
     let row = registry.workflows.first().ok_or("no row")?;
-    crate::kind::check(&Build, row).map_err(|e| e.to_string())
+    crate::kind::check(&Build, row, &registry.caches).map_err(|e| e.to_string())
 }
 
 fn rendered(text: &str) -> Result<String, String> {
@@ -115,13 +123,22 @@ fn the_kind_declares_the_cachix_secret() -> Result<(), String> {
 }
 
 #[test]
-fn every_script_it_runs_is_seeded_by_src_script() {
-    assert!(!Build::scripts().is_empty());
+fn every_script_it_runs_is_seeded_by_src_script() -> Result<(), String> {
+    let (text, _) = GOLDEN.first().ok_or("no fixture")?;
+    let scripts = Build.scripts(&row(text)?);
+    assert_eq!(scripts, ["scripts/actlith/verify-cache.sh"]);
+    let https = Build.scripts(&row(HTTPS_ROW)?);
+    let want = [
+        "scripts/actlith/push-https.sh",
+        "scripts/actlith/verify-https.sh",
+    ];
+    assert_eq!(https, want);
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    for path in Build::scripts() {
+    for path in scripts.iter().chain(&https) {
         let name = path.strip_prefix("scripts/actlith/").unwrap_or_default();
         assert!(root.join("src/script").join(name).is_file(), "{path}");
     }
+    Ok(())
 }
 
 #[test]
@@ -134,5 +151,6 @@ fn a_refused_row_builds_nothing() -> Result<(), String> {
             .is_err()
     );
     assert!(Build.secrets(&row).is_empty());
+    assert!(Build.scripts(&row).is_empty());
     Ok(())
 }

@@ -3,8 +3,9 @@
 
 use std::any::TypeId;
 
+use crate::core::cache as caches;
 use crate::core::kind as neutral;
-use crate::kind::{Args, Cache, Row};
+use crate::kind::{Args, BinaryCache, Row};
 
 #[test]
 fn the_checked_row_is_pipelith_row() {
@@ -17,6 +18,7 @@ fn the_args_are_pipelith_args() {
 }
 
 #[test]
-fn the_cache_is_pipelith_cache() {
-    assert_eq!(TypeId::of::<Cache>(), TypeId::of::<neutral::Cache>());
+fn the_cache_is_pipelith_binary_cache() {
+    let neutral = TypeId::of::<caches::BinaryCache>();
+    assert_eq!(TypeId::of::<BinaryCache>(), neutral);
 }

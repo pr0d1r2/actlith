@@ -1,0 +1,13 @@
+format 1
+
+# A gate on an https cache whose url and key are secrets, pushed with
+# the netrc file a third secret holds (src/kind/cache V60-V62,
+# src/gate V63).
+
+## caches
+name|kind|url|key|push
+hidden-cache|https|secret:HIDDEN_URL|secret:HIDDEN_KEY|secret:HIDDEN_NETRC
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|-|hidden-cache|-

@@ -1,12 +1,16 @@
 //! A `## workflows` row checked for its kind by pipelith's
-//! `Row::check` (systems, cache, args, timeout and row rules;
+//! `Row::check_with` (systems, cache, args, timeout and row rules;
 //! `src/registry` V10), after actlith names any unknown system in its
 //! own words. Every known system has a runner (`src/system` V53), so a
 //! checked row is never refused for its systems at render. A kind builds
-//! only from a checked row.
+//! only from a checked row, and its cache steps only from the cache the
+//! check found (`src/kind/cache`).
 
 use super::contract::Kind;
 use super::error::KindError;
+use std::ops::Deref;
+
+use crate::core::cache::{BinaryCache, Caches};
 use crate::core::kind::{ArgDefault, ArgSpec, Extras, Row};
 use crate::registry::WorkflowRow;
 use crate::system::parse_system;
@@ -33,20 +37,45 @@ pub(crate) const EXTRAS: Extras<'static> = Extras {
     keys: &[XCODE, CACHE_PUSH],
 };
 
+/// A row checked for its kind, with the cache it trusts.
+///
+/// It reads as the [`Row`] it holds, except for `cache`: that is the
+/// [`BinaryCache`] from `## caches` or pipelith's built-in table, the
+/// only cache a kind renders from (`src/kind/cache` C).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct Checked {
+    /// The checked row; its own `cache` field is pipelith 0.2.0's.
+    pub(crate) row: Row,
+    /// The cache the row trusts; `None` for `-`.
+    pub(crate) cache: Option<BinaryCache>,
+}
+
+impl Deref for Checked {
+    type Target = Row;
+
+    fn deref(&self) -> &Row {
+        &self.row
+    }
+}
+
 /// `row` checked against `kind`, which takes only the forge keys it
-/// names (`Kind::forge_args`).
+/// names (`Kind::forge_args`), its cache found in `caches` or built in.
 pub(crate) fn check(
     kind: &dyn Kind,
     row: &WorkflowRow,
-) -> Result<Row, KindError> {
+    caches: &Caches,
+) -> Result<Checked, KindError> {
     known(row)?;
     let extras = Extras {
         kinds: &[],
         keys: kind.forge_args(),
     };
-    let checked = Row::check(kind.spec(), row, &extras)?;
-    cache_push_value(&checked)?;
-    Ok(checked)
+    let checked = Row::check_with(kind.spec(), row, &extras, caches)?;
+    cache_push_value(&checked.row)?;
+    Ok(Checked {
+        row: checked.row,
+        cache: checked.cache,
+    })
 }
 
 /// `cache-push`, when present, is a boolean forge argument.

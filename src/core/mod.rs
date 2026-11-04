@@ -3,5 +3,5 @@
 //! every other node reaches them through `crate::core`.
 
 pub(crate) use pipelith::{
-    detect, files, kind, registry, runner, system, yaml,
+    cache, detect, files, kind, registry, runner, system, yaml,
 };

@@ -1,0 +1,12 @@
+format 1
+
+# A package on an https cache: literal url and key, pushed with the
+# netrc file a secret holds (src/build V64).
+
+## caches
+name|kind|url|key|push
+example-cache|https|https://cache.example.org|example-cache-1:79mE5RnWzUnV7Xlzq0cdEHe4GW4t0qBGsmoGOUr64p0=|secret:EXAMPLE_NETRC
+
+## workflows
+id|kind|systems|cache|args
+build|build|-|example-cache|package=hk

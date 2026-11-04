@@ -1,8 +1,10 @@
 //! A row checked for a kind: default and listed systems, cache, args,
 //! in actlith's `.actlith:<line>` words (T17, T65, `src/registry` V10).
 
+use crate::core::cache::builtin;
 use crate::kind::{
-    Cache, EXTRAS, Kind, KindError, KindSpec, Row, Secret, TIMEOUT, portable,
+    Caches, Checked, EXTRAS, Kind, KindError, KindSpec, Row, Secret, TIMEOUT,
+    portable,
 };
 use crate::pin::PinTable;
 use crate::registry::{WorkflowRow, parse};
@@ -30,13 +32,13 @@ impl Kind for Probe {
         &PROBE
     }
 
-    fn secrets(&self, _row: &Row) -> Vec<Secret> {
+    fn secrets(&self, _row: &Checked) -> Vec<Secret> {
         Vec::new()
     }
 
     fn build(
         &self,
-        row: &Row,
+        row: &Checked,
         _: &PinTable,
         _: &Runners,
     ) -> Result<Workflow, KindError> {
@@ -49,9 +51,10 @@ fn workflow_row(id: &str) -> Option<WorkflowRow> {
     registry.workflows.into_iter().find(|w| w.id == id)
 }
 
-fn checked(id: &str) -> Result<Row, String> {
+fn checked(id: &str) -> Result<Checked, String> {
     let row = workflow_row(id).ok_or("no such row")?;
-    crate::kind::check(&Probe, &row).map_err(|e| e.to_string())
+    crate::kind::check(&Probe, &row, &Caches::default())
+        .map_err(|e| e.to_string())
 }
 
 fn refused_args(cell: &str) -> String {
@@ -63,7 +66,7 @@ fn refused_args(cell: &str) -> String {
         .ok()
         .and_then(|r| r.workflows.into_iter().next());
     let row = row.unwrap_or_default();
-    crate::kind::check(&Probe, &row)
+    crate::kind::check(&Probe, &row, &Caches::default())
         .err()
         .map(|e| e.to_string())
         .unwrap_or_default()
@@ -87,8 +90,8 @@ fn a_dash_row_takes_the_kind_defaults() -> Result<(), String> {
 fn listed_systems_keep_their_order() -> Result<(), String> {
     let row = checked("picked")?;
     assert_eq!(row.systems, [System::Aarch64Darwin, System::X86_64Linux]);
-    let cache = Cache::parse(8, "pr0d1r2").map_err(|e| e.to_string())?;
-    assert_eq!(row.cache, Some(cache));
+    assert_eq!(row.cache, builtin("pr0d1r2"));
+    assert!(row.cache.is_some(), "the built-in cache");
     assert_eq!(row.args.get("timeout"), Some("45"));
     Ok(())
 }

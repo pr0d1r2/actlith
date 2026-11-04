@@ -265,3 +265,42 @@ fn file_is_pipelith_file() {
     let ours = TypeId::of::<crate::render::File>();
     assert_eq!(ours, TypeId::of::<crate::core::files::File>());
 }
+
+/// The caches fixture's `## caches`, then `cells` as `## workflows` rows.
+fn with_caches(cells: &str) -> String {
+    let caches = include_str!("../../../tests/fixtures/kind/caches.actlith");
+    format!("{caches}\n## workflows\nid|kind|systems|cache|args\n{cells}\n")
+}
+
+fn paths(files: &[File]) -> Vec<&str> {
+    files.iter().map(|f| f.path.as_str()).collect()
+}
+
+#[test]
+fn an_https_cache_writes_the_scripts_it_runs() -> Result<(), String> {
+    let gate = rendered(&with_caches("ci|gate|-|hidden-cache|-"))?;
+    let push = "scripts/actlith/push-https.sh";
+    assert_eq!(paths(&gate), [".github/workflows/ci.yml", push]);
+    let build =
+        rendered(&with_caches("build|build|-|example-cache|package=hk"))?;
+    let verify = "scripts/actlith/verify-https.sh";
+    assert_eq!(paths(&build), [".github/workflows/build.yml", push, verify]);
+    let read = rendered(&with_caches("ci|gate|-|read-cache|-"))?;
+    assert_eq!(paths(&read), [".github/workflows/ci.yml"]);
+    Ok(())
+}
+
+#[test]
+fn a_cache_neither_listed_nor_built_in_is_refused() -> Result<(), String> {
+    let error = refused(&with_caches("ci|gate|-|no-such-cache|-"))?;
+    assert!(matches!(error, RenderError::Kind(_)), "{error}");
+    assert!(error.to_string().contains("no-such-cache"), "{error}");
+    Ok(())
+}
+
+#[test]
+fn a_read_only_cache_is_refused_for_build() -> Result<(), String> {
+    let error = refused(&with_caches("build|build|-|read-cache|package=hk"))?;
+    assert!(matches!(error, RenderError::Kind(_)), "{error}");
+    Ok(())
+}

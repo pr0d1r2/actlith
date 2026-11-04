@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 use super::error::RenderError;
 use super::kinds::{Entry, lookup, names};
 use crate::bots::{File, bot_files};
-use crate::kind::check;
+use crate::kind::{Checked, check};
 use crate::pin::PinTable;
 use crate::registry::{Registry, RegistryError, WorkflowRow};
 use crate::script::scripts;
@@ -26,8 +26,10 @@ pub(crate) fn render(registry: &Registry) -> Result<Vec<File>, RenderError> {
     let mut files = Vec::new();
     for row in &registry.workflows {
         let entry = kind(row)?;
-        files.push(workflow(entry, row, &pins, &registry.runners)?);
+        let checked = check(entry.kind, row, &registry.caches)?;
+        files.push(workflow(entry, &checked, &pins, &registry.runners)?);
         needed.extend(entry.scripts.iter().copied());
+        needed.extend(entry.kind.scripts(&checked));
     }
     files.extend(seeded(&needed));
     files.extend(bot_files(&registry.bots)?);
@@ -45,15 +47,14 @@ fn kind(row: &WorkflowRow) -> Result<Entry, RenderError> {
     })
 }
 
-/// `.github/workflows/<id>.yml`: `row` checked and built by its kind.
+/// `.github/workflows/<id>.yml`: the checked `row` built by its kind.
 fn workflow(
     entry: Entry,
-    row: &WorkflowRow,
+    row: &Checked,
     pins: &PinTable,
     runners: &Runners,
 ) -> Result<File, RenderError> {
-    let checked = check(entry.kind, row)?;
-    let built = entry.kind.build(&checked, pins, runners)?;
+    let built = entry.kind.build(row, pins, runners)?;
     Ok(File {
         path: format!(".github/workflows/{}.yml", row.id),
         bytes: crate::yaml::render(&built),

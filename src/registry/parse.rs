@@ -4,7 +4,8 @@
 
 use super::error::RegistryError;
 use super::model::Registry;
-use super::rows::{action, bot, cache, hand};
+use super::rows::{action, bot, hand};
+use crate::core::cache::{CACHES, Caches};
 use crate::core::kind::{self, RawRow};
 use crate::core::registry::{self, Schema, SectionSpec};
 use crate::core::runner::{self, Runners};
@@ -12,8 +13,9 @@ use crate::core::runner::{self, Runners};
 /// The file name every error and every message names.
 pub(crate) const FILE: &str = ".actlith";
 
-/// actlith's sections: pipelith's neutral `## workflows`, then GitHub's,
-/// then pipelith's neutral `## runners`, each keyed by its first column.
+/// actlith's sections: pipelith's neutral `## workflows`, GitHub's
+/// `## actions`, pipelith's neutral `## caches`, GitHub's others, then
+/// pipelith's neutral `## runners`, each keyed by its first column.
 const SCHEMA: Schema<'static> = Schema {
     sections: &[
         kind::WORKFLOWS,
@@ -23,12 +25,7 @@ const SCHEMA: Schema<'static> = Schema {
             required: false,
             key: Some(0),
         },
-        SectionSpec {
-            name: "caches",
-            columns: &["name", "public-key"],
-            required: false,
-            key: Some(0),
-        },
+        CACHES,
         SectionSpec {
             name: "hand-written",
             columns: &["path", "reason"],
@@ -58,7 +55,7 @@ pub(crate) fn parse(text: &str) -> Result<Registry, RegistryError> {
             .map(|r| RawRow::from_cells(FILE, r))
             .collect::<Result<_, _>>()?,
         actions: rows("actions").map(action).collect::<Result<_, _>>()?,
-        caches: rows("caches").map(cache).collect::<Result<_, _>>()?,
+        caches: Caches::default(),
         hand_written: rows("hand-written")
             .map(hand)
             .collect::<Result<_, _>>()?,

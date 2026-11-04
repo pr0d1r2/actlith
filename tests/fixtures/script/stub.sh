@@ -37,6 +37,15 @@ case "$tool $*" in
     echo "${STUB_REV_BEFORE:-}"
   fi
   ;;
+"nix eval --impure --raw --expr builtins.currentSystem")
+  echo "${STUB_SYSTEM:-x86_64-linux}"
+  ;;
+"nix copy --option netrc-file "*)
+  # The netrc file push-https.sh wrote, while the copy runs: its mode
+  # and its text.
+  mode="$(stat -c %a "$4" 2>/dev/null || stat -f %Lp "$4")"
+  printf 'netrc %s %s\n' "$mode" "$(cat "$4")" >>"$STUB_LOG"
+  ;;
 "nix eval --raw .#packages."*)
   attr="${3#.#packages.}"
   sys="${attr%%.*}"
@@ -47,6 +56,9 @@ case "$tool $*" in
   ;;
 "curl "*)
   url="${*: -1}"
+  if [[ "$*" == *"--netrc-file "* ]]; then
+    printf 'curl netrc\n' >>"$STUB_LOG"
+  fi
   case "$url" in
   *"${STUB_CURL_MISSING:-no-such-hash}"*) printf '404' ;;
   *) printf '200' ;;

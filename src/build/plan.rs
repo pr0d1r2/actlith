@@ -2,19 +2,19 @@
 //! `package` checked as a flake attribute name before it reaches any
 //! `run:` line (`src/kind:V3`), and the job timeout.
 
-use crate::kind::{Args, Cache, KindError, Row};
+use crate::kind::{Args, BinaryCache, Checked, KindError};
 use crate::pin::PinTable;
 use crate::system::Runners;
 
 /// What every `build` job is made from.
 #[derive(Clone, Debug)]
 pub(crate) struct Plan<'a> {
-    pub(crate) row: &'a Row,
+    pub(crate) row: &'a Checked,
     pub(crate) pins: &'a PinTable,
     /// Where each system's jobs run (`src/system` V53).
     pub(crate) runners: &'a Runners,
     /// The cache `build` pushes to and `verify-cache` asks.
-    pub(crate) cache: &'a Cache,
+    pub(crate) cache: &'a BinaryCache,
     /// The flake package, `.#packages.<system>.<package>`.
     pub(crate) package: &'a str,
     /// `timeout-minutes` of every job.
@@ -25,7 +25,7 @@ impl<'a> Plan<'a> {
     /// The plan for `row`; refused without a cache, with a `package`
     /// that is not an attribute name, or with a bad `timeout`.
     pub(crate) fn new(
-        row: &'a Row,
+        row: &'a Checked,
         pins: &'a PinTable,
         runners: &'a Runners,
     ) -> Result<Self, KindError> {
@@ -57,7 +57,7 @@ pub(crate) fn package(args: &Args) -> Result<&str, KindError> {
 }
 
 /// The row's cache, which `build` cannot do without.
-pub(crate) fn cache(row: &Row) -> Result<&Cache, KindError> {
+pub(crate) fn cache(row: &Checked) -> Result<&BinaryCache, KindError> {
     row.cache.as_ref().ok_or_else(|| {
         KindError::row(
             row.line,
