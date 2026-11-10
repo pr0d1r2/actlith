@@ -72,9 +72,10 @@ do not use them.
     runs without the cache. The push keeps its own netrc and file, and
     `verify-https.sh` asks the cache with the read netrc when there is
     one. `actlith report` lists the read secret as `cache read (netrc)`.
-  Files rendered from `.actlith` files without `## caches` are unchanged
-  byte for byte, including every workflow on the built-in `pr0d1r2`
-  cache.
+  The cache feature alone changes nothing for `.actlith` files without
+  `## caches`, including every workflow on the built-in `pr0d1r2` cache.
+  Those files still change in this release where a `gate` or `build` row
+  is written with `-`: it gains the Intel macOS job (BREAKING, below).
 
 - `## runners` in `.actlith`, header `system|labels` (pipelith 0.2's
   neutral section, read with `Runners::from_document`): a row such as
@@ -155,9 +156,9 @@ do not use them.
   no longer hides the package behind its own dot.
 - `update-pins.sh` resolves nixpkgs through the root's `nixpkgs-lock`
   input, so renamed lock nodes no longer hide available bumps (issue #22).
-- Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.1.0 from
-  crates.io, the forge-neutral core shared with lablith. Nothing uses it
-  yet; generated files are unchanged (T49).
+- Depends on [`pipelith`](https://github.com/pr0d1r2/pipelith) 0.2.2 from
+  crates.io, the forge-neutral core shared with lablith; `src/registry`
+  parses `.actlith` with it (T49, and the next entry).
 - `src/registry`: `.actlith` is parsed by pipelith's grammar (T64). Rows,
   lines and messages are unchanged except a newer `format` line, which
   now reads "`.actlith` is format 2; this build reads format 1" with the
