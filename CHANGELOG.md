@@ -8,6 +8,12 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+### Changed
+
+- The dev shell takes `cargo-release` from nix-cargo-release (1.1.6)
+  instead of the channel's 1.1.7, which needs rustc 1.97 while the pin
+  ships 1.95. Drop the input once the channel's build works.
+
 ## [0.2.0] - 2026-11-10
 
 What a consumer sees change: actlith now reads pipelith 0.2's `.actlith`
