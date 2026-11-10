@@ -21,6 +21,13 @@
       inputs.nixpkgs-lock.follows = "nixpkgs-lock";
     };
 
+    # cargo-release held at 1.1.6: the channel's 1.1.7 needs rustc 1.97 and
+    # the pin ships 1.95. Drop it once the channel's cargo-release builds.
+    nix-cargo-release = {
+      url = "github:pr0d1r2/nix-cargo-release";
+      inputs.nixpkgs-lock.follows = "nixpkgs-lock";
+    };
+
     # Spec form and spec operations (`mth`).
     microlith = {
       url = "github:pr0d1r2/microlith/v0.7.5";
@@ -83,6 +90,7 @@
     {
       nixpkgs,
       nix-hk,
+      nix-cargo-release,
       microlith,
       itok,
       sherd,
@@ -99,9 +107,17 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
-      # The overlay makes `pkgs.hk` nix-hk's hk rather than nixpkgs'.
+      # The overlays make `pkgs.hk` nix-hk's hk rather than nixpkgs', and
+      # `pkgs.cargo-release` the held build.
       forAll =
-        f: nixpkgs.lib.genAttrs systems (s: f (nixpkgs.legacyPackages.${s}.extend nix-hk.overlays.default));
+        f:
+        nixpkgs.lib.genAttrs systems (
+          s:
+          f (
+            (nixpkgs.legacyPackages.${s}.extend nix-hk.overlays.default).extend
+              nix-cargo-release.overlays.default
+          )
+        );
 
       tools = {
         inherit
