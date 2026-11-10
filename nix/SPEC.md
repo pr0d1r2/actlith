@@ -15,7 +15,7 @@ sib|dev|`actlith-dev`, `publish = false`: commit rules, README badges, notices, 
 
 ## §C CONSTRAINTS
 
-- flake inputs `nixpkgs-lock` (nixpkgs follows), `nix-hk`, `pklith`, `itok`, `microlith`, `sherd`, `characterminator`, `rekall`, `xenolith`; ∀ follow `nixpkgs-lock`, fleet tools pinned by tag; `pklith` pinned by main rev until a tag after v0.1.0 (v0.1.0 ⊥ x86_64-darwin `lib.devShell`). `pr0d1r2.cachix.org` substituter. 4 systems `aarch64-darwin` `x86_64-darwin` `x86_64-linux` `aarch64-linux`. dev shell = pklith `lib.devShell` ∀ 4 systems; tool whose pinned tag ⊥ x86_64-darwin package → built from its locked source (pklith T74 recipe); `.envrc` `use flake`.
+- flake inputs `nixpkgs-lock` (nixpkgs follows), `nix-hk`, `nix-cargo-release`, `pklith`, `itok`, `microlith`, `sherd`, `characterminator`, `rekall`, `xenolith`; ∀ follow `nixpkgs-lock`, fleet tools pinned by tag; `pklith` pinned by main rev until a tag after v0.1.0 (v0.1.0 ⊥ x86_64-darwin `lib.devShell`). `pr0d1r2.cachix.org` substituter. 4 systems `aarch64-darwin` `x86_64-darwin` `x86_64-linux` `aarch64-linux`. dev shell = pklith `lib.devShell` ∀ 4 systems; tool whose pinned tag ⊥ x86_64-darwin package → built from its locked source (pklith T74 recipe); `.envrc` `use flake`.
 - gate = hk via pklith-materialized `hk.pklith.pkl` from `.pklith`; `fast` pre-commit, `all` pre-push. guard scripts in `nix/guard/`.
 - clippy: fleet deny list + all + pedantic, rustc `unreachable_pub`, fleet `clippy.toml`; `rustfmt.toml` `max_width = 80`.
 - commit subject `type(scope): claim` ≤72 chars, lower-case scope, body = WHY; changelog-touched. after `no-commit-to-branch`: branch + PR, merge ⊥ squash.
