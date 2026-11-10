@@ -8,6 +8,18 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-10
+
+What a consumer sees change: actlith now reads pipelith 0.2's `.actlith`
+sections `## caches` (cachix or https caches, public or private) and
+`## runners` (self-hosted runners), and pins an Xcode on macOS `gate`
+rows. Every `gate` or `build` row written with `-` gains an Intel macOS
+(`macos-15-intel`) job, so its rendered files change on the next
+`actlith gen` (BREAKING, below). `build` and `gate` push less to Cachix
+and fail when `nix build` does, so `build` workflows on a cache change
+too. The new sections and the `xcode` arg change nothing for files that
+do not use them.
+
 ### Added
 
 - `## caches` in `.actlith`, pipelith 0.2.1's neutral section with
