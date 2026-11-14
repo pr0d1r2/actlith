@@ -68,6 +68,11 @@ fn labels_name_other_hardware_by_arch_and_os() {
 }
 
 #[test]
+fn a_windows_label_names_another_os() {
+    assert!(names_other(System::X86_64Linux, "Windows"));
+}
+
+#[test]
 fn a_mismatched_row_is_refused_naming_the_fix_unless_emulated()
 -> Result<(), String> {
     let labels = ["self-hosted".to_owned(), "X64".to_owned()];
@@ -82,5 +87,21 @@ fn a_mismatched_row_is_refused_naming_the_fix_unless_emulated()
     assert!(plain.contains("emulate=aarch64-linux"), "{plain}");
     let chosen = row("emulate=aarch64-linux")?;
     assert!(refuse_silent(&chosen, &hosts).is_ok());
+    Ok(())
+}
+
+#[test]
+fn a_windows_label_on_a_linux_row_is_refused() -> Result<(), String> {
+    let labels = ["self-hosted".to_owned(), "Windows".to_owned()];
+    let hosts = Hosts {
+        hosted: Vec::new(),
+        own: vec![(System::X86_64Linux, &labels[..])],
+    };
+    let refused = refuse_silent(&row("-")?, &hosts)
+        .err()
+        .map(|e| e.to_string())
+        .unwrap_or_default();
+    assert!(refused.contains("Windows"), "{refused}");
+    assert!(refused.contains("emulate=x86_64-linux"), "{refused}");
     Ok(())
 }

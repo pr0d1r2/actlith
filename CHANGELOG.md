@@ -8,6 +8,10 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+### Fixed
+
+- `gate` and `build` rows on a `## runners` runner whose labels name Windows are refused without `emulate=<system>`, as labels naming another architecture or OS already were. Before, a Windows label passed silently and the job ran on hardware that names another OS. Files that change: none in generated workflows; `actlith gen` refuses such a row where it used to render it.
+
 ### Changed
 
 - `gate` and `build` jobs on a `## runners` runner start with `scripts/actlith/runner-system.sh`, which stops unless the runner's nix builds the row's system. The new `emulate=<system>` arg chooses Rosetta or binfmt, and then the job builds the row's system, not the host's. A row whose labels name another architecture or OS is refused without it. Files that change: own-runner jobs in generated workflows, and the new script.

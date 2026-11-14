@@ -65,6 +65,7 @@ fn names_other(system: System, label: &str) -> bool {
         "arm64" | "aarch64" => arch != "aarch64",
         "macos" | "darwin" => os != "darwin",
         "linux" => os != "linux",
+        "windows" => os != "windows",
         _ => false,
     }
 }
