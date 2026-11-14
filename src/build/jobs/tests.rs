@@ -335,3 +335,34 @@ fn an_own_runner_of_another_architecture_is_refused_unless_emulated() {
     assert!(error.contains("`X64`"), "{error}");
     assert!(error.contains("emulate=aarch64-linux"), "{error}");
 }
+
+/// The jobs of a hosted `aarch64-darwin` row with `args` under `rows`.
+fn darwin_jobs(
+    args: &str,
+    rows: &str,
+) -> Result<BTreeMap<String, Job>, String> {
+    let text = format!(
+        "format 1\n\n## workflows\nid|kind|systems|cache|args\n\
+         release-build|build|aarch64-darwin|pr0d1r2|package=actlith, {args}\n\n\
+         ## runners\nsystem|labels\n{rows}"
+    );
+    let registry = parse(&text).map_err(|e| e.to_string())?;
+    let row = registry.workflows.first().ok_or("no row")?;
+    let row = crate::kind::check(&Build, row, &registry.caches)
+        .map_err(|e| e.to_string())?;
+    let pins = PinTable::builtin();
+    let plan =
+        Plan::new(&row, &pins, &registry.runners).map_err(|e| e.to_string())?;
+    jobs(&plan).map_err(|e| e.to_string())
+}
+
+#[test]
+fn an_own_linux_runner_of_another_architecture_is_refused_for_check() {
+    let mismatched = "x86_64-linux|self-hosted, Linux, ARM64\n";
+    let error = darwin_jobs("timeout=60", mismatched)
+        .err()
+        .unwrap_or_default();
+    assert!(error.contains("`ARM64`"), "{error}");
+    assert!(error.contains("emulate=x86_64-linux"), "{error}");
+    assert!(darwin_jobs("emulate=x86_64-linux", mismatched).is_ok());
+}
