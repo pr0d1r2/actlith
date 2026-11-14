@@ -4,8 +4,9 @@
 use super::jobs::{VERIFY_HTTPS, VERIFY_SCRIPT, jobs};
 use super::plan::Plan;
 use crate::kind::{
-    BUILD, BinaryCache, CacheKind, CachixPush, Checked, Kind, KindError,
-    KindSpec, PUSH_SCRIPT, Secret, on_push_and_pr, secrets, workflow,
+    ArgSpec, BUILD, BinaryCache, CacheKind, CachixPush, Checked, EMULATE, Kind,
+    KindError, KindSpec, PUSH_SCRIPT, Secret, on_push_and_pr, secrets,
+    workflow,
 };
 use crate::pin::PinTable;
 use crate::system::Runners;
@@ -18,6 +19,10 @@ pub(crate) struct Build;
 impl Kind for Build {
     fn spec(&self) -> &'static KindSpec {
         &BUILD
+    }
+
+    fn forge_args(&self) -> &'static [ArgSpec] {
+        &[EMULATE]
     }
 
     /// The cache's secrets for the push from `main` (`src/kind:V14`); a

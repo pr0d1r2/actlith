@@ -8,7 +8,9 @@ use std::collections::BTreeSet;
 use super::error::RenderError;
 use super::kinds::{Entry, lookup, names};
 use crate::bots::{File, bot_files};
-use crate::kind::{Checked, READ_SCRIPT, check, read_secret};
+use crate::kind::{
+    Checked, READ_SCRIPT, RUNNER_SYSTEM, check, hosts, read_secret,
+};
 use crate::pin::PinTable;
 use crate::registry::{Registry, RegistryError, WorkflowRow};
 use crate::script::scripts;
@@ -31,10 +33,22 @@ pub(crate) fn render(registry: &Registry) -> Result<Vec<File>, RenderError> {
         needed.extend(entry.scripts.iter().copied());
         needed.extend(entry.kind.scripts(&checked));
         needed.extend(reads_netrc(&checked).then_some(READ_SCRIPT));
+        needed.extend(guards(entry, &checked, &registry.runners));
     }
     files.extend(seeded(&needed));
     files.extend(bot_files(&registry.bots)?);
     sorted(files)
+}
+
+/// [`RUNNER_SYSTEM`] when a `gate` or `build` row has a system on the
+/// repository's own runner: its job starts with that guard (`src/kind` V67).
+fn guards(
+    entry: Entry,
+    row: &Checked,
+    runners: &Runners,
+) -> Option<&'static str> {
+    let guarded = matches!(entry.kind.name(), "gate" | "build");
+    (guarded && !hosts(row, runners).own.is_empty()).then_some(RUNNER_SYSTEM)
 }
 
 /// Whether `row`'s cache has a read netrc, so every kind's workflow runs
