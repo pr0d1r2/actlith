@@ -223,6 +223,7 @@ fn named(id: &str, plan: &Plan, steps: Vec<Step>) -> Job {
 /// writes it (`src/kind` V67).
 pub(crate) fn guarded(row: &Checked, runners: &Runners) -> bool {
     !hosts(row, runners).own.is_empty()
+        || matches!(host(runners, System::X86_64Linux), Host::Own(_))
 }
 
 /// The guard system of a single-runner job: `x86_64-linux` when its host

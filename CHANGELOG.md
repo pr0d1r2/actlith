@@ -14,7 +14,7 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Changed
 
-- `gate` and `build` jobs on a `## runners` runner start with `scripts/actlith/runner-system.sh`, which stops unless the runner's nix builds the row's system. The new `emulate=<system>` arg chooses Rosetta or binfmt, and then the job builds the row's system, not the host's. A row whose labels name another architecture or OS is refused without it. Files that change: own-runner jobs in generated workflows, and the new script.
+- `gate` and `build` jobs on a `## runners` runner start with `scripts/actlith/runner-system.sh`, which stops unless the runner's nix builds the row's system. The new `emulate=<system>` arg chooses Rosetta or binfmt, and then the job builds the row's system, not the host's. A row whose labels name another architecture or OS is refused without it. The script is written whenever a job runs it, also when only a `build` row's `check` and `verify-cache` are on an own `x86_64-linux` runner. Files that change: own-runner jobs in generated workflows, and the new script.
 
 - The dev shell takes `cargo-release` from nix-cargo-release (1.1.6)
   instead of the channel's 1.1.7, which needs rustc 1.97 while the pin
