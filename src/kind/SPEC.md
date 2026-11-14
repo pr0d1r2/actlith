@@ -37,7 +37,7 @@ sib|src/cli|clap verbs, flags, exit codes, completions, man page
 ## §C CONSTRAINTS
 
 - a kind = Rust type implementing `Kind`: `spec()` (pipelith catalogue entry), secrets, `build(&Checked, &PinTable) -> Workflow`. ⊥ text templates.
-- row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (kinds ∅, keys `xcode`, `cache-push`); `check` passes a kind only its `Kind::forge_args` (default ∅) ∴ other kinds refuse these keys.
+- row, args, cache = pipelith `kind`; here: runner wording + `EXTRAS` (kinds ∅, keys `xcode`, `cache-push`, `emulate`); `check` passes a kind only its `Kind::forge_args` (default ∅) ∴ other kinds refuse these keys.
 - common: permissions, concurrency, timeout, checkout; cache steps → `src/kind/cache`.
 
 ## §I INTERFACES
@@ -59,6 +59,7 @@ V9: job names stable across versions (`pklith protect` reads them); rename = bre
 V14: ∀ kind declares ∀ secret it reads; `report` lists them per workflow. fork PR needs ⊥ secret (cachix push skipped, read-only cache works)
 V49: kind ∈ pipelith catalogue only if it renders on both forges, else forge-only & named by portability check. refines `.:V24`
 V54: job on `Host::Own` → `runs-on: [labels]` & `if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository` (`&&` job's own `if`); hosted job ⊥ guard; ⊥ opt-out (pipelith `runner` `trusted_only`). golden has both, passes actionlint & zizmor
+V67: own-runner `gate`/`build` job (+ `check`/`verify-cache` on an own x86_64-linux) runs `runner-system.sh <system>` right after install-nix: stops unless nix `system` = row system, or it ∈ `extra-platforms` ∧ row has `emulate=<system>` (then `system = <system>` → `GITHUB_ENV`). labels naming another arch/OS ∧ ⊥ `emulate` → row error naming fix. hosted job ⊥ guard. goldens: native, emulated, refused
 V58: adopted integrations are typed: workflows stay hand-written until ≥2 fleet repos share a shape (`.:V24`); steps use pinned `Step`, triggers extend `Trigger`, and kinds declare permissions/secrets (`V3,V14`)
 V59: secret scanning/push protection: settings/API; Cachix: C,T17
 
@@ -71,6 +72,7 @@ T51|x|rows, args, contract → `pipelith` `kind`; mark forge-only arg keys|`test
 T53|.|split `docs/KINDS.md`: neutral → pipelith, GitHub syntax → `docs/KINDS-GITHUB.md`|`.:V25`,V49
 T65|x|rows, args, cache, catalogue → pipelith `kind`; `Kind` = spec + secrets + build; runner wording kept; empty `Extras`|V49,`tests:V48`,`src/core:V51`
 T74|x|`build` takes `Runners`; `hosts`, `own` + guard; ∀ kind renders own-runner jobs (R19)|V54,`src/system:V53`,`tests:V4`
+T86|x|`runner-system.sh` guard, `emulate` arg, label-mismatch refusal; goldens native + emulated through actionlint & zizmor (issue #73)|V67,`src/gate:T75`,`tests:V4`
 
 ## §B BUGS
 

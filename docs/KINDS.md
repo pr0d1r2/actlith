@@ -134,6 +134,25 @@ x86_64-darwin|self-hosted, macOS, X64
   repository, and require approval before workflows from forks run.
 - A fork's pull request shows the guarded job as skipped, not failed;
   it runs on the push after the merge.
+- Native first: a `gate` or `build` job on your own runner builds the
+  system its row names, never the runner's. Its first nix step, after
+  install-nix, runs `scripts/actlith/runner-system.sh <system>`, which
+  stops unless the runner's nix `system` is that system. A row whose
+  labels name another architecture or OS (`aarch64-linux|self-hosted,
+  Linux, X64`) is refused when rendered, so a green `gate (<system>)`
+  never means the host's system was gated.
+- Emulation is a choice: `emulate=<system>` in the row's args (joined by
+  `+` for several) says Rosetta or binfmt is meant. The guard then needs
+  the system in the runner's nix `extra-platforms`, and sets `system =
+  <system>` for every later step, so the job evaluates and builds the
+  row's system, not the host's. Without the arg, an emulating runner is
+  refused at run time, naming the fix.
+- `x86_64-darwin`: GitHub's `macos-15-intel` image ends in August 2027.
+  The fallback is an Apple Silicon Mac registered as a self-hosted runner
+  with Rosetta, a `## runners` row such as `x86_64-darwin|self-hosted,
+  macOS, ARM64` and `emulate=x86_64-darwin` on the rows. A row labelled
+  `X64` on an Apple Silicon Mac would gate `aarch64-darwin`; the guard
+  fails it.
 - actionlint knows `self-hosted`, `macOS`, `Linux`, `X64` and `ARM64`; a
   label of your own needs its `self-hosted-runner.labels` config.
 
@@ -155,7 +174,7 @@ The hk gate on every supported system. Replaces the fleet `ci.yml`.
 - args: `command` (default `nix develop --command hk check --all --check`),
   `timeout` (job minutes, default `30`), `xcode` (GitHub only, macOS rows
   only: an Xcode version such as `26.4`), `cache-push` (set to `false` for a
-  read-only cache).
+  read-only cache), `emulate` (GitHub only: own-runner systems run emulated).
 - `xcode=<version>`: for a repository whose toolchain nix cannot supply
   (Swift, XCTest). The job sets `DEVELOPER_DIR` to
   `/Applications/Xcode_<version>.app/Contents/Developer`, and its first
@@ -183,7 +202,8 @@ For packaging repositories such as nix-hk.
   `scripts/actlith/verify-https.sh`, which asks `<url>/<hash>.narinfo`
   with the read netrc when the cache has one, else the push netrc when
   there is one, and never prints the url.
-- args: `package` (required), `timeout` (job minutes, default `30`).
+- args: `package` (required), `timeout` (job minutes, default `30`),
+  `emulate` (GitHub only: own-runner systems run emulated).
 
 ## `update-pins`
 
