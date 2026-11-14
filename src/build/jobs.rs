@@ -10,8 +10,8 @@ use std::collections::BTreeMap;
 use super::plan::Plan;
 use crate::kind::Checked;
 use crate::kind::{
-    CacheKind, CachixPush, Checkout, KindError, cachix, checkout, guard, hosts,
-    https_env, install_nix, job, matrix_runner, own, place, push_https,
+    CacheKind, CachixPush, Checkout, Hosts, KindError, cachix, checkout, guard,
+    hosts, https_env, install_nix, job, matrix_runner, own, place, push_https,
     push_secret, read_secret, refuse_silent, run,
 };
 use crate::system::{Host, Runners, System, host};
@@ -46,7 +46,7 @@ const VERIFY_HTTPS_WHY: &str = "This asks the https cache itself for every \
 /// and `verify-cache`.
 pub(crate) fn jobs(plan: &Plan) -> Result<BTreeMap<String, Job>, KindError> {
     let hosts = hosts(plan.row, plan.runners);
-    refuse_silent(plan.row, &hosts)?;
+    refuse_silent(plan.row, &guarded_on(plan.row, plan.runners))?;
     let mut all = BTreeMap::new();
     if !hosts.hosted.is_empty() {
         all.insert("build".to_owned(), build(plan)?);
@@ -222,8 +222,18 @@ fn named(id: &str, plan: &Plan, steps: Vec<Step>) -> Job {
 /// Whether a job of `row` runs the `runner-system.sh` guard, so `render`
 /// writes it (`src/kind` V67).
 pub(crate) fn guarded(row: &Checked, runners: &Runners) -> bool {
-    !hosts(row, runners).own.is_empty()
-        || matches!(host(runners, System::X86_64Linux), Host::Own(_))
+    !guarded_on(row, runners).own.is_empty()
+}
+
+/// The own-runner systems `row`'s guarded jobs run on, with their labels:
+/// the row's own ones, and `x86_64-linux` when `check` and `verify-cache`
+/// run there (`src/kind` V67).
+fn guarded_on<'a>(row: &Checked, runners: &'a Runners) -> Hosts<'a> {
+    let mut on = hosts(row, runners);
+    if let Host::Own(labels) = host(runners, System::X86_64Linux) {
+        on.own.push((System::X86_64Linux, labels));
+    }
+    on
 }
 
 /// The guard system of a single-runner job: `x86_64-linux` when its host
