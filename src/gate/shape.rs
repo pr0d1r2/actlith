@@ -7,10 +7,10 @@
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    ArgSpec, CACHE_PUSH, CachixPush, Checked, Checkout, GATE, Kind, KindError,
-    KindSpec, PUSH_SCRIPT, Row, Secret, XCODE, cachix, checkout, hosts,
-    https_push, install_nix, job, matrix_runner, on_push_and_pr, own,
-    push_https, run, runner_matrix, secrets, workflow,
+    ArgSpec, CACHE_PUSH, CachixPush, Checked, Checkout, EMULATE, GATE, Kind,
+    KindError, KindSpec, PUSH_SCRIPT, Row, Secret, XCODE, cachix, checkout,
+    guard, hosts, https_push, install_nix, job, matrix_runner, on_push_and_pr,
+    own, push_https, refuse_silent, run, runner_matrix, secrets, workflow,
 };
 use crate::pin::PinTable;
 use crate::system::{Runners, System};
@@ -45,7 +45,7 @@ impl Kind for Gate {
     }
 
     fn forge_args(&self) -> &'static [ArgSpec] {
-        &[XCODE, CACHE_PUSH]
+        &[XCODE, CACHE_PUSH, EMULATE]
     }
 
     fn secrets(&self, row: &Checked) -> Vec<Secret> {
@@ -63,24 +63,32 @@ impl Kind for Gate {
         pins: &PinTable,
         runners: &Runners,
     ) -> Result<Workflow, KindError> {
-        let one = gate(row, pins)?;
         let hosts = hosts(row, runners);
+        refuse_silent(row, &hosts)?;
+        let one = gate(row, pins, None)?;
         let mut jobs = BTreeMap::new();
         if !hosts.hosted.is_empty() {
             jobs.insert(JOB.to_owned(), on_matrix(one.clone(), &hosts.hosted));
         }
         for (system, labels) in hosts.own {
-            jobs.insert(format!("{JOB}-{system}"), mine(&one, system, labels));
+            let guarded = gate(row, pins, Some(system))?;
+            let job = mine(&guarded, system, labels);
+            jobs.insert(format!("{JOB}-{system}"), job);
         }
         Ok(workflow(&row.id, on_push_and_pr(), jobs))
     }
 }
 
 /// The gate job before it is given a runner: the row's steps, its
-/// timeout, and `DEVELOPER_DIR` when it pins an Xcode.
-fn gate(row: &Checked, pins: &PinTable) -> Result<Job, KindError> {
+/// timeout, and `DEVELOPER_DIR` when it pins an Xcode. `guarded` is the
+/// own-runner system whose `runner-system.sh` guard follows install-nix.
+fn gate(
+    row: &Checked,
+    pins: &PinTable,
+    guarded: Option<System>,
+) -> Result<Job, KindError> {
     let xcode = xcode(row)?;
-    let steps = steps(row, pins, xcode)?;
+    let steps = steps(row, pins, xcode, guarded)?;
     let mut gate = job(Text::default(), row.args.timeout()?, steps);
     if let Some(version) = xcode {
         let dir =
@@ -155,11 +163,13 @@ fn xcode_check(row: &Row, version: &str) -> Result<Step, KindError> {
 }
 
 /// The Xcode check when the row pins one, checkout, install-nix, the
-/// cache push when the row has a cache that pushes, the gate.
+/// guard of an own-runner system, the cache push when the row has a cache
+/// that pushes, the gate.
 fn steps(
     row: &Checked,
     pins: &PinTable,
     xcode: Option<&str>,
+    guarded: Option<System>,
 ) -> Result<Vec<Step>, KindError> {
     let how = Checkout {
         pushes: false,
@@ -169,7 +179,7 @@ fn steps(
     let check = xcode.map(|v| xcode_check(row, v)).transpose()?;
     let mut steps: Vec<Step> = check.into_iter().collect();
     steps.push(checkout(pins, &how)?);
-    steps.extend(cache_steps(row, pins)?);
+    steps.extend(cache_steps(row, pins, guarded)?);
     let command = command(row, xcode);
     steps.push(run(row.line, &command, &[])?);
     Ok(steps)
@@ -177,8 +187,15 @@ fn steps(
 
 /// install-nix trusting the row's cache, then its cachix or https push
 /// (`src/kind/cache` V61).
-fn cache_steps(row: &Checked, pins: &PinTable) -> Result<Vec<Step>, KindError> {
+fn cache_steps(
+    row: &Checked,
+    pins: &PinTable,
+    guarded: Option<System>,
+) -> Result<Vec<Step>, KindError> {
     let mut steps = install_nix(row.line, pins, row.cache.as_ref())?;
+    if let Some(system) = guarded {
+        steps.push(guard(row, system)?);
+    }
     if let Some(cache) = &row.cache {
         let push = cache_push(row);
         steps.extend(cachix(pins, cache, push)?);

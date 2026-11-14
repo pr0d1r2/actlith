@@ -1,11 +1,12 @@
 //! Kind `build` (`docs/KINDS.md`): build and cache a flake package on
 //! every system, then prove the cache has it (T20, V30).
 
-use super::jobs::{VERIFY_HTTPS, VERIFY_SCRIPT, jobs};
+use super::jobs::{VERIFY_HTTPS, VERIFY_SCRIPT, guarded, jobs};
 use super::plan::Plan;
 use crate::kind::{
-    BUILD, BinaryCache, CacheKind, CachixPush, Checked, Kind, KindError,
-    KindSpec, PUSH_SCRIPT, Secret, on_push_and_pr, secrets, workflow,
+    ArgSpec, BUILD, BinaryCache, CacheKind, CachixPush, Checked, EMULATE, Kind,
+    KindError, KindSpec, PUSH_SCRIPT, Secret, on_push_and_pr, secrets,
+    workflow,
 };
 use crate::pin::PinTable;
 use crate::system::Runners;
@@ -15,9 +16,22 @@ use crate::yaml::Workflow;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub(crate) struct Build;
 
+impl Build {
+    /// Whether a job of `row` runs the `runner-system.sh` guard: a build
+    /// on the repository's own runner, or `check` and `verify-cache`
+    /// there (`src/kind` V67).
+    pub(crate) fn guarded(row: &Checked, runners: &Runners) -> bool {
+        guarded(row, runners)
+    }
+}
+
 impl Kind for Build {
     fn spec(&self) -> &'static KindSpec {
         &BUILD
+    }
+
+    fn forge_args(&self) -> &'static [ArgSpec] {
+        &[EMULATE]
     }
 
     /// The cache's secrets for the push from `main` (`src/kind:V14`); a

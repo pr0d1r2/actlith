@@ -8,12 +8,13 @@ use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use super::plan::Plan;
+use crate::kind::Checked;
 use crate::kind::{
-    CacheKind, CachixPush, Checkout, KindError, cachix, checkout, hosts,
+    CacheKind, CachixPush, Checkout, KindError, cachix, checkout, guard, hosts,
     https_env, install_nix, job, matrix_runner, own, place, push_https,
-    push_secret, read_secret, run,
+    push_secret, read_secret, refuse_silent, run,
 };
-use crate::system::{Host, System, host};
+use crate::system::{Host, Runners, System, host};
 use crate::yaml::{Comment, Expr, Job, Matrix, Step, Text};
 
 /// The seeded script the `verify-cache` job runs (V30).
@@ -45,6 +46,7 @@ const VERIFY_HTTPS_WHY: &str = "This asks the https cache itself for every \
 /// and `verify-cache`.
 pub(crate) fn jobs(plan: &Plan) -> Result<BTreeMap<String, Job>, KindError> {
     let hosts = hosts(plan.row, plan.runners);
+    refuse_silent(plan.row, &hosts)?;
     let mut all = BTreeMap::new();
     if !hosts.hosted.is_empty() {
         all.insert("build".to_owned(), build(plan)?);
@@ -63,7 +65,7 @@ pub(crate) fn build(plan: &Plan) -> Result<Job, KindError> {
     Ok(Job {
         runs_on: matrix_runner().into(),
         matrix: Some(matrix(plan)),
-        ..unplaced(plan)?
+        ..unplaced(plan, None)?
     })
 }
 
@@ -84,19 +86,19 @@ fn mine(
     };
     let job = Job {
         matrix: Some(one),
-        ..unplaced(plan)?
+        ..unplaced(plan, Some(system))?
     };
     Ok(own(job, labels))
 }
 
 /// The build job before it is given a runner.
-fn unplaced(plan: &Plan) -> Result<Job, KindError> {
+fn unplaced(plan: &Plan, guarded: Option<System>) -> Result<Job, KindError> {
     let command = build_command(plan);
     let env: Vec<_> = Expr::new(&GITHUB, "matrix.system")
         .into_iter()
         .map(|e| ("SYSTEM", e))
         .collect();
-    let mut steps = setup(plan)?;
+    let mut steps = setup(plan, guarded)?;
     steps.extend(cachix(plan.pins, plan.cache, CachixPush::ExplicitMain)?);
     steps.push(run(plan.row.line, &command, &env)?);
     let package = format!("packages.{}", plan.package);
@@ -126,7 +128,7 @@ fn build_command(plan: &Plan) -> String {
 
 /// `check`: `nix flake check --all-systems`, on `x86_64-linux`'s host.
 pub(crate) fn check(plan: &Plan) -> Result<Job, KindError> {
-    let mut steps = setup(plan)?;
+    let mut steps = setup(plan, linux_guard(plan))?;
     let flake = "nix flake check --all-systems --print-build-logs";
     steps.push(run(plan.row.line, flake, &[])?);
     let mut checked = named("check", plan, steps);
@@ -139,7 +141,7 @@ pub(crate) fn check(plan: &Plan) -> Result<Job, KindError> {
 pub(crate) fn verify(plan: &Plan) -> Result<Job, KindError> {
     let systems: Vec<String> =
         plan.row.systems.iter().map(ToString::to_string).collect();
-    let mut steps = setup(plan)?;
+    let mut steps = setup(plan, linux_guard(plan))?;
     steps.push(verify_step(plan, &systems.join(" "))?);
     let mut verified = named("verify-cache", plan, steps);
     let why = if plan.cache.kind() == CacheKind::Cachix {
@@ -201,9 +203,12 @@ fn built(plan: &Plan) -> Vec<String> {
 }
 
 /// Checkout without credentials, then install-nix trusting the cache.
-fn setup(plan: &Plan) -> Result<Vec<Step>, KindError> {
+fn setup(plan: &Plan, guarded: Option<System>) -> Result<Vec<Step>, KindError> {
     let mut steps = vec![checkout(plan.pins, &Checkout::default())?];
     steps.extend(install_nix(plan.row.line, plan.pins, Some(plan.cache))?);
+    if let Some(system) = guarded {
+        steps.push(guard(plan.row, system)?);
+    }
     Ok(steps)
 }
 
@@ -212,6 +217,19 @@ fn named(id: &str, plan: &Plan, steps: Vec<Step>) -> Job {
     let mut made = job(Text::default(), plan.minutes, steps);
     made.name = Some(id.to_owned());
     made
+}
+
+/// Whether a job of `row` runs the `runner-system.sh` guard, so `render`
+/// writes it (`src/kind` V67).
+pub(crate) fn guarded(row: &Checked, runners: &Runners) -> bool {
+    !hosts(row, runners).own.is_empty()
+        || matches!(host(runners, System::X86_64Linux), Host::Own(_))
+}
+
+/// The guard system of a single-runner job: `x86_64-linux` when its host
+/// is the repository's own runner (`src/kind` V67), else none.
+fn linux_guard(plan: &Plan) -> Option<System> {
+    matches!(linux(plan), Host::Own(_)).then_some(System::X86_64Linux)
 }
 
 /// The host of the single-runner jobs: `x86_64-linux`'s.

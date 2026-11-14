@@ -69,6 +69,9 @@ case "$tool $*" in
 "nix eval --impure --raw --expr builtins.currentSystem")
   echo "${STUB_SYSTEM:-x86_64-linux}"
   ;;
+"nix config show extra-platforms")
+  echo "${STUB_EXTRA_PLATFORMS:-}"
+  ;;
 "nix copy --option netrc-file "*)
   # The netrc file push-https.sh wrote, while the copy runs: its mode
   # and its text.

@@ -10,6 +10,7 @@ use super::contract::Kind;
 use super::error::KindError;
 use std::ops::Deref;
 
+use super::emulation::emulate_value;
 use crate::core::cache::{BinaryCache, Caches};
 use crate::core::kind::{ArgDefault, ArgSpec, Extras, Row};
 use crate::registry::WorkflowRow;
@@ -30,11 +31,19 @@ pub(crate) const CACHE_PUSH: ArgSpec = ArgSpec {
     default: ArgDefault::None,
 };
 
+/// `emulate=<system>[+<system>]`: the `## runners` systems the row chose to
+/// run emulated, Rosetta or binfmt (`src/kind` V67). GitHub-only.
+pub(crate) const EMULATE: ArgSpec = ArgSpec {
+    key: "emulate",
+    required: false,
+    default: ArgDefault::None,
+};
+
 /// The kinds and arg keys only actlith knows (V49): no kind, and the
 /// `xcode` key, which the portability check names on any row giving it.
 pub(crate) const EXTRAS: Extras<'static> = Extras {
     kinds: &[],
-    keys: &[XCODE, CACHE_PUSH],
+    keys: &[XCODE, CACHE_PUSH, EMULATE],
 };
 
 /// A row checked for its kind, with the cache it trusts.
@@ -72,6 +81,7 @@ pub(crate) fn check(
     };
     let checked = Row::check_with(kind.spec(), row, &extras, caches)?;
     cache_push_value(&checked.row)?;
+    emulate_value(&checked.row)?;
     Ok(Checked {
         row: checked.row,
         cache: checked.cache,
