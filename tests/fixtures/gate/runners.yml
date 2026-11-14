@@ -68,6 +68,10 @@ jobs:
           extra_nix_config: |
             extra-substituters = https://pr0d1r2.cachix.org
             extra-trusted-public-keys = pr0d1r2.cachix.org-1:NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=
+      # The job's system, not the runner's: stops unless this runner's nix builds it
+      # natively or the row chose emulation, which then sets `system` for every later
+      # step.
+      - run: bash scripts/actlith/runner-system.sh x86_64-darwin
       # Push what this job builds, so the next run downloads it. The flake
       # makes the fleet tools follow nixpkgs-lock; when that pin is newer
       # than theirs, their own caches never match and every runner builds

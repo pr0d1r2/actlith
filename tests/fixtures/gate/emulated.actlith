@@ -1,0 +1,12 @@
+format 1
+
+# x86_64-darwin on an Apple Silicon Mac under Rosetta: the owner chose
+# emulation, so the job still evaluates and builds x86_64-darwin.
+
+## workflows
+id|kind|systems|cache|args
+ci|gate|x86_64-darwin|-|emulate=x86_64-darwin
+
+## runners
+system|labels
+x86_64-darwin|self-hosted, macOS, ARM64
