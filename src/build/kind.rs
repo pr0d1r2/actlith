@@ -1,7 +1,7 @@
 //! Kind `build` (`docs/KINDS.md`): build and cache a flake package on
 //! every system, then prove the cache has it (T20, V30).
 
-use super::jobs::{VERIFY_HTTPS, VERIFY_SCRIPT, jobs};
+use super::jobs::{VERIFY_HTTPS, VERIFY_SCRIPT, guarded, jobs};
 use super::plan::Plan;
 use crate::kind::{
     ArgSpec, BUILD, BinaryCache, CacheKind, CachixPush, Checked, EMULATE, Kind,
@@ -15,6 +15,15 @@ use crate::yaml::Workflow;
 /// The `build` kind.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub(crate) struct Build;
+
+impl Build {
+    /// Whether a job of `row` runs the `runner-system.sh` guard: a build
+    /// on the repository's own runner, or `check` and `verify-cache`
+    /// there (`src/kind` V67).
+    pub(crate) fn guarded(row: &Checked, runners: &Runners) -> bool {
+        guarded(row, runners)
+    }
+}
 
 impl Kind for Build {
     fn spec(&self) -> &'static KindSpec {
