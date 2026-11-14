@@ -181,6 +181,7 @@ fn scripts_are_published_under_scripts_actlith_sorted() {
         "scripts/actlith/open-pr.sh",
         "scripts/actlith/push-https.sh",
         "scripts/actlith/read-netrc.sh",
+        "scripts/actlith/runner-system.sh",
         "scripts/actlith/update-pins.sh",
         "scripts/actlith/verify-cache.sh",
         "scripts/actlith/verify-https.sh",
@@ -714,4 +715,96 @@ fn every_header_is_pipelith_header() {
     for (path, bytes) in scripts() {
         assert!(bytes.starts_with(&neutral), "{path}");
     }
+}
+
+/// `runner-system.sh` with a temp `GITHUB_ENV` file, which the test reads.
+fn runner_system(
+    name: &str,
+    system: &str,
+    env: &[(&str, &str)],
+) -> io::Result<(Ran, String)> {
+    let temp = runner_temp(name)?;
+    let file = format!("{temp}/github-env");
+    fs::write(&file, "")?;
+    let mut all = vec![("GITHUB_ENV", file.as_str())];
+    all.extend(env.iter().copied());
+    let ran = run(name, "runner-system.sh", &[system], &all)?;
+    Ok((ran, fs::read_to_string(&file)?))
+}
+
+#[test]
+fn runner_system_passes_a_native_runner_and_changes_nothing() -> io::Result<()>
+{
+    let env = [("STUB_SYSTEM", "aarch64-linux")];
+    let (ran, github_env) = runner_system("rs-native", "aarch64-linux", &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    assert_eq!(github_env, "");
+    Ok(())
+}
+
+#[test]
+fn runner_system_refuses_a_foreign_runner_it_cannot_emulate() -> io::Result<()>
+{
+    let (ran, github_env) = runner_system("rs-foreign", "aarch64-linux", &[])?;
+    assert_eq!(ran.code, Some(1));
+    assert!(ran.stderr.contains("::error::"), "{}", ran.stderr);
+    assert!(ran.stderr.contains("x86_64-linux"), "{}", ran.stderr);
+    assert_eq!(github_env, "");
+    Ok(())
+}
+
+#[test]
+fn runner_system_refuses_emulation_the_row_did_not_choose() -> io::Result<()> {
+    let env = [("STUB_EXTRA_PLATFORMS", "aarch64-linux")];
+    let (ran, github_env) = runner_system("rs-silent", "aarch64-linux", &env)?;
+    assert_eq!(ran.code, Some(1));
+    assert!(
+        ran.stderr.contains("emulate=aarch64-linux"),
+        "{}",
+        ran.stderr
+    );
+    assert_eq!(github_env, "");
+    Ok(())
+}
+
+#[test]
+fn runner_system_emulates_by_pointing_nix_at_the_row_system() -> io::Result<()>
+{
+    let env = [
+        ("STUB_EXTRA_PLATFORMS", "i686-linux aarch64-linux"),
+        ("EMULATE", "true"),
+        ("NIX_CONFIG", "experimental-features = nix-command"),
+    ];
+    let (ran, github_env) = runner_system("rs-emu", "aarch64-linux", &env)?;
+    assert_eq!(ran.code, Some(0), "{}", ran.stderr);
+    assert!(github_env.contains("NIX_CONFIG<<"), "{github_env}");
+    assert!(github_env.contains("nix-command"), "{github_env}");
+    assert!(
+        github_env.contains("system = aarch64-linux"),
+        "{github_env}"
+    );
+    Ok(())
+}
+
+#[test]
+fn runner_system_refuses_a_marked_row_the_host_cannot_emulate() -> io::Result<()>
+{
+    let env = [("EMULATE", "true")];
+    let (ran, github_env) = runner_system("rs-nolist", "aarch64-linux", &env)?;
+    assert_eq!(ran.code, Some(1));
+    assert!(ran.stderr.contains("extra-platforms"), "{}", ran.stderr);
+    assert_eq!(github_env, "");
+    Ok(())
+}
+
+#[test]
+fn runner_system_without_its_argument_is_a_usage_error() -> io::Result<()> {
+    let ran = run("rs-usage", "runner-system.sh", &[], &[])?;
+    assert_eq!(ran.code, Some(2));
+    assert!(
+        ran.stderr.contains("usage: runner-system.sh"),
+        "{}",
+        ran.stderr
+    );
+    Ok(())
 }

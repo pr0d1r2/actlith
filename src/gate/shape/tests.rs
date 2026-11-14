@@ -11,7 +11,7 @@ use crate::kind::{Checked, Kind};
 use crate::pin::PinTable;
 use crate::registry::parse;
 use crate::system::Runners;
-use crate::yaml::{Comment, Workflow, render, write};
+use crate::yaml::{Action, Comment, Workflow, render, write};
 
 /// The hand-written ci.yml this repository had before actlith generated
 /// it (nix T10): the golden shape the model and builders must reproduce.
@@ -80,7 +80,7 @@ fn the_kind_is_named_gate_and_takes_command_and_timeout() {
     let keys: Vec<&str> = Gate.spec().schema.iter().map(|s| s.key).collect();
     assert_eq!(keys, ["command", "timeout"]);
     let forge: Vec<&str> = Gate.forge_args().iter().map(|s| s.key).collect();
-    assert_eq!(forge, ["xcode", "cache-push"]);
+    assert_eq!(forge, ["xcode", "cache-push", "emulate"]);
 }
 
 #[test]
@@ -364,7 +364,23 @@ fn an_own_runner_system_gets_a_guarded_job_of_its_own() -> Result<(), String> {
     assert_eq!(mine.matrix, None);
     let hosted = gate.jobs.get("gate").ok_or("no gate")?;
     assert_eq!(hosted.condition, None, "a hosted job is not guarded");
-    assert_eq!(mine.steps, hosted.steps);
+    guarded_after_install_nix(&mine.steps, &hosted.steps)
+}
+
+/// `own` is `hosted` with the runner-system guard right after install-nix.
+fn guarded_after_install_nix(
+    own: &[crate::yaml::Step],
+    hosted: &[crate::yaml::Step],
+) -> Result<(), String> {
+    let (first, rest) = own.split_at(2);
+    let guard = rest.first().ok_or("no guard step")?;
+    assert_eq!(first, hosted.get(..2).ok_or("short")?);
+    let want = "bash scripts/actlith/runner-system.sh x86_64-darwin";
+    assert!(
+        matches!(&guard.action, Action::Run(c) if c == want),
+        "{guard:?}"
+    );
+    assert_eq!(rest.get(1..), hosted.get(2..));
     Ok(())
 }
 
@@ -478,5 +494,82 @@ fn cache_push_false_on_https_only_reads() -> Result<(), String> {
 #[test]
 fn the_built_in_cache_needs_no_script() -> Result<(), String> {
     assert!(Gate.scripts(&row("ci|gate|-|pr0d1r2|-")?).is_empty());
+    Ok(())
+}
+
+const EMULATED_ROW: &str =
+    include_str!("../../../tests/fixtures/gate/emulated.actlith");
+const EMULATED_YML: &str =
+    include_str!("../../../tests/fixtures/gate/emulated.yml");
+
+#[test]
+fn an_emulated_row_renders_its_golden_file() -> Result<(), String> {
+    assert_eq!(render(&built_with_runners(EMULATED_ROW)?), EMULATED_YML);
+    Ok(())
+}
+
+#[test]
+fn the_emulated_golden_passes_actionlint() -> Result<(), String> {
+    lint("actionlint", &["-no-color"], &fixture("emulated.yml"))
+}
+
+#[test]
+fn the_emulated_golden_passes_zizmor_offline() -> Result<(), String> {
+    let args = ["--offline", "--no-progress"];
+    lint("zizmor", &args, &fixture("emulated.yml"))
+}
+
+#[test]
+fn a_native_guard_is_not_marked_and_an_emulated_one_is() -> Result<(), String> {
+    let native = render(&built_with_runners(RUNNERS_ROW)?);
+    assert!(
+        native.contains(
+            "- run: bash scripts/actlith/runner-system.sh x86_64-darwin\n"
+        ),
+        "{native}"
+    );
+    let emulated = render(&built_with_runners(EMULATED_ROW)?);
+    assert!(emulated.contains("- run: EMULATE=true bash scripts/actlith/runner-system.sh x86_64-darwin\n"), "{emulated}");
+    Ok(())
+}
+
+const MISMATCH: &str = "format 1\n\n## workflows\n\
+    id|kind|systems|cache|args\nci|gate|aarch64-linux|-|-\n\n## runners\n\
+    system|labels\naarch64-linux|self-hosted, Linux, X64\n";
+
+#[test]
+fn a_row_whose_labels_name_another_architecture_is_refused() {
+    let error = built_with_runners(MISMATCH).err().unwrap_or_default();
+    assert!(error.contains(".actlith:5"), "{error}");
+    assert!(error.contains("`X64`"), "{error}");
+    assert!(error.contains("emulate=aarch64-linux"), "{error}");
+}
+
+#[test]
+fn the_same_labels_pass_when_the_row_chose_emulation() -> Result<(), String> {
+    let chosen = MISMATCH
+        .replace("aarch64-linux|-|-", "aarch64-linux|-|emulate=aarch64-linux");
+    let text = render(&built_with_runners(&chosen)?);
+    assert!(
+        text.contains(
+            "EMULATE=true bash scripts/actlith/runner-system.sh aarch64-linux"
+        ),
+        "{text}"
+    );
+    Ok(())
+}
+
+#[test]
+fn a_bad_emulate_value_is_a_row_error() {
+    let bad =
+        MISMATCH.replace("aarch64-linux|-|-", "aarch64-linux|-|emulate=riscv");
+    let error = checked(&bad).err().unwrap_or_default();
+    assert!(error.contains("unknown system `riscv`"), "{error}");
+}
+
+#[test]
+fn a_hosted_gate_has_no_runner_guard() -> Result<(), String> {
+    let text = render(&built(&row("ci|gate|-|-|-")?)?);
+    assert!(!text.contains("runner-system"), "{text}");
     Ok(())
 }
