@@ -15,7 +15,8 @@ SPEC.md                      2720
 nix/SPEC.md                  2980
 src/SPEC.md                  1010
 src/bump/SPEC.md             1130
-src/kind/SPEC.md             1820
+# own-runner guard V67 (issue #73) added to the node that holds V54; 1952 measured +~6%.
+src/kind/SPEC.md             2070
 # src/kind/cache split out of src/kind (T79): src/kind was at its ceiling,
 # so the cache steps became a child node; measured 2026-11-04, +12%.
 src/kind/cache/SPEC.md       1210
@@ -55,7 +56,7 @@ src/fetch                    2910
 src/gate                     3370
 src/gen                      2870
 src/import                   2910
-src/kind                     3560
+src/kind                     3810
 src/kind/cache               4510
 src/kind/cache/netrc         5130
 src/pin                      2990
