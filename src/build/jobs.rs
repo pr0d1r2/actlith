@@ -8,12 +8,13 @@ use crate::yaml::GITHUB;
 use std::collections::BTreeMap;
 
 use super::plan::Plan;
+use crate::kind::Checked;
 use crate::kind::{
     CacheKind, CachixPush, Checkout, KindError, cachix, checkout, guard, hosts,
     https_env, install_nix, job, matrix_runner, own, place, push_https,
     push_secret, read_secret, refuse_silent, run,
 };
-use crate::system::{Host, System, host};
+use crate::system::{Host, Runners, System, host};
 use crate::yaml::{Comment, Expr, Job, Matrix, Step, Text};
 
 /// The seeded script the `verify-cache` job runs (V30).
@@ -216,6 +217,12 @@ fn named(id: &str, plan: &Plan, steps: Vec<Step>) -> Job {
     let mut made = job(Text::default(), plan.minutes, steps);
     made.name = Some(id.to_owned());
     made
+}
+
+/// Whether a job of `row` runs the `runner-system.sh` guard, so `render`
+/// writes it (`src/kind` V67).
+pub(crate) fn guarded(row: &Checked, runners: &Runners) -> bool {
+    !hosts(row, runners).own.is_empty()
 }
 
 /// The guard system of a single-runner job: `x86_64-linux` when its host

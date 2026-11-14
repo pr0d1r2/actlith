@@ -289,6 +289,36 @@ fn no_job_checks_out_with_credentials() -> Result<(), String> {
     Ok(())
 }
 
+/// Whether any of `all` runs the `runner-system.sh` guard.
+fn runs_guard(all: &BTreeMap<String, Job>) -> bool {
+    all.values()
+        .any(|job| format!("{:?}", job.steps).contains("runner-system"))
+}
+
+/// `Build::guarded` of the picked row on `system` under `rows`.
+fn guarded(system: System, rows: &str) -> Result<bool, String> {
+    let mut row = picked()?;
+    row.row.systems = vec![system];
+    let text = format!("format 1\n\n## runners\nsystem|labels\n{rows}");
+    let own = parse(&text).map_err(|e| e.to_string())?.runners;
+    Ok(Build::guarded(&row, &own))
+}
+
+#[test]
+fn guarded_is_true_exactly_when_a_job_runs_the_guard() -> Result<(), String> {
+    let cases = [
+        (System::Aarch64Darwin, LINUX),
+        (System::Aarch64Darwin, ""),
+        (System::X86_64Darwin, INTEL),
+        (System::X86_64Linux, ""),
+    ];
+    for (system, rows) in cases {
+        let runs = runs_guard(&all_jobs(vec![system], rows)?);
+        assert_eq!(guarded(system, rows)?, runs, "{system}: {rows}");
+    }
+    Ok(())
+}
+
 #[test]
 fn a_hosted_build_job_has_no_runner_guard() -> Result<(), String> {
     let all = all_jobs(vec![System::X86_64Linux, System::X86_64Darwin], INTEL)?;
