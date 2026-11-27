@@ -573,3 +573,45 @@ fn a_hosted_gate_has_no_runner_guard() -> Result<(), String> {
     assert!(!text.contains("runner-system"), "{text}");
     Ok(())
 }
+
+/// The step lines of the one job of `row`, as the writer prints them.
+fn printed(cells: &str) -> Result<String, String> {
+    Ok(write(&built(&row(cells)?)?))
+}
+
+#[test]
+fn the_checks_get_the_tight_limit_and_the_job_a_loose_one() -> Result<(), String>
+{
+    let text = printed("ci|gate|-|-|command=just check,timeout=12")?;
+    let want = "      - run: just check\n        timeout-minutes: 12\n";
+    assert!(text.contains(want), "{text}");
+    assert!(text.contains("    timeout-minutes: 27\n"), "{text}");
+    Ok(())
+}
+
+#[test]
+fn a_cachix_cache_is_pushed_by_a_bounded_step_after_the_checks()
+-> Result<(), String> {
+    let text = printed("ci|gate|-|pr0d1r2|command=just check")?;
+    assert!(text.contains("          skipPush: true\n"), "{text}");
+    assert!(!text.contains("pushFilter"), "{text}");
+    let gate = text.find("run: just check").ok_or("no gate step")?;
+    let push = text.find("| cachix push pr0d1r2").ok_or("no push step")?;
+    assert!(gate < push, "{text}");
+    let tail = &text[push..];
+    assert!(tail.contains("timeout-minutes: 10\n"), "{text}");
+    assert!(tail.contains("continue-on-error: true\n"), "{text}");
+    assert!(
+        tail.contains("github.event.pull_request.head.repo"),
+        "{text}"
+    );
+    Ok(())
+}
+
+#[test]
+fn a_row_without_a_cache_has_no_push_step() -> Result<(), String> {
+    let text = printed("ci|gate|-|-|-")?;
+    assert!(!text.contains("continue-on-error"), "{text}");
+    assert!(!text.contains("cachix"), "{text}");
+    Ok(())
+}
