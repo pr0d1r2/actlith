@@ -39,6 +39,8 @@ fn step(uses: &Uses) -> Step {
         condition: None,
         action: Action::Uses(uses.step(With::default())),
         env: BTreeMap::new(),
+        timeout_minutes: None,
+        continue_on_error: false,
     }
 }
 

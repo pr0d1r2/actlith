@@ -13,9 +13,10 @@ use crate::registry::parse;
 use crate::system::Runners;
 use crate::yaml::{Action, Comment, Workflow, render, write};
 
-/// The hand-written ci.yml this repository had before actlith generated
-/// it (nix T10): the golden shape the model and builders must reproduce.
-const CI: &str = include_str!("../../../tests/fixtures/yaml/ci-hand.yml");
+/// This repository's ci.yml under its hand-written header (nix T10): the
+/// golden shape `gate` must reproduce, its cache pushed by a bounded step
+/// after the checks.
+const CI: &str = include_str!("../../../tests/fixtures/gate/ci.yml");
 const ROW: &str = include_str!("../../../tests/fixtures/gate/ci.actlith");
 const XCODE_ROW: &str =
     include_str!("../../../tests/fixtures/gate/xcode.actlith");
@@ -90,7 +91,7 @@ fn the_job_is_named_gate() -> Result<(), String> {
     assert_eq!(ids, ["gate"]);
     let job = gate.jobs.get("gate").ok_or("no job")?;
     assert_eq!(job.name.as_deref(), Some("gate"));
-    assert_eq!(job.timeout_minutes, 30);
+    assert_eq!(job.timeout_minutes, 45);
     Ok(())
 }
 
@@ -598,7 +599,7 @@ fn a_cachix_cache_is_pushed_by_a_bounded_step_after_the_checks()
     let gate = text.find("run: just check").ok_or("no gate step")?;
     let push = text.find("| cachix push pr0d1r2").ok_or("no push step")?;
     assert!(gate < push, "{text}");
-    let tail = &text[push..];
+    let tail = &text[gate..];
     assert!(tail.contains("timeout-minutes: 10\n"), "{text}");
     assert!(tail.contains("continue-on-error: true\n"), "{text}");
     assert!(
@@ -612,6 +613,7 @@ fn a_cachix_cache_is_pushed_by_a_bounded_step_after_the_checks()
 fn a_row_without_a_cache_has_no_push_step() -> Result<(), String> {
     let text = printed("ci|gate|-|-|-")?;
     assert!(!text.contains("continue-on-error"), "{text}");
-    assert!(!text.contains("cachix"), "{text}");
+    assert!(!text.contains("cachix push"), "{text}");
+    assert!(!text.contains("skipPush"), "{text}");
     Ok(())
 }

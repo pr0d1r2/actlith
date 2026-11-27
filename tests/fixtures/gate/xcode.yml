@@ -24,7 +24,7 @@ jobs:
       matrix:
         # aarch64-darwin
         os: [macos-latest]
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.4.app/Contents/Developer
     steps:
@@ -39,3 +39,4 @@ jobs:
           fetch-depth: 0
       - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342  # v31.11.0
       - run: 'HOST_DEVELOPER_DIR="$DEVELOPER_DIR" nix develop --command hk check --all --check'
+        timeout-minutes: 30

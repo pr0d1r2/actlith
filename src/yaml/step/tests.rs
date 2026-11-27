@@ -11,6 +11,8 @@ fn run(cmd: &str) -> Step {
         condition: None,
         action: Action::Run(cmd.to_owned()),
         env: Env::new(),
+        timeout_minutes: None,
+        continue_on_error: false,
     }
 }
 
@@ -54,4 +56,14 @@ fn uses_without_inputs_has_no_with() {
         with: With::default(),
     });
     assert_eq!(out(&step), "---\nsteps:\n  - uses: o/r@s  # v1\n");
+}
+
+#[test]
+fn a_bounded_tolerated_step_writes_both_keys_after_its_action() {
+    let mut step = run("make");
+    step.timeout_minutes = Some(10);
+    step.continue_on_error = true;
+    let want = "---\nsteps:\n  # first\n  - run: make\n    \
+                timeout-minutes: 10\n    continue-on-error: true\n";
+    assert_eq!(out(&step), want);
 }

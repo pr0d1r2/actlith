@@ -24,7 +24,7 @@ jobs:
       matrix:
         # x86_64-linux, aarch64-linux, aarch64-darwin, x86_64-darwin
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-15-intel]
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -37,17 +37,23 @@ jobs:
           extra_nix_config: |
             extra-substituters = https://pr0d1r2.cachix.org
             extra-trusted-public-keys = pr0d1r2.cachix.org-1:NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=
-      # Push what this job builds, so the next run downloads it. The flake
-      # makes the fleet tools follow nixpkgs-lock; when that pin is newer
-      # than theirs, their own caches never match and every runner builds
-      # them from source. Fork PRs get no secret and still read the cache.
+      # Authenticate only. The push is its own step after the checks, with a
+      # time limit of its own: a cache save in a post step runs inside the job's
+      # limit, and a slow one would cancel a job whose checks passed.
       - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71  # v17
         with:
           name: pr0d1r2
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          skipPush: >-
-            ${{ github.event_name == 'pull_request' &&
-            github.event.pull_request.head.repo.full_name != github.repository }}
-          # Only what was built here; sources and tarballs stay out of the cache.
-          pushFilter: '(-source$|nixpkgs\.tar\.gz$)'
+          skipPush: true
       - run: nix develop --command hk check --all --check
+        timeout-minutes: 30
+      # Push what the dev shell needs after the checks passed, bounded: a slow
+      # upload must neither cancel the job nor fail it.
+      - if: >-
+          ${{ github.event_name != 'pull_request' ||
+          github.event.pull_request.head.repo.full_name == github.repository }}
+        run: >-
+          set -o pipefail; nix build --no-link --print-out-paths ".#devShells.$(nix eval --raw --impure --expr
+          builtins.currentSystem).default.inputDerivation" | cachix push pr0d1r2
+        timeout-minutes: 10
+        continue-on-error: true

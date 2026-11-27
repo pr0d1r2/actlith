@@ -14,6 +14,8 @@ pub(crate) fn step(action: Action) -> Step {
         condition: None,
         action,
         env: Env::new(),
+        timeout_minutes: None,
+        continue_on_error: false,
     }
 }
 

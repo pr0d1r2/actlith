@@ -20,7 +20,7 @@ jobs:
     name: 'gate (x86_64-darwin)'
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: [self-hosted, macOS, ARM64]
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -34,3 +34,4 @@ jobs:
       # step.
       - run: EMULATE=true bash scripts/actlith/runner-system.sh x86_64-darwin
       - run: nix develop --command hk check --all --check
+        timeout-minutes: 30
