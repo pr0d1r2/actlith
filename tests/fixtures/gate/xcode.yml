@@ -24,18 +24,22 @@ jobs:
       matrix:
         # aarch64-darwin
         os: [macos-latest]
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.4.app/Contents/Developer
     steps:
       # xcode=26.4: this Xcode, never the image's default. An image without
       # it fails here, and the log names the Xcode the gate ran with.
       - run: 'test -d "$DEVELOPER_DIR" || { echo "::error::missing $DEVELOPER_DIR"; exit 1; }; xcodebuild -version'
+        timeout-minutes: 10
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
           # Full history: tdd-order reads the push range, and a later semver
           # step compares with the last release tag.
           fetch-depth: 0
+        timeout-minutes: 10
       - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342  # v31.11.0
+        timeout-minutes: 10
       - run: 'HOST_DEVELOPER_DIR="$DEVELOPER_DIR" nix develop --command hk check --all --check'
+        timeout-minutes: 30

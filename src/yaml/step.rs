@@ -17,6 +17,10 @@ pub(crate) struct Step {
     pub(crate) condition: Option<Expr>,
     pub(crate) action: Action,
     pub(crate) env: Env,
+    /// `timeout-minutes`: the step is stopped after this long.
+    pub(crate) timeout_minutes: Option<u32>,
+    /// `continue-on-error`: a failure of the step does not fail the job.
+    pub(crate) continue_on_error: bool,
 }
 
 /// What a step does.
@@ -84,6 +88,14 @@ fn input((key, input): &(String, Input)) -> Entry {
 }
 
 impl Step {
+    /// `timeout-minutes` and `continue-on-error`, when set.
+    fn bounds(&self, e: &mut Vec<Entry>) {
+        let minutes = self.timeout_minutes.map(u64::from).map(Value::Int);
+        put(e, "timeout-minutes", minutes.map(Node::Value));
+        let tolerated = self.continue_on_error.then_some(Value::Bool(true));
+        put(e, "continue-on-error", tolerated.map(Node::Value));
+    }
+
     /// The step as the entries of its sequence item.
     pub(crate) fn entries(&self) -> Vec<Entry> {
         let mut e = Vec::new();
@@ -92,6 +104,7 @@ impl Step {
         put(&mut e, "if", self.condition.clone().map(condition));
         self.action.lower(&mut e);
         put(&mut e, "env", env(&self.env));
+        self.bounds(&mut e);
         if let Some(first) = e.first_mut() {
             first.comments.clone_from(&self.comments);
         }

@@ -25,12 +25,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest]
-    timeout-minutes: 45
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
           persist-credentials: false
           fetch-depth: 0  # the semver step needs tags
+        timeout-minutes: 10
 
       - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342  # pinned
+        timeout-minutes: 10
       - run: nix flake check --all-systems
+        timeout-minutes: 45

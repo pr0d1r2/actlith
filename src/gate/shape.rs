@@ -7,14 +7,15 @@
 use std::collections::BTreeMap;
 
 use crate::kind::{
-    ArgSpec, CACHE_PUSH, CachixPush, Checked, Checkout, EMULATE, GATE, Kind,
-    KindError, KindSpec, PUSH_SCRIPT, Row, Secret, XCODE, cachix, checkout,
-    guard, hosts, https_push, install_nix, job, matrix_runner, on_push_and_pr,
-    own, push_https, refuse_silent, run, runner_matrix, secrets, workflow,
+    ArgSpec, BinaryCache, CACHE_PUSH, CacheKind, CachixPush, Checked, Checkout,
+    EMULATE, GATE, Kind, KindError, KindSpec, PUSH_SCRIPT, Row, Secret,
+    TRUSTED, XCODE, cachix, checkout, guard, hosts, https_push, install_nix,
+    job, matrix_runner, on_push_and_pr, own, push_https, push_secret,
+    refuse_silent, run, runner_matrix, secrets, workflow,
 };
 use crate::pin::PinTable;
 use crate::system::{Runners, System};
-use crate::yaml::{Comment, Job, Step, Text, Workflow};
+use crate::yaml::{Comment, Expr, GITHUB, Job, Step, Text, Workflow};
 
 /// The job id and name; `pklith protect` reads it (`src/kind` V9).
 const JOB: &str = "gate";
@@ -31,6 +32,26 @@ const XCODE_CHECK: &str = "test -d \"$DEVELOPER_DIR\" || { echo \
 /// What an https cache push copies (V63): every input `nix develop`
 /// needs, which the dev shell's own output does not reference.
 const SHELL_INPUTS: &str = "devShells.default.inputDerivation";
+
+/// The https output check (V62, V63): the flake's dev shell must exist,
+/// or the job fails here, before the checks, not in the tolerated push.
+const OUTPUT_CHECK: &str = "nix eval \".#devShells.$(nix eval --raw --impure \
+    --expr builtins.currentSystem).default\" --apply 'x: true' >/dev/null || \
+    { echo \"::error::the flake has no devShells.<system>.default to push \
+    to the https cache; add it or set cache-push=false on the row\"; exit 1; }";
+
+const OUTPUT_WHY: &str = "The dev shell the https push copies must exist: \
+    checked here, before the checks.";
+
+/// The minutes a cache push may take before its step is stopped.
+const PUSH_MINUTES: u32 = 10;
+
+/// The minutes a setup step (checkout, install-nix, cachix, a guard) may
+/// take before it is stopped.
+const SETUP_MINUTES: u32 = 10;
+
+const PUSH_WHY: &str = "Push what the dev shell needs after the checks \
+    passed, bounded: a slow\nupload must neither cancel the job nor fail it.";
 
 const DEPTH_WHY: &str = "Full history: tdd-order reads the push range, and \
     a later semver\nstep compares with the last release tag.";
@@ -79,8 +100,10 @@ impl Kind for Gate {
     }
 }
 
-/// The gate job before it is given a runner: the row's steps, its
-/// timeout, and `DEVELOPER_DIR` when it pins an Xcode. `guarded` is the
+/// The gate job before it is given a runner: the row's steps, each
+/// bounded, and `DEVELOPER_DIR` when it pins an Xcode. The job's limit is
+/// the sum of its steps' limits, so it never stops a step, the push after
+/// the checks included, before that step's own limit. `guarded` is the
 /// own-runner system whose `runner-system.sh` guard follows install-nix.
 fn gate(
     row: &Checked,
@@ -88,8 +111,13 @@ fn gate(
     guarded: Option<System>,
 ) -> Result<Job, KindError> {
     let xcode = xcode(row)?;
-    let steps = steps(row, pins, xcode, guarded)?;
-    let mut gate = job(Text::default(), row.args.timeout()?, steps);
+    let mut steps = steps(row, pins, xcode, guarded)?;
+    let mut limit = 0_u32;
+    for step in &mut steps {
+        let minutes = *step.timeout_minutes.get_or_insert(SETUP_MINUTES);
+        limit = limit.saturating_add(minutes);
+    }
+    let mut gate = job(Text::default(), limit, steps);
     if let Some(version) = xcode {
         let dir =
             format!("/Applications/Xcode_{version}.app/Contents/Developer");
@@ -181,8 +209,16 @@ fn steps(
     steps.push(checkout(pins, &how)?);
     steps.extend(cache_steps(row, pins, guarded)?);
     let command = command(row, xcode);
-    steps.push(run(row.line, &command, &[])?);
+    steps.push(checks(row, &command)?);
+    steps.extend(cache_push_step(row)?);
     Ok(steps)
+}
+
+/// The gate command, stopped after the row's `timeout`.
+fn checks(row: &Checked, command: &str) -> Result<Step, KindError> {
+    let mut checks = run(row.line, command, &[])?;
+    checks.timeout_minutes = Some(row.args.timeout()?);
+    Ok(checks)
 }
 
 /// install-nix trusting the row's cache, then its cachix or https push
@@ -198,10 +234,70 @@ fn cache_steps(
     }
     if let Some(cache) = &row.cache {
         let push = cache_push(row);
-        steps.extend(cachix(pins, cache, push)?);
-        steps.extend(push_https(row.line, cache, push, SHELL_INPUTS)?);
+        steps.extend(cachix(pins, cache, authenticating(push))?);
+        steps.extend(https_steps(row, cache, push)?);
     }
     Ok(steps)
+}
+
+/// The https push (V62, V63) after its output check: the check is fatal
+/// and runs first, the push is bounded and tolerated.
+fn https_steps(
+    row: &Row,
+    cache: &BinaryCache,
+    push: CachixPush,
+) -> Result<Vec<Step>, KindError> {
+    let Some(https) = push_https(row.line, cache, push, SHELL_INPUTS)? else {
+        return Ok(Vec::new());
+    };
+    let mut check = run(row.line, OUTPUT_CHECK, &[])?;
+    check.condition.clone_from(&https.condition);
+    check.comments = vec![Comment::new(OUTPUT_WHY)];
+    Ok(vec![check, bounded(https)])
+}
+
+/// The cachix step only authenticates when the row pushes: a step after
+/// the checks does the push (V63).
+fn authenticating(push: CachixPush) -> CachixPush {
+    if push.pushes() {
+        CachixPush::ExplicitForkPr
+    } else {
+        push
+    }
+}
+
+/// `step` stopped after [`PUSH_MINUTES`] and not failing the job.
+fn bounded(mut step: Step) -> Step {
+    step.timeout_minutes = Some(PUSH_MINUTES);
+    step.continue_on_error = true;
+    step
+}
+
+/// The cachix push after the checks: only when they passed (the default
+/// `if: success()`), not from a fork PR, and bounded so that a slow upload
+/// is stopped and tolerated rather than failing the job.
+fn cache_push_step(row: &Checked) -> Result<Option<Step>, KindError> {
+    let pushing = |c: &&BinaryCache| {
+        let cachix = c.kind() == CacheKind::Cachix;
+        cachix && push_secret(c).is_some() && cache_push(row).pushes()
+    };
+    let Some(cache) = row.cache.as_ref().filter(pushing) else {
+        return Ok(None);
+    };
+    let mut push = run(row.line, &push_command(cache), &[])?;
+    push.condition = Expr::new(&GITHUB, TRUSTED);
+    push.comments = vec![Comment::new(PUSH_WHY)];
+    Ok(Some(bounded(push)))
+}
+
+/// Builds the dev shell's inputs and pipes their paths to `cachix push`.
+fn push_command(cache: &BinaryCache) -> String {
+    format!(
+        "set -o pipefail; nix build --no-link --print-out-paths \
+         \".#devShells.$(nix eval --raw --impure --expr \
+         builtins.currentSystem).default.inputDerivation\" | cachix push {}",
+        cache.name()
+    )
 }
 
 /// The default command must pass the pinned Xcode through `nix develop`.

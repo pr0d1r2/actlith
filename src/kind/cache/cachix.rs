@@ -28,6 +28,11 @@ const PUSH_WHY: &str = "Push what this job builds, so the next run \
     every runner builds\nthem from source. Fork PRs get no secret and still \
     read the cache.";
 
+const EXPLICIT_WHY: &str = "Authenticate only. The push is its own step \
+    after the checks, with a\ntime limit of its own: a cache save in a post \
+    step runs inside the job's\nlimit, and a slow one would cancel a job \
+    whose checks passed.";
+
 const MAIN_WHY: &str = "Push only from main: what main builds is what \
     the cache must hold.";
 
@@ -43,6 +48,9 @@ pub(crate) enum CachixPush {
     MainOnly,
     /// Authentication only; the caller pushes selected paths explicitly.
     ExplicitMain,
+    /// Authentication only; a step after the checks pushes, except from a
+    /// fork PR (`gate`).
+    ExplicitForkPr,
     /// Never: the job only reads the cache (`upstream`).
     ReadOnly,
 }
@@ -53,12 +61,17 @@ impl CachixPush {
         self != Self::ReadOnly
     }
 
+    fn explicit(self) -> bool {
+        matches!(self, Self::ExplicitMain | Self::ExplicitForkPr)
+    }
+
     fn skip(self) -> Option<(&'static str, &'static str)> {
         match self {
             Self::SkipForkPr => Some((SKIP_FORK_PR, PUSH_WHY)),
             Self::MainOnly | Self::ExplicitMain => {
                 Some((SKIP_UNLESS_MAIN, MAIN_WHY))
             }
+            Self::ExplicitForkPr => Some((SKIP_FORK_PR, EXPLICIT_WHY)),
             Self::ReadOnly => None,
         }
     }
@@ -95,7 +108,7 @@ fn step(
     let mut step = uses(
         pins,
         "cachix/cachix-action",
-        pushing(with, token, skip, push == CachixPush::ExplicitMain),
+        pushing(with, token, skip, push.explicit()),
     )?;
     step.comments = vec![Comment::new(why)];
     Ok(step)

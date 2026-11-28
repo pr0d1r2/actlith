@@ -13,9 +13,10 @@ use crate::registry::parse;
 use crate::system::Runners;
 use crate::yaml::{Action, Comment, Workflow, render, write};
 
-/// The hand-written ci.yml this repository had before actlith generated
-/// it (nix T10): the golden shape the model and builders must reproduce.
-const CI: &str = include_str!("../../../tests/fixtures/yaml/ci-hand.yml");
+/// This repository's ci.yml under its hand-written header (nix T10): the
+/// golden shape `gate` must reproduce, its cache pushed by a bounded step
+/// after the checks.
+const CI: &str = include_str!("../../../tests/fixtures/gate/ci.yml");
 const ROW: &str = include_str!("../../../tests/fixtures/gate/ci.actlith");
 const XCODE_ROW: &str =
     include_str!("../../../tests/fixtures/gate/xcode.actlith");
@@ -90,7 +91,7 @@ fn the_job_is_named_gate() -> Result<(), String> {
     assert_eq!(ids, ["gate"]);
     let job = gate.jobs.get("gate").ok_or("no job")?;
     assert_eq!(job.name.as_deref(), Some("gate"));
-    assert_eq!(job.timeout_minutes, 30);
+    assert_eq!(job.timeout_minutes, 50);
     Ok(())
 }
 
@@ -480,6 +481,22 @@ fn an_https_cache_pushes_its_dev_shell_before_the_gate() -> Result<(), String> {
 }
 
 #[test]
+fn an_https_push_checks_its_dev_shell_output_fatally_before_the_gate()
+-> Result<(), String> {
+    let text = write(&built(&hidden("-")?)?);
+    let check = text.find("devShells.$(nix eval").ok_or("no output check")?;
+    let push = text.find("push-https.sh").ok_or("no push")?;
+    let gate = text.find("hk check --all --check").ok_or("no gate")?;
+    assert!(check < push && push < gate, "{text}");
+    assert!(!text[check..push].contains("continue-on-error"), "{text}");
+    assert!(
+        text[push..gate].contains("continue-on-error: true"),
+        "{text}"
+    );
+    Ok(())
+}
+
+#[test]
 fn cache_push_false_on_https_only_reads() -> Result<(), String> {
     let row = hidden("cache-push=false")?;
     assert_eq!(secret_names(&row), ["HIDDEN_URL", "HIDDEN_KEY"]);
@@ -571,5 +588,66 @@ fn a_bad_emulate_value_is_a_row_error() {
 fn a_hosted_gate_has_no_runner_guard() -> Result<(), String> {
     let text = render(&built(&row("ci|gate|-|-|-")?)?);
     assert!(!text.contains("runner-system"), "{text}");
+    Ok(())
+}
+
+/// The step lines of the one job of `row`, as the writer prints them.
+fn printed(cells: &str) -> Result<String, String> {
+    Ok(write(&built(&row(cells)?)?))
+}
+
+#[test]
+fn the_checks_get_the_tight_limit_and_the_job_a_loose_one() -> Result<(), String>
+{
+    let text = printed("ci|gate|-|-|command=just check,timeout=12")?;
+    let want = "      - run: just check\n        timeout-minutes: 12\n";
+    assert!(text.contains(want), "{text}");
+    assert!(text.contains("    timeout-minutes: 32\n"), "{text}");
+    Ok(())
+}
+
+#[test]
+fn every_step_is_bounded_and_the_job_outlasts_them_all() -> Result<(), String> {
+    for cells in [
+        "ci|gate|-|-|-",
+        "ci|gate|-|pr0d1r2|timeout=29",
+        "ci|gate|aarch64-darwin|pr0d1r2|xcode=26.4",
+    ] {
+        let gate = built(&row(cells)?)?;
+        let job = gate.jobs.get("gate").ok_or("no job")?;
+        let mut sum = 0;
+        for step in &job.steps {
+            sum += step.timeout_minutes.ok_or(format!("{cells}: unbounded"))?;
+        }
+        assert!(job.timeout_minutes >= sum, "{cells}: {sum}");
+    }
+    Ok(())
+}
+
+#[test]
+fn a_cachix_cache_is_pushed_by_a_bounded_step_after_the_checks()
+-> Result<(), String> {
+    let text = printed("ci|gate|-|pr0d1r2|command=just check")?;
+    assert!(text.contains("          skipPush: true\n"), "{text}");
+    assert!(!text.contains("pushFilter"), "{text}");
+    let gate = text.find("run: just check").ok_or("no gate step")?;
+    let push = text.find("| cachix push pr0d1r2").ok_or("no push step")?;
+    assert!(gate < push, "{text}");
+    let tail = &text[gate..];
+    assert!(tail.contains("timeout-minutes: 10\n"), "{text}");
+    assert!(tail.contains("continue-on-error: true\n"), "{text}");
+    assert!(
+        tail.contains("github.event.pull_request.head.repo"),
+        "{text}"
+    );
+    Ok(())
+}
+
+#[test]
+fn a_row_without_a_cache_has_no_push_step() -> Result<(), String> {
+    let text = printed("ci|gate|-|-|-")?;
+    assert!(!text.contains("continue-on-error"), "{text}");
+    assert!(!text.contains("cachix push"), "{text}");
+    assert!(!text.contains("skipPush"), "{text}");
     Ok(())
 }

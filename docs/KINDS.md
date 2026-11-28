@@ -166,13 +166,19 @@ The hk gate on every supported system. Replaces the fleet `ci.yml`.
   `gate-<system>`, named `gate (<system>)` so its check reads like the
   matrix's, with the same steps and the guard.
 - Steps: checkout (`fetch-depth: 0`, the semver step needs tags), install-nix,
-  cachix (push skipped for fork PRs, `pushFilter` keeps sources out) or the
-  https push (see Caches), run the gate command.
+  cachix (`skipPush: true`, authentication only) or the https push (see
+  Caches), run the gate command, then for a cachix cache a push of the dev
+  shell. The push runs only after the checks passed and not for fork PRs,
+  with `timeout-minutes: 10` and `continue-on-error: true`; the https push
+  is bounded the same way. A cache save in a post step would run inside the
+  job's limit, and a slow one would cancel a job whose checks passed.
 - Default systems: `x86_64-linux`, `aarch64-linux`, `aarch64-darwin`,
   `x86_64-darwin` (on `macos-15-intel`, GitHub's last Intel image,
   available until August 2027).
 - args: `command` (default `nix develop --command hk check --all --check`),
-  `timeout` (job minutes, default `30`), `xcode` (GitHub only, macOS rows
+  `timeout` (minutes the gate command may run, default `30`; every
+  setup step gets 10, and the job the sum of its steps' limits, so it
+  never stops the cache push short), `xcode` (GitHub only, macOS rows
   only: an Xcode version such as `26.4`), `cache-push` (set to `false` for a
   read-only cache), `emulate` (GitHub only: own-runner systems run emulated).
 - `xcode=<version>`: for a repository whose toolchain nix cannot supply

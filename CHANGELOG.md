@@ -10,6 +10,10 @@ the bytes actlith emits for the same inputs is at least a minor version
 
 ### Fixed
 
+- `gate` with an https cache checks the flake's dev shell output in its own step before the checks, and fails the job there when it is missing. The https push step stays bounded and tolerated, so it no longer hides that check: a `gate` workflow gains a `run:` step before the push, and the job's `timeout-minutes` grows by its 10 minutes.
+
+- `gate` no longer lets a slow cache save cancel a job whose checks passed. The cachix action only authenticates (`skipPush: true`); a step after the checks pushes the dev shell, with `timeout-minutes: 10` and `continue-on-error: true`, skipped for fork PRs. The gate command step carries the row's `timeout`, every setup step `timeout-minutes: 10`, and the job's `timeout-minutes` is the sum of its steps' limits, so the job never cancels the push before its own limit. Files that change: every `gate` workflow (`timeout-minutes` on the job and every step, the cachix step, a push step); a row's https push step gains `timeout-minutes` and `continue-on-error`.
+
 - `gate` and `build` rows on a `## runners` runner whose labels name Windows are refused without `emulate=<system>`, as labels naming another architecture or OS already were. Before, a Windows label passed silently and the job ran on hardware that names another OS. Files that change: none in generated workflows; `actlith gen` refuses such a row where it used to render it.
 
 ### Changed
