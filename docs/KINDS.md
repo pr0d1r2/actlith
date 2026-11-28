@@ -176,8 +176,9 @@ The hk gate on every supported system. Replaces the fleet `ci.yml`.
   `x86_64-darwin` (on `macos-15-intel`, GitHub's last Intel image,
   available until August 2027).
 - args: `command` (default `nix develop --command hk check --all --check`),
-  `timeout` (minutes the gate command may run, default `30`; the job
-  gets 15 more for setup and the cache push), `xcode` (GitHub only, macOS rows
+  `timeout` (minutes the gate command may run, default `30`; every
+  setup step gets 10, and the job the sum of its steps' limits, so it
+  never stops the cache push short), `xcode` (GitHub only, macOS rows
   only: an Xcode version such as `26.4`), `cache-push` (set to `false` for a
   read-only cache), `emulate` (GitHub only: own-runner systems run emulated).
 - `xcode=<version>`: for a repository whose toolchain nix cannot supply

@@ -36,9 +36,9 @@ const SHELL_INPUTS: &str = "devShells.default.inputDerivation";
 /// The minutes a cache push may take before its step is stopped.
 const PUSH_MINUTES: u32 = 10;
 
-/// The minutes the job may run beyond the checks' own limit: install-nix,
-/// checkout and the cache pushes sit outside it.
-const JOB_SLACK: u32 = 15;
+/// The minutes a setup step (checkout, install-nix, cachix, a guard) may
+/// take before it is stopped.
+const SETUP_MINUTES: u32 = 10;
 
 const PUSH_WHY: &str = "Push what the dev shell needs after the checks \
     passed, bounded: a slow\nupload must neither cancel the job nor fail it.";
@@ -90,8 +90,10 @@ impl Kind for Gate {
     }
 }
 
-/// The gate job before it is given a runner: the row's steps, its
-/// timeout, and `DEVELOPER_DIR` when it pins an Xcode. `guarded` is the
+/// The gate job before it is given a runner: the row's steps, each
+/// bounded, and `DEVELOPER_DIR` when it pins an Xcode. The job's limit is
+/// the sum of its steps' limits, so it never stops a step, the push after
+/// the checks included, before that step's own limit. `guarded` is the
 /// own-runner system whose `runner-system.sh` guard follows install-nix.
 fn gate(
     row: &Checked,
@@ -99,9 +101,13 @@ fn gate(
     guarded: Option<System>,
 ) -> Result<Job, KindError> {
     let xcode = xcode(row)?;
-    let steps = steps(row, pins, xcode, guarded)?;
-    let limit = row.args.timeout()?;
-    let mut gate = job(Text::default(), limit.saturating_add(JOB_SLACK), steps);
+    let mut steps = steps(row, pins, xcode, guarded)?;
+    let mut limit = 0_u32;
+    for step in &mut steps {
+        let minutes = *step.timeout_minutes.get_or_insert(SETUP_MINUTES);
+        limit = limit.saturating_add(minutes);
+    }
+    let mut gate = job(Text::default(), limit, steps);
     if let Some(version) = xcode {
         let dir =
             format!("/Applications/Xcode_{version}.app/Contents/Developer");

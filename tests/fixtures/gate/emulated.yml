@@ -20,7 +20,7 @@ jobs:
     name: 'gate (x86_64-darwin)'
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: [self-hosted, macOS, ARM64]
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -28,10 +28,13 @@ jobs:
           # Full history: tdd-order reads the push range, and a later semver
           # step compares with the last release tag.
           fetch-depth: 0
+        timeout-minutes: 10
       - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342  # v31.11.0
+        timeout-minutes: 10
       # The job's system, not the runner's: stops unless this runner's nix builds it
       # natively or the row chose emulation, which then sets `system` for every later
       # step.
       - run: EMULATE=true bash scripts/actlith/runner-system.sh x86_64-darwin
+        timeout-minutes: 10
       - run: nix develop --command hk check --all --check
         timeout-minutes: 30

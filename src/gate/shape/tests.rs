@@ -91,7 +91,7 @@ fn the_job_is_named_gate() -> Result<(), String> {
     assert_eq!(ids, ["gate"]);
     let job = gate.jobs.get("gate").ok_or("no job")?;
     assert_eq!(job.name.as_deref(), Some("gate"));
-    assert_eq!(job.timeout_minutes, 45);
+    assert_eq!(job.timeout_minutes, 50);
     Ok(())
 }
 
@@ -586,7 +586,25 @@ fn the_checks_get_the_tight_limit_and_the_job_a_loose_one() -> Result<(), String
     let text = printed("ci|gate|-|-|command=just check,timeout=12")?;
     let want = "      - run: just check\n        timeout-minutes: 12\n";
     assert!(text.contains(want), "{text}");
-    assert!(text.contains("    timeout-minutes: 27\n"), "{text}");
+    assert!(text.contains("    timeout-minutes: 32\n"), "{text}");
+    Ok(())
+}
+
+#[test]
+fn every_step_is_bounded_and_the_job_outlasts_them_all() -> Result<(), String> {
+    for cells in [
+        "ci|gate|-|-|-",
+        "ci|gate|-|pr0d1r2|timeout=29",
+        "ci|gate|aarch64-darwin|pr0d1r2|xcode=26.4",
+    ] {
+        let gate = built(&row(cells)?)?;
+        let job = gate.jobs.get("gate").ok_or("no job")?;
+        let mut sum = 0;
+        for step in &job.steps {
+            sum += step.timeout_minutes.ok_or(format!("{cells}: unbounded"))?;
+        }
+        assert!(job.timeout_minutes >= sum, "{cells}: {sum}");
+    }
     Ok(())
 }
 
