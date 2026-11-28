@@ -33,6 +33,16 @@ const XCODE_CHECK: &str = "test -d \"$DEVELOPER_DIR\" || { echo \
 /// needs, which the dev shell's own output does not reference.
 const SHELL_INPUTS: &str = "devShells.default.inputDerivation";
 
+/// The https output check (V62, V63): the flake's dev shell must exist,
+/// or the job fails here, before the checks, not in the tolerated push.
+const OUTPUT_CHECK: &str = "nix eval \".#devShells.$(nix eval --raw --impure \
+    --expr builtins.currentSystem).default\" --apply 'x: true' >/dev/null || \
+    { echo \"::error::the flake has no devShells.<system>.default to push \
+    to the https cache; add it or set cache-push=false on the row\"; exit 1; }";
+
+const OUTPUT_WHY: &str = "The dev shell the https push copies must exist: \
+    checked here, before the checks.";
+
 /// The minutes a cache push may take before its step is stopped.
 const PUSH_MINUTES: u32 = 10;
 
@@ -225,10 +235,25 @@ fn cache_steps(
     if let Some(cache) = &row.cache {
         let push = cache_push(row);
         steps.extend(cachix(pins, cache, authenticating(push))?);
-        let https = push_https(row.line, cache, push, SHELL_INPUTS)?;
-        steps.extend(https.map(bounded));
+        steps.extend(https_steps(row, cache, push)?);
     }
     Ok(steps)
+}
+
+/// The https push (V62, V63) after its output check: the check is fatal
+/// and runs first, the push is bounded and tolerated.
+fn https_steps(
+    row: &Row,
+    cache: &BinaryCache,
+    push: CachixPush,
+) -> Result<Vec<Step>, KindError> {
+    let Some(https) = push_https(row.line, cache, push, SHELL_INPUTS)? else {
+        return Ok(Vec::new());
+    };
+    let mut check = run(row.line, OUTPUT_CHECK, &[])?;
+    check.condition.clone_from(&https.condition);
+    check.comments = vec![Comment::new(OUTPUT_WHY)];
+    Ok(vec![check, bounded(https)])
 }
 
 /// The cachix step only authenticates when the row pushes: a step after

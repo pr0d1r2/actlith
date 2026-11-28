@@ -481,6 +481,22 @@ fn an_https_cache_pushes_its_dev_shell_before_the_gate() -> Result<(), String> {
 }
 
 #[test]
+fn an_https_push_checks_its_dev_shell_output_fatally_before_the_gate()
+-> Result<(), String> {
+    let text = write(&built(&hidden("-")?)?);
+    let check = text.find("devShells.$(nix eval").ok_or("no output check")?;
+    let push = text.find("push-https.sh").ok_or("no push")?;
+    let gate = text.find("hk check --all --check").ok_or("no gate")?;
+    assert!(check < push && push < gate, "{text}");
+    assert!(!text[check..push].contains("continue-on-error"), "{text}");
+    assert!(
+        text[push..gate].contains("continue-on-error: true"),
+        "{text}"
+    );
+    Ok(())
+}
+
+#[test]
 fn cache_push_false_on_https_only_reads() -> Result<(), String> {
     let row = hidden("cache-push=false")?;
     assert_eq!(secret_names(&row), ["HIDDEN_URL", "HIDDEN_KEY"]);
